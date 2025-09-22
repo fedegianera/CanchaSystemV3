@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="/make-reservation.css" />
+  <meta charset="UTF-8">
+  <title>Hacer Reserva</title>
+</head>
+<body>
+<h1>Reservar Cancha</h1>
+
+<div id="detalleCancha">
+  <p>Cargando información de la cancha...</p>
+</div>
+
+<form id="formReserva">
+  <label for="fecha">Fecha del partido:</label>
+  <input type="date" id="fecha" name="fecha" required><br><br>
+
+  <label for="horario">Horario disponible:</label>
+  <select id="horario" name="horario" required>
+    <option value="">Seleccioná una fecha primero</option>
+  </select><br><br>
+
+  <button type="submit">Confirmar reserva</button>
+
+  <button onclick="window.location.href='/client-canchas.html'" class="btn-volver">Volver</button>
+</form>
+
+<script src="make-reservation.js"></script>
+</body>
+</html>

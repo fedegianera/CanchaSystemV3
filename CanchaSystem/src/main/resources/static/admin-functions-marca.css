@@ -1,0 +1,171 @@
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 30px;
+  max-width: 700px;
+  margin: auto;
+}
+
+h1 {
+  text-align: center;
+  color: #00ff77;
+  margin-bottom: 30px;
+}
+
+label {
+  margin-right: 10px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+input[type="text"] {
+  padding: 8px;
+  margin: 6px 0;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+input[type="text"]::placeholder {
+  color: #aaaaaa;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: #00ff77;
+}
+
+input[type="checkbox"] {
+  margin-left: 8px;
+  transform: scale(1.2);
+}
+
+select {
+  padding: 6px;
+  border-radius: 6px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border: 1px solid #444;
+  margin-left: 5px;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+#listaMarcas li {
+  background-color: #1c1c1c;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 255, 119, 0.15);
+}
+
+button {
+  background-color: #00ff77;
+  color: #121212;
+  border: none;
+  padding: 10px 14px;
+  margin: 6px 10px 0 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00cc66;
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #333;
+  margin-top: 15px;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  input[type="text"],
+  select {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.left-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.right-earnings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.earnings-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #00ff77;
+}
+
+.earnings-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.earnings-buttons button {
+  background-color: #333;
+  color: #eeeeee;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid #00ff77;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.earnings-buttons button:hover {
+  background-color: #006633;
+}

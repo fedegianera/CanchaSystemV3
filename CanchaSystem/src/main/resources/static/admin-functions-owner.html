@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="admin-functions-owner.css">
+  <meta charset="UTF-8">
+  <title>Funciones dueños</title>
+</head>
+<body>
+<h1>Funciones dueños</h1>
+
+<input type="text" id="filtroNombre" placeholder="Filtrar por nombre o apellido...">
+<button onclick="mostrarTodos()">Mostrar todos</button>
+<br><br>
+
+<button onclick="location.href='home-admin.html'" class="btn-volver">Volver al menú principal</button>
+
+<h2 id="formTitulo">Agregar dueño</h2>
+<form id="formOwner">
+  <input type="hidden" name="id">
+  <input type="text" name="name" placeholder="Nombre" required><br>
+  <input type="text" name="lastName" placeholder="Apellido" required><br>
+  <input type="text" name="username" placeholder="Username" required><br>
+  <input type="email" name="mail" placeholder="Email"><br>
+  <input type="text" name="cellNumber" placeholder="Celular"><br>
+  <input type="password" name="password" placeholder="Contraseña"><br>
+  <button type="submit" id="btnGuardar">Guardar</button>
+  <button type="button" onclick="cancelarEdicion()" class="btn-cancelar">Cancelar</button>
+</form>
+
+<hr>
+
+<ul id="listaOwners"></ul>
+
+<script>
+  let owners = [];
+
+  async function cargarOwners() {
+    try {
+      const res = await fetch("http://localhost:8080/owner/findall", {
+        credentials: "include"
+      });
+      owners = await res.json();
+      mostrarOwners(owners);
+    } catch (e) {
+      console.error("Error al cargar dueños:", e);
+    }
+  }
+
+  function mostrarOwners(lista) {
+    const ul = document.getElementById("listaOwners");
+    ul.innerHTML = "";
+
+    if (lista.length === 0) {
+      ul.innerHTML = "<li>No se encontraron dueños.</li>";
+      return;
+    }
+
+    lista.forEach(o => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <strong>${o.name}</strong> ${o.lastName} - (${o.username}) - ${o.mail ?? "-"}
+        <button onclick='cargarFormulario(${JSON.stringify(o)})'>Modificar</button>
+        <button onclick="eliminarOwner(${o.id})" class="btn-eliminar">Eliminar</button>
+      `;
+      ul.appendChild(li);
+    });
+  }
+
+  document.getElementById("filtroNombre").addEventListener("input", () => {
+    const filtro = document.getElementById("filtroNombre").value.toLowerCase();
+    const filtrados = owners.filter(o =>
+      o.name.toLowerCase().includes(filtro) ||
+      o.lastName.toLowerCase().includes(filtro)
+    );
+    mostrarOwners(filtrados);
+  });
+
+  function mostrarTodos() {
+    mostrarOwners(owners);
+  }
+
+  function cargarFormulario(owner) {
+    const form = document.forms["formOwner"];
+    document.getElementById("formTitulo").innerText = "Modificar dueño";
+    form.id.value = owner.id;
+    form.name.value = owner.name;
+    form.lastName.value = owner.lastName;
+    form.username.value = owner.username;
+    form.mail.value = owner.mail ?? "";
+    form.cellNumber.value = owner.cellNumber ?? "";
+    form.password.placeholder = "(opcional)";
+    form.password.value = "";
+  }
+
+  function cancelarEdicion() {
+    const form = document.forms["formOwner"];
+    form.reset();
+    form.id.value = "";
+    document.getElementById("formTitulo").innerText = "Agregar dueño";
+    form.password.placeholder = "Contraseña";
+  }
+
+  async function eliminarOwner(id) {
+    if (!confirm("¿Seguro que querés eliminar este dueño?")) return;
+
+    try {
+      await fetch(`http://localhost:8080/owner/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      alert("Dueño eliminado");
+      cargarOwners();
+    } catch (e) {
+      console.error("Error al eliminar dueño:", e);
+      alert("Error al eliminar dueño");
+    }
+  }
+
+  document.getElementById("formOwner").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    const esUpdate = data.id !== "";
+    if (!esUpdate && !data.password) {
+      alert("La contraseña es obligatoria al crear un dueño.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8080/owner/${esUpdate ? "updateAdmin" : "insert"}`, {
+        method: esUpdate ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include"
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText);
+      }
+
+      alert(esUpdate ? "Dueño modificado" : "Dueño creado");
+      cancelarEdicion();
+      await cargarOwners();
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + err.message);
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", cargarOwners);
+</script>
+</body>
+</html>

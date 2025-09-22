@@ -1,0 +1,114 @@
+body {
+  background-color: #0a0a0a;
+  color: #f0f0f0;
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  margin: 0;
+}
+
+h1 {
+  color: #00ff77;
+  margin-bottom: 40px;
+  text-align: center;
+  user-select: none;
+}
+
+table {
+  width: 100%;
+  max-width: 800px;
+  border-collapse: collapse;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 255, 119, 0.4);
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+  text-align: center;
+}
+
+th {
+  background-color: #00aa55;
+  color: white;
+  user-select: none;
+}
+
+button {
+  width: 230px;
+  padding: 10px;
+  background-color: #00ff77;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  margin-top: 20px;
+  user-select: none;
+}
+
+button:hover {
+  background-color: #00cc66;
+}
+
+.accept {
+  background-color: #00c853;
+  box-shadow: 0 0 8px #00c853bb;
+  color: #000;
+}
+
+.accept:hover {
+  background-color: #00a94d;
+  box-shadow: 0 0 12px #009944bb;
+}
+
+.reject {
+  background-color: #d50000;
+  box-shadow: 0 0 8px #d50000bb;
+  color: white;
+}
+
+.reject:hover {
+  background-color: #b71c1c;
+  box-shadow: 0 0 12px #b71c1cbb;
+}
+
+.volver-btn {
+  margin-top: 20px;
+  background-color: #555;
+  color: #eee;
+  box-shadow: 0 0 8px #666666bb;
+}
+
+.volver-btn:hover {
+  background-color: #333;
+  box-shadow: 0 0 12px #444444bb;
+}
+
+.message {
+  margin-top: 20px;
+  font-weight: bold;
+  color: #00ff77;
+  text-align: center;
+  user-select: none;
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+  box-shadow: 0 0 8px #ff4d4d;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}

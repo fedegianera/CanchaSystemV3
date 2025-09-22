@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="admin-functions-client.css">
+  <meta charset="UTF-8">
+  <title>Funciones clientes</title>
+</head>
+<body>
+<h1>Funciones clientes</h1>
+
+<input type="text" id="filtroNombre" placeholder="Filtrar por nombre o apellido...">
+<button onclick="mostrarTodos()">Mostrar todos</button>
+<button onclick="location.href='home-admin.html'" class="btn-volver">Volver al menú principal</button>
+<br><br>
+
+<h2 id="formTitulo">Agregar cliente</h2>
+<form id="formCliente">
+  <input type="hidden" name="id">
+  <input type="text" name="name" placeholder="Nombre" required><br>
+  <input type="text" name="lastName" placeholder="Apellido" required><br>
+  <input type="text" name="username" placeholder="Username" required><br>
+  <input type="email" name="mail" placeholder="Email" required><br>
+  <input type="text" name="cellNumber" placeholder="Celular" required><br>
+  <input type="password" name="password" placeholder="Contraseña"><br>
+  <button type="submit" id="btnGuardar">Guardar</button>
+  <button type="button" onclick="cancelarEdicion()" class="btn-cancelar">Cancelar</button>
+</form>
+
+<hr>
+
+<ul id="listaClientes"></ul>
+
+<script>
+  let clientes = [];
+
+  async function cargarClientes() {
+    try {
+      const res = await fetch("http://localhost:8080/client/findall", {
+        credentials: "include"
+      });
+      clientes = await res.json();
+      mostrarClientes(clientes);
+    } catch (e) {
+      console.error("Error al cargar clientes:", e);
+    }
+  }
+
+  function mostrarClientes(lista) {
+    const ul = document.getElementById("listaClientes");
+    ul.innerHTML = "";
+
+    if (lista.length === 0) {
+      ul.innerHTML = "<li>No se encontraron clientes.</li>";
+      return;
+    }
+
+    lista.forEach(c => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <strong>${c.name}</strong> ${c.lastName} - (${c.username}) - ${c.mail}
+        <button onclick='cargarFormulario(${JSON.stringify(c)})'>Modificar</button>
+        <button onclick="eliminarCliente(${c.id})" class="btn-eliminar">Eliminar</button>
+      `;
+      ul.appendChild(li);
+    });
+  }
+
+  document.getElementById("filtroNombre").addEventListener("input", () => {
+    const filtro = document.getElementById("filtroNombre").value.toLowerCase();
+    const filtrados = clientes.filter(c =>
+      c.name.toLowerCase().includes(filtro) ||
+      c.lastName.toLowerCase().includes(filtro)
+    );
+    mostrarClientes(filtrados);
+  });
+
+  function mostrarTodos() {
+    mostrarClientes(clientes);
+  }
+
+  function cargarFormulario(cliente) {
+    const form = document.forms["formCliente"];
+    document.getElementById("formTitulo").innerText = "Modificar cliente";
+    form.id.value = cliente.id;
+    form.name.value = cliente.name;
+    form.lastName.value = cliente.lastName;
+    form.username.value = cliente.username;
+    form.mail.value = cliente.mail;
+    form.cellNumber.value = cliente.cellNumber;
+    form.password.placeholder = "(opcional)";
+    form.password.value = "";
+  }
+
+  function cancelarEdicion() {
+    const form = document.forms["formCliente"];
+    form.reset();
+    form.id.value = "";
+    document.getElementById("formTitulo").innerText = "Agregar cliente";
+    form.password.placeholder = "Contraseña";
+  }
+
+  async function eliminarCliente(id) {
+    if (!confirm("¿Seguro que querés eliminar este cliente?")) return;
+
+    try {
+      await fetch(`http://localhost:8080/client/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include"
+      });
+      alert("Cliente eliminado");
+      cargarClientes();
+    } catch (e) {
+      console.error("Error al eliminar cliente:", e);
+      alert("Error al eliminar cliente");
+    }
+  }
+
+  document.getElementById("formCliente").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    const esUpdate = data.id !== "";
+    if (!esUpdate && !data.password) {
+      alert("La contraseña es obligatoria al crear un cliente.");
+      return;
+    }
+
+    if (!validarEmail(data.mail)) {
+      alert("El email no tiene un formato válido.");
+      return;
+    }
+
+    const emailValido = await validarEmailConAPI(data.mail);
+    if (!emailValido) {
+      alert("El email ingresado no es válido");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:8080/client/${esUpdate ? "updateAdmin" : "insert"}`, {
+        method: esUpdate ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include"
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText);
+      }
+
+      alert(esUpdate ? "Cliente modificado" : "Cliente creado");
+      cancelarEdicion();
+      await cargarClientes();
+    } catch (err) {
+      console.error(err);
+      alert("Error: " + err.message);
+    }
+  });
+
+  function validarEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  async function validarEmailConAPI(email) {
+    const apiKey = 'be22398a0ca646a08843a2d4ff1f8970';
+    const verifyUrl = `https://emailvalidation.abstractapi.com/v1/?api_key=${apiKey}&email=${encodeURIComponent(email)}`;
+
+    try {
+      const response = await fetch(verifyUrl);
+      const data = await response.json();
+      return data.deliverability === "DELIVERABLE" && data.is_valid_format.value === true;
+    } catch (error) {
+      console.error("Error al validar el correo con AbstractAPI:", error);
+      return false;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", cargarClientes);
+</script>
+</body>
+</html>

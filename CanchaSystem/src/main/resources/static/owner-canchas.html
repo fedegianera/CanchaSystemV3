@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="stylesheet" href="owner-canchas.css">
+    <meta charset="UTF-8">
+    <title>Canchas Disponibles</title>
+    <style>
+        .star {
+          font-size: 24px;
+          cursor: pointer;
+          color: gray;
+        }
+        .star.selected {
+          color: gold;
+        }
+    </style>
+</head>
+<body>
+<h1>Canchas Disponibles</h1>
+
+<div class="filtros">
+    <div class="filtro-item">
+        <label for="filtroNombre">Nombre</label>
+        <input type="text" id="filtroNombre" placeholder="Ej: Cancha Norte">
+    </div>
+
+    <div class="filtro-item">
+        <label for="filtroTipo">Tipo</label>
+        <select id="filtroTipo">
+            <option value="">Todos</option>
+            <option value="FUTBOL_5">Fútbol 5</option>
+            <option value="FUTBOL_7">Fútbol 7</option>
+            <option value="FUTBOL_11">Fútbol 11</option>
+        </select>
+    </div>
+
+    <div class="filtro-check">
+        <input type="checkbox" id="filtroTecho" />
+        <label for="filtroTecho">Con techo</label>
+    </div>
+
+    <div class="filtro-check">
+        <input type="checkbox" id="filtroDucha" />
+        <label for="filtroDucha">Con ducha</label>
+    </div>
+
+    <button onclick="window.location.href='/home-owner.html'" class="btn-volver">Volver</button>
+</div>
+
+
+<ul id="listaCanchas"></ul>
+
+<script src="owner-canchas.js"></script>
+</body>
+</html>

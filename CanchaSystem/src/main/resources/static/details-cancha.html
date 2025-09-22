@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="details-cancha.css">
+  <meta charset="UTF-8">
+  <title>Detalles de la Cancha</title>
+  <button onclick="window.history.back()" class="btn-volver">Volver</button>
+  <style>
+    .star {
+      font-size: 22px;
+      color: gray;
+      cursor: pointer;
+    }
+    .star.selected {
+      color: gold;
+    }
+  </style>
+</head>
+<body>
+<h1>Detalles de la Cancha</h1>
+<div id="detalleCancha"></div>
+
+<hr>
+
+<h2>Reservar</h2>
+<form id="formReserva">
+  <label>Fecha:</label>
+  <input type="date" id="fechaInput" required><br>
+
+  <label>Horario:</label>
+  <select id="horarioSelect" required>
+    <option>Seleccioná una fecha primero</option>
+  </select><br><br>
+
+  <button type="submit">Confirmar Reserva</button>
+</form>
+
+<hr>
+
+<h2 id="tituloResena">Dejar Reseña</h2>
+<div id="seccionResena">
+  <div id="stars"></div>
+  <input type="hidden" id="rating">
+  <br>
+  <label>Comentario:</label><br>
+  <textarea id="comentario" rows="4" cols="40"></textarea><br>
+  <button onclick="enviarResena()">Enviar Reseña</button>
+</div>
+
+<hr>
+
+<h2>Reseñas de otros usuarios</h2>
+<ul id="listaResenas"></ul>
+
+<script src="details-cancha.js"></script>
+</body>
+</html>

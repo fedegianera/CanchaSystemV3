@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="/details-my-cancha-owner.css">
+  <meta charset="UTF-8">
+  <title>Detalles de la Cancha</title>
+  <style>
+    .star {
+      font-size: 22px;
+      color: gray;
+      cursor: pointer;
+    }
+    .star.selected {
+      color: gold;
+    }
+  </style>
+</head>
+<body>
+<h1>Detalles de la Cancha</h1>
+<button class="btn-volver" onclick="window.history.back()">Volver</button>
+<div id="detalleCancha"></div>
+
+<h2>Reservas pendientes</h2>
+<ul id="listaReservasPendientes"></ul>
+
+<h2>Reservas canceladas</h2>
+<ul id="listaReservasCanceladas"></ul>
+
+<h2>Reseñas</h2>
+<ul id="listaResenas"></ul>
+
+<script src="details-my-cancha-owner.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="home-owner.css">
+  <meta charset="UTF-8">
+  <title>Menu Dueño</title>
+</head>
+<body>
+<h1 id="salute"></h1>
+<label id="balance" style="font-size: 18px;">Saldo: Cargando...</label>
+<br>
+
+<button onclick="location.href='owner-profile.html'">Mi perfil</button>
+<button onclick="location.href='owner-canchas.html'">Canchas disponibles</button>
+<button onclick="location.href='owner-brands.html'">Mis marcas</button>
+<button id="logoutBtn" class="btn-eliminar">Cerrar sesión</button>
+</body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+
+      const res = await fetch("http://localhost:8080/owner/name", {
+        credentials: "include"
+      });
+      const data = await res.json();
+
+
+      document.getElementById("salute").textContent = `¡Bienvenido ${data.name || "Dueño"}!`;
+
+
+      const balanceElement = document.getElementById("balance");
+      if (typeof data.bankOwner === "number") {
+        balanceElement.textContent = `Saldo: $${data.bankOwner.toFixed(2)}`;
+      } else {
+        balanceElement.textContent = "Saldo: No disponible";
+      }
+    } catch (e) {
+      console.error("Error al obtener información del dueño:", e);
+      document.getElementById("balance").textContent = "Saldo: Error al cargar";
+    }
+  });
+</script>
+<script src="/logout.js"></script>
+</html>

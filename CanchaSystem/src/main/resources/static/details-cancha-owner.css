@@ -1,0 +1,126 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #121212;
+  color: #e0f8e0;
+  padding: 30px;
+  max-width: 800px;
+  margin: auto;
+}
+
+h1, h2 {
+  color: #00ff77;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+#detalleCancha {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 6px #00ff7755;
+  line-height: 1.6;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 4px #00ff7733;
+  color: #e0f8e0;
+}
+
+li strong {
+  color: #00ff77;
+  font-size: 16px;
+}
+
+.star {
+  font-size: 22px;
+  color: gray;
+  cursor: default;
+}
+
+.star.selected {
+  color: gold;
+}
+
+button {
+  display: block;
+  margin: 30px auto 0;
+  padding: 10px 20px;
+  background-color: #00ff77;
+  border: none;
+  border-radius: 6px;
+  color: #000;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #009944;
+}
+
+button.cancel,
+button.delete,
+button.logout {
+  background-color: #e53935;
+  color: white;
+  box-shadow: 0 3px 6px rgba(229, 57, 53, 0.6);
+  margin: 10px auto 0;
+}
+
+button.cancel:hover,
+button.delete:hover,
+button.logout:hover {
+  background-color: #b71c1c;
+  box-shadow: 0 3px 6px rgba(183, 28, 28, 0.8);
+}
+
+button.back,
+button.volver {
+  background-color: #666666;
+  color: white;
+  margin: 10px auto 0;
+}
+
+button.back:hover,
+button.volver:hover {
+  background-color: #444444;
+}
+
+hr {
+  border: none;
+  height: 1px;
+  background-color: #333;
+  margin-top: 10px;
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}

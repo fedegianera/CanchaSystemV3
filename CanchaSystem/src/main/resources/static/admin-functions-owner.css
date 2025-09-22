@@ -1,0 +1,186 @@
+
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 30px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+h1, h2 {
+  text-align: center;
+  color: #00ff77;
+  margin-bottom: 30px;
+}
+
+h2 {
+  margin-top: 40px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="time"],
+input[type="hidden"],
+select {
+  padding: 8px 10px;
+  margin: 6px 0 12px 0;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background-color: #1f1f1f;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #00ff77;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.2);
+  margin-left: 6px;
+}
+
+button {
+  background-color: #00ff77;
+  color: #121212;
+  border: none;
+  padding: 10px 16px;
+  margin: 6px 8px 12px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00cc66;
+}
+
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #1c1c1c;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 0 5px rgba(0, 255, 119, 0.15);
+}
+
+li button {
+  margin-left: 8px;
+}
+
+.actions-bar,
+.cancha-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.left-buttons,
+.right-earnings,
+.earnings-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.earnings-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #00ff77;
+}
+
+.earnings-buttons button {
+  background-color: #333;
+  color: #eee;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid #00ff77;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.earnings-buttons button:hover {
+  background-color: #006633;
+}
+
+form {
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 10px rgba(0, 255, 119, 0.3);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 30px 0;
+}
+
+#filtroNombre,
+#filtroTipo {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background-color: #1f1f1f;
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  button {
+    width: 100% !important;
+    margin-bottom: 10px;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  li {
+    padding: 14px;
+  }
+}

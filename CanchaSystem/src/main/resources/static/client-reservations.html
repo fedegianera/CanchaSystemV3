@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="/client-reservations.css" >
+  <meta charset="UTF-8">
+  <title>Mis reservas</title>
+  <button onclick="window.location.href='/home-client.html'" class="btn-volver">Volver</button>
+  <style>
+    h2 {
+      margin-top: 20px;
+    }
+    li {
+      margin-bottom: 10px;
+    }
+    .cancel-btn {
+      background-color: crimson;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body style="font-family: sans-serif; padding: 20px;">
+<h1>Mis reservas</h1>
+
+<h2>🟡 Pendientes</h2>
+<ul id="reservasPendientes"></ul>
+
+<h2>📋 Finalizadas</h2>
+<ul id="reservasFinalizadas"></ul>
+
+<script src="client-reservations.js"></script>
+</body>
+</html>

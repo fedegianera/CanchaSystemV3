@@ -1,0 +1,116 @@
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 40px;
+  max-width: 800px;
+  margin: auto;
+}
+
+h1, h2 {
+  color: #00ff77;
+  text-align: center;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="hidden"] {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+input::placeholder {
+  color: #aaaaaa;
+}
+
+button {
+  background-color: #00ff77;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  margin: 8px 4px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00cc66;
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}
+
+form {
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 10px rgba(0, 255, 119, 0.3);
+}
+
+#listaClientes li {
+  background-color: #1f1f1f;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  list-style: none;
+}
+
+#listaClientes li button {
+  margin-left: 8px;
+}
+
+#listaClientes li button:hover {
+  background-color: #00cc66;
+}
+
+input#filtroNombre {
+  width: calc(100% - 140px);
+  display: inline-block;
+}
+
+button[onclick*="mostrarTodos"] {
+  display: inline-block;
+  margin-top: 0;
+}
+
+ul li .btn-cancelar,
+ul li .btn-eliminar,
+ul li .btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+ul li .btn-cancelar:hover,
+ul li .btn-eliminar:hover,
+ul li .btn-logout:hover {
+  background-color: #cc0000;
+}

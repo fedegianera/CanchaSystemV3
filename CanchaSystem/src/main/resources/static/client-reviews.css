@@ -1,0 +1,170 @@
+body {
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
+}
+
+h1 {
+  color: #00ff77;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+ul#listaReseñas {
+  list-style: none;
+  padding: 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+ul#listaReseñas li {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 0 10px rgba(0, 255, 119, 0.2);
+}
+
+ul#listaReseñas strong {
+  font-size: 1.2em;
+  color: #00ff77;
+}
+
+div[id^="stars-"] {
+  margin: 8px 0;
+}
+
+.star {
+  font-size: 24px;
+  color: gray;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+.star.selected {
+  color: gold;
+}
+
+.star:hover,
+.star:hover ~ .star {
+  color: #00ff77;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 8px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+textarea.readonly {
+  background-color: #222;
+  color: #cccccc;
+  border: none;
+  cursor: default;
+}
+
+textarea.editable {
+  background-color: #1a1a1a;
+  border: 1px solid #00ff77;
+  color: #ffffff;
+}
+
+textarea.editable:focus {
+  outline: none;
+  border-color: #00cc6e;
+  box-shadow: 0 0 5px #00cc6e;
+}
+
+button {
+  background-color: #00ff77;
+  color: #121212;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-right: 8px;
+  transition: background-color 0.3s ease;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #00cc6e;
+}
+
+button:disabled,
+button[disabled] {
+  background-color: #555;
+  cursor: not-allowed;
+  color: #999;
+}
+
+button.btn-cancelar,
+button.btn-eliminar,
+button.btn-logout {
+  background-color: #ff4d4d;
+  color: #ffffff;
+}
+
+button.btn-cancelar:hover,
+button.btn-eliminar:hover,
+button.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+button.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+button.btn-volver:hover {
+  background-color: #666666;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #333;
+  margin: 15px 0;
+}
+
+@media (max-width: 600px) {
+  ul#listaReseñas li {
+    padding: 10px 15px;
+  }
+
+  button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}

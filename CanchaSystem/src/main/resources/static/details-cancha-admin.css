@@ -1,0 +1,130 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 20px;
+  background-color: #121212;
+  color: #e0f8e0;
+}
+
+h1, h2 {
+  color: #00ff77;
+  text-shadow: 0 0 6px #007733;
+}
+
+#detalleCancha {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px #00ff77;
+  font-size: 1.1em;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+ul li {
+  background-color: #222;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px #00ff77;
+  font-size: 0.95em;
+  line-height: 1.4;
+  color: #e0f8e0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #00ff77;
+  margin: 10px 0 0 0;
+}
+
+button {
+  background-color: #00ff77;
+  color: #121212;
+  border: none;
+  padding: 8px 14px;
+  margin-top: 10px;
+  margin-right: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.95em;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+  background-color: #009944;
+}
+
+.star {
+  font-size: 24px;
+  color: #00ff77;
+  cursor: default;
+  user-select: none;
+  text-shadow: 0 0 4px #007733;
+}
+
+.star.selected {
+  color: #a0f0a0;
+}
+
+span {
+  user-select: none;
+}
+
+li span[style*="color:red"] {
+  color: #ff3b3b;
+  font-weight: bold;
+  text-shadow: 0 0 4px #900000;
+}
+
+li span[style*="color:green"] {
+  color: #00ff77;
+  font-weight: bold;
+  text-shadow: 0 0 5px #007722;
+}
+
+li span[style*="color:blue"] {
+  color: #3399ff;
+  font-weight: bold;
+  text-shadow: 0 0 5px #004477;
+}
+
+@media (max-width: 480px) {
+  body {
+    margin: 10px;
+  }
+  button {
+    padding: 6px 12px;
+    font-size: 0.9em;
+  }
+  #detalleCancha {
+    font-size: 1em;
+  }
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}

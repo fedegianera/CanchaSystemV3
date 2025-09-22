@@ -1,0 +1,30 @@
+Role
+Admin
+Owner
+    Create dashboard with stadistics
+Client
+    Fix notifications
+Cancha (multiple) (patron Builder)
+    CanchaType
+    Cancha can define refund policy
+    If Cancha is under maintenance client can see
+CanchaBrand?
+Reservation
+    Can make reservations in multiple hours/multiple days
+    Recurrent reservations
+    Implement QRs and pays simulation
+    Implement refund 
+    ReservationStatus	
+Review
+OwnerRequest
+    OwnerRequestStatus
+-fix mail
+-implement DTOs
+-implement triggers (auditorias)
+-transactions 
+-improve security JWT
+-patrones a implementar
+ 1 Factory Method
+ 2 Obserever/Event Listener
+ 3 Strategy
+ 4 Template Method

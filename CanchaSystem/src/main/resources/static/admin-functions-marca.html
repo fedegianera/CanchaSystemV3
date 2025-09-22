@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Marcas</title>
+  <link rel="stylesheet" href="admin-functions-marca.css">
+  <script defer src="admin-functions-marca.js"></script>
+</head>
+<body>
+
+<h1>Lista de Marcas</h1>
+
+<label>Buscar por nombre:</label>
+<input type="text" id="filtroNombre" placeholder="Nombre de marca">
+
+<label>Estado:</label>
+<select id="filtroEstado">
+  <option value="">Todos</option>
+  <option value="activa">Activas</option>
+  <option value="inactiva">Inactivas</option>
+</select>
+<button onclick="location.href='home-admin.html'" class="btn-volver">Volver</button>
+
+<br><br>
+
+<ul id="listaMarcas"></ul>
+
+</body>
+</html>

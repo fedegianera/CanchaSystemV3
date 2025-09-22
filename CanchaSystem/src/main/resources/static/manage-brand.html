@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Gestionar Marca</title>
+    <link rel="stylesheet" href="manage-brand.css" />
+    <script defer src="manage-brand.js"></script>
+</head>
+<body>
+<h1>Marca: <span id="brand-name"></span></h1>
+
+<div class="action-bar">
+    <button id="btn-show-form">Agregar Cancha</button>
+    <button id="btn-eliminar-marca" class="btn-eliminar">Eliminar Marca</button>
+    <button id="btn-volver" class="btn-volver">Volver</button>
+</div>
+
+<div id="cancha-form" style="display: none;">
+    <form id="newCanchaForm">
+        <h2>Agregar Cancha</h2>
+        <label>Nombre: <input name="name" id="name" required /></label><br />
+        <label>Dirección: <input name="address" id="address" required /></label><br />
+        <label>Precio Total: <input name="totalAmount" id="totalAmount" type="number" step="0.01" required /></label><br />
+        <label>Apertura: <input name="openingHour" id="openingHour" type="time" required /></label><br />
+        <label>Cierre: <input name="closingHour" id="closingHour" type="time" required /></label><br />
+        <label>¿Activa?: <input type="checkbox" name="working" id="working" /></label><br />
+        <label>¿Tiene Techo?: <input type="checkbox" name="hasRoof" id="hasRoof" /></label><br />
+        <label>¿Tiene Ducha?: <input type="checkbox" name="canShower" id="canShower" /></label><br />
+        <label>Tipo:
+            <select name="canchaType" id="canchaType">
+                <option value="FUTBOL_5">Fútbol 5</option>
+                <option value="FUTBOL_7">Fútbol 7</option>
+                <option value="FUTBOL_11">Fútbol 11</option>
+            </select>
+        </label><br /><br />
+        <button type="submit">Agregar Cancha</button>
+        <button type="button" id="btn-cancel" class="btn-cancelar">Cancelar</button>
+    </form>
+</div>
+
+<div id="cancha-list-container"></div>
+</body>
+</html>

@@ -1,0 +1,114 @@
+body {
+  background-color: #0a0a0a;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+h1#salute {
+  color: #00ff77;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  text-align: center;
+  user-select: none;
+}
+
+button,
+form#addMoneyForm button {
+  width: 240px;
+  padding: 12px 0;
+  margin: 10px 0;
+  background-color: #00ff77;
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+button:hover,
+form#addMoneyForm button:hover {
+  background-color: #00cc66;
+}
+
+#logoutBtn {
+  display: block;
+  user-select: none;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #00ff77;
+  user-select: none;
+}
+
+form#addMoneyForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5px;
+}
+
+form#addMoneyForm label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #00ff77;
+  user-select: none;
+}
+
+form#addMoneyForm input[type="number"] {
+  background-color: #828282;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  margin-bottom: 12px;
+  font-size: 16px;
+  outline: none;
+  width: 220px;
+  color: #000;
+  user-select: text;
+}
+
+form#addMoneyForm input[type="number"]:focus {
+  box-shadow: 0 0 5px #00ff77;
+  outline: none;
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}
+
+.disabled-btn {
+  background-color: #666 !important;
+  color: #ccc !important;
+  cursor: not-allowed;
+}

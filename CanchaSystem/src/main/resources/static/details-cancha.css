@@ -1,0 +1,179 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  max-width: 700px;
+  margin: auto;
+  line-height: 1.5;
+}
+
+h1, h2 {
+  color: #00ff77;
+  margin-bottom: 12px;
+  font-weight: 700;
+  text-align: center;
+  user-select: none;
+}
+
+#detalleCancha {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 0 8px rgba(0, 255, 119, 0.4);
+  font-size: 1.1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #b0f2b0;
+}
+
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background-color: #222;
+  color: #ddd;
+  font-size: 1rem;
+  margin-bottom: 16px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #00ff77;
+  background-color: #2b2b2b;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+button {
+  background-color: #00ff77;
+  color: #121212;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.25s ease;
+  display: block;
+  margin: 0 auto 30px auto;
+  box-shadow: 0 4px 6px rgba(0, 255, 119, 0.5);
+}
+
+button:hover {
+  background-color: #00cc6e;
+}
+
+button:active {
+  background-color: #009944;
+  box-shadow: none;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 30px 0;
+}
+
+.star {
+  font-size: 28px;
+  color: gray;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s ease;
+  margin-right: 5px;
+}
+
+.star.selected {
+  color: gold;
+}
+
+#listaResenas {
+  list-style: none;
+  padding-left: 0;
+}
+
+#listaResenas li {
+  background-color: #1f1f1f;
+  margin-bottom: 18px;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0, 255, 119, 0.3);
+  font-size: 1rem;
+}
+
+#listaResenas hr {
+  margin-top: 10px;
+  margin-bottom: 0;
+  border-color: #444;
+}
+
+#listaResenas li:first-child {
+  font-style: italic;
+  color: #bbb;
+  text-align: center;
+}
+
+#formReserva label,
+#seccionResena label {
+  margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 15px;
+    font-size: 0.9rem;
+  }
+
+  .star {
+    font-size: 24px;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+
+.btn-cancelar,
+.btn-eliminar,
+.btn-logout {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.btn-cancelar:hover,
+.btn-eliminar:hover,
+.btn-logout:hover {
+  background-color: #cc0000;
+}
+
+.btn-volver {
+  background-color: #888888;
+  color: white;
+}
+
+.btn-volver:hover {
+  background-color: #666666;
+}
+

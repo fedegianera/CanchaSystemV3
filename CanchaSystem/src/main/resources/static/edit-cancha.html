@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="edit-cancha.css">
+  <meta charset="UTF-8" />
+  <title>Editar Cancha</title>
+</head>
+<body>
+<h1>Editar Cancha</h1>
+
+<form id="edit-form">
+  <label>Nombre: <input id="name" name="name" required /></label><br />
+  <label>Dirección: <input id="address" name="address" required /></label><br />
+  <label>Precio Total: <input id="totalAmount" name="totalAmount" type="number" step="0.01" required /></label><br />
+  <label>Apertura: <input id="openingHour" name="openingHour" type="time" required /></label><br />
+  <label>Cierre: <input id="closingHour" name="closingHour" type="time" required /></label><br />
+  <label>¿Está funcionando?: <input type="checkbox" id="working" name="working" /></label><br />
+  <label>¿Tiene Techo?: <input type="checkbox" id="hasRoof" name="hasRoof" /></label><br />
+  <label>¿Tiene Ducha?: <input type="checkbox" id="canShower" name="canShower" /></label><br />
+  <label>Tipo:
+    <select id="canchaType" name="canchaType">
+      <option value="FUTBOL_5">Fútbol 5</option>
+      <option value="FUTBOL_7">Fútbol 7</option>
+      <option value="FUTBOL_11">Fútbol 11</option>
+    </select>
+  </label><br /><br />
+
+  <button type="submit">Guardar Cambios</button>
+  <button type="button" onclick="window.history.back()">Cancelar</button>
+</form>
+
+</body>
+</html>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+    const params = new URLSearchParams(window.location.search);
+    const canchaId = params.get("canchaId");
+
+    if (!canchaId) {
+      alert("ID de cancha no especificado.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/cancha/findCanchaById/${canchaId}`);
+      if (!res.ok) throw new Error("Error al obtener la cancha");
+
+      const cancha = await res.json();
+
+      document.getElementById("name").value = cancha.name;
+      document.getElementById("address").value = cancha.address;
+      document.getElementById("totalAmount").value = cancha.totalAmount;
+      document.getElementById("openingHour").value = cancha.openingHour;
+      document.getElementById("closingHour").value = cancha.closingHour;
+      document.getElementById("working").checked = cancha.working;
+      document.getElementById("hasRoof").checked = cancha.hasRoof;
+      document.getElementById("canShower").checked = cancha.canShower;
+      document.getElementById("canchaType").value = cancha.canchaType;
+
+      document.getElementById("edit-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+const data = {
+          id: canchaId,
+          name: document.getElementById("name").value,
+          address: document.getElementById("address").value,
+          totalAmount: parseFloat(document.getElementById("totalAmount").value),
+          openingHour: document.getElementById("openingHour").value,
+          closingHour: document.getElementById("closingHour").value,
+          working: document.getElementById("working").checked,
+          hasRoof: document.getElementById("hasRoof").checked,
+          canShower: document.getElementById("canShower").checked,
+          canchaType: document.getElementById("canchaType").value,
+          brand: { id: cancha.brand.id } // Corrección en la sintaxis de "brand"
+        };
+
+        try {
+          const res = await fetch("/cancha/updateMyCancha", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+          });
+
+          if (!res.ok) throw new Error("Error al actualizar la cancha");
+
+          alert("Cancha actualizada correctamente.");
+          window.location.href = "owner-brands.html";
+        } catch (err) {
+          alert(err.message);
+        }
+      });
+
+    } catch (err) {
+      alert("Ocurrió un error al cargar la cancha.");
+      console.error(err);
+    }
+  });
+</script>

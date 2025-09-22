@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="stylesheet" href="admin-functions-cancha.css">
+    <meta charset="UTF-8">
+    <title>Gestión de Canchas</title>
+</head>
+<body>
+<h1>Lista de Canchas</h1>
+
+<label>Buscar por nombre:</label>
+<input type="text" id="filtroNombre" placeholder="Nombre de cancha">
+
+<label>Tipo:</label>
+<select id="filtroTipo">
+    <option value="">Todos</option>
+    <option value="FUTBOL_5">Fútbol 5</option>
+    <option value="FUTBOL_7">Fútbol 7</option>
+    <option value="FUTBOL_11">Fútbol 11</option>
+</select>
+
+<label><input type="checkbox" id="filtroTecho"> Con techo</label>
+<label><input type="checkbox" id="filtroDucha"> Con ducha</label>
+
+<br><br>
+
+<button onclick="location.href='home-admin.html'" class="btn-volver">Volver</button>
+
+<ul id="listaCanchas"></ul>
+
+<script defer src="admin-functions-cancha.js"></script>
+</body>
+</html>

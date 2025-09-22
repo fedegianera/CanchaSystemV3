@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Mis Marcas</title>
+    <link rel="stylesheet" href="owner-brands.css" />
+    <script src="owner-brands.js" defer></script>
+</head>
+<body>
+<h1>Mis Marcas</h1>
+
+<div class="action-bar">
+    <button id="addBrandBtn">Agregar Marca</button>
+    <button onclick="location.href='home-owner.html'" class="btn-volver">Volver</button>
+</div>
+
+<div id="brand-list"></div>
+
+<div id="brandForm" style="display: none;">
+    <form id="newBrandForm">
+        <label>Nombre de la Marca:
+            <input type="text" id="brandNameInput" required />
+        </label>
+        <button type="submit">Crear Marca</button>
+    </form>
+</div>
+</body>
+</html>

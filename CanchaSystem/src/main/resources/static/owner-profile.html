@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="stylesheet" href="owner-profile.css">
+  <meta charset="UTF-8">
+  <title>Perfil del Dueño</title>
+  <style>
+    label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    input[readonly] {
+        background-color: #f0f0f0;
+        border: none;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .editable {
+        background-color: white;
+        border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+<h1>Mi Perfil</h1>
+<form id="formDueño">
+  <label>Nombre:
+    <input type="text" id="name" readonly>
+  </label>
+  <label>Apellido:
+    <input type="text" id="lastName" readonly>
+  </label>
+  <label>Username:
+    <input type="text" id="username" readonly>
+  </label>
+  <label>Email:
+    <input type="email" id="mail" readonly>
+  </label>
+  <label>Celular:
+    <input type="text" id="cellNumber" readonly>
+  </label>
+
+  <button type="button" onclick="habilitarEdicion()">Editar</button>
+  <button type="button" class="hidden" onclick="guardarCambios()">Guardar Cambios</button>
+  <button type="button" onclick="location.href='home-owner.html'">Volver</button>
+</form>
+
+<script src="owner-profile.js"></script>
+</body>
+</html>
