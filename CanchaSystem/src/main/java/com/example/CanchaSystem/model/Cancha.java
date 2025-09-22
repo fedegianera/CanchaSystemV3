@@ -10,6 +10,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -19,7 +20,7 @@ public class Cancha {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false, unique = true)
     @Size(
@@ -54,7 +55,7 @@ public class Cancha {
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private CanchaBrand brand;
+    private Brand brand;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

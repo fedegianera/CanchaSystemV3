@@ -7,13 +7,11 @@ import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
 import com.example.CanchaSystem.exception.owner.NoOwnersException;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.exception.owner.UnactiveOwnerException;
-import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.AdminRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.repository.RoleRepository;
-import org.hibernate.annotations.OnDelete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -119,10 +117,10 @@ public class OwnerService {
         if (!owner.isActive())
             throw new UnableToDropException("El dueño ya esta inactiva");
 
-        List<CanchaBrand> canchaBrands = canchaBrandService.findCanchaBrandsByOwnerUsername(owner.getUsername());
+        List<Brand> brands = canchaBrandService.findCanchaBrandsByOwnerUsername(owner.getUsername());
 
-        for (CanchaBrand canchaBrand : canchaBrands) {
-            canchaBrandService.deleteCanchaBrand(canchaBrand.getId());
+        for (Brand brand : brands) {
+            canchaBrandService.deleteCanchaBrand(brand.getId());
         }
 
         owner.setActive(false);

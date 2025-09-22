@@ -172,28 +172,28 @@ public class ReservationService {
         }
     }
 
-    @Scheduled(fixedRate = 60000)
-    public void notifyReservationCancel() {
-        List<Reservation> cancelled = reservationRepository.findByStatus(ReservationStatus.CANCELED);
-
-        if (cancelled.isEmpty()) return;
-
-        for (Reservation r : cancelled) {
-            Optional<Client> optionalClient = clientRepository.findByIdAndActive(r.getClient().getId(), true);
-
-            if (optionalClient.isPresent()) {
-                Client client = optionalClient.get();
-                mailService.sendReservationCancelNotice(client.getMail(), r);
-            }
-        }
-    }
+//    @Scheduled(fixedRate = 60000)
+//    public void notifyReservationCancel() {
+//        List<Reservation> cancelled = reservationRepository.findByStatus(ReservationStatus.CANCELED);
+//
+//        if (cancelled.isEmpty()) return;
+//
+//        for (Reservation r : cancelled) {
+//            Optional<Client> optionalClient = clientRepository.findByIdAndActive(r.getClient().getId(), true);
+//
+//            if (optionalClient.isPresent()) {
+//                Client client = optionalClient.get();
+//                mailService.sendReservationCancelNotice(client.getMail(), r);
+//            }
+//        }
+//    }
 
 
     public Optional<Owner> getOwnerFromReservation(Long reservationId) {
         return reservationRepository.findById(reservationId)
                 .map(Reservation::getCancha)
                 .map(Cancha::getBrand)
-                .map(CanchaBrand::getOwner);
+                .map(Brand::getOwner);
     }
 
 

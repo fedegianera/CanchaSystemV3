@@ -1,4 +1,5 @@
 package com.example.CanchaSystem.service;
+import com.example.CanchaSystem.builder.Cancha.CanchaDirector;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
@@ -9,6 +10,7 @@ import com.example.CanchaSystem.repository.CanchaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +25,22 @@ public class CanchaService {
 
     @Autowired
     private ReservationService reservationService;
+
+    @Autowired
+    private  CanchaDirector director; // inyección del Director
+
+    public Cancha createCustomCancha(String name, String address, double amount,
+                                     LocalTime opening, LocalTime closing,
+                                     boolean hasRoof, boolean canShower,
+                                     boolean working, Brand brand, CanchaType type)
+            throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
+
+        director.constructFullCancha(name, address, amount, opening, closing, hasRoof, canShower, working, brand, type);
+        Cancha cancha = director.getCancha();
+
+        return insertCancha(cancha);
+    }
+
 
     public Cancha insertCancha(Cancha cancha) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
         if(!canchaRepository.existsByName(cancha.getName()))

@@ -6,7 +6,7 @@ import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Cancha;
-import com.example.CanchaSystem.model.CanchaBrand;
+import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
@@ -32,35 +32,35 @@ public class CanchaBrandService {
     @Autowired
     private CanchaService canchaService;
 
-    public CanchaBrand insertCanchaBrand(CanchaBrand canchaBrand) throws CanchaBrandNameAlreadyExistsException {
-        if (!canchaBrandRepository.existsByBrandName(canchaBrand.getBrandName())) {
-            return canchaBrandRepository.save(canchaBrand);
+    public Brand insertCanchaBrand(Brand brand) throws CanchaBrandNameAlreadyExistsException {
+        if (!canchaBrandRepository.existsByBrandName(brand.getBrandName())) {
+            return canchaBrandRepository.save(brand);
         } else throw new CanchaBrandNameAlreadyExistsException("El nombre de la Marca ya existe");
     }
 
-    public List<CanchaBrand> getAllCanchaBrands() throws NoCanchaBrandsException {
-        List<CanchaBrand> brands = canchaBrandRepository.findAll();
+    public List<Brand> getAllCanchaBrands() throws NoCanchaBrandsException {
+        List<Brand> brands = canchaBrandRepository.findAll();
         if (brands.isEmpty())
             throw new NoCanchaBrandsException("Todavia no hay Marcas registradas");
         return brands;
     }
 
-    public CanchaBrand updateCanchaBrand(CanchaBrand canchaBrandFromRequest) throws CanchaBrandNotFoundException {
-        CanchaBrand canchaBrand = canchaBrandRepository.findById(canchaBrandFromRequest.getId())
+    public Brand updateCanchaBrand(Brand brandFromRequest) throws CanchaBrandNotFoundException {
+        Brand brand = canchaBrandRepository.findById(brandFromRequest.getId())
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
 
-        canchaBrand.setBrandName(canchaBrandFromRequest.getBrandName());
-        canchaBrand.setActive(canchaBrandFromRequest.isActive());
+        brand.setBrandName(brandFromRequest.getBrandName());
+        brand.setActive(brandFromRequest.isActive());
 
-        return canchaBrandRepository.save(canchaBrand);
+        return canchaBrandRepository.save(brand);
     }
 
     public void deleteCanchaBrand(Long canchaBrandId) {
 
-        CanchaBrand canchaBrand = canchaBrandRepository.findById(canchaBrandId)
+        Brand brand = canchaBrandRepository.findById(canchaBrandId)
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
 
-        if (!canchaBrand.isActive())
+        if (!brand.isActive())
             throw new UnableToDropException("La marca ya esta inactiva");
 
         List<Cancha> canchas = canchaRepository.findByBrandId(canchaBrandId);
@@ -71,24 +71,24 @@ public class CanchaBrandService {
             }
         }
 
-        canchaBrand.setActive(false);
-        canchaBrandRepository.save(canchaBrand);
+        brand.setActive(false);
+        canchaBrandRepository.save(brand);
     }
 
-    public CanchaBrand findCanchaBrandById(Long id) throws CanchaBrandNotFoundException {
+    public Brand findCanchaBrandById(Long id) throws CanchaBrandNotFoundException {
         return canchaBrandRepository.findById(id).orElseThrow(()-> new CanchaBrandNotFoundException("Marca no encontrada"));
     }
 
-    public List<CanchaBrand> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
+    public List<Brand> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
         Optional<Owner> optOwner = ownerRepository.findByUsernameAndActive(username, true);
 
         if (optOwner.isEmpty())
             throw new OwnerNotFoundException("Dueño no encontrado");
 
         Owner owner = optOwner.get();
-        List<CanchaBrand> canchaBrands = canchaBrandRepository.findByOwnerIdAndActive(owner.getId(), true);
+        List<Brand> brands = canchaBrandRepository.findByOwnerIdAndActive(owner.getId(), true);
 
-        return canchaBrands;
+        return brands;
     }
 
 

@@ -2,7 +2,6 @@ package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.OwnerRequest;
 import com.example.CanchaSystem.model.Reservation;
 import com.example.CanchaSystem.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
