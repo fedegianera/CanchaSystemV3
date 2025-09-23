@@ -1,5 +1,5 @@
 package com.example.CanchaSystem.service;
-import com.example.CanchaSystem.dto.CanchaDTO;
+import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
@@ -11,7 +11,6 @@ import com.example.CanchaSystem.repository.CanchaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,25 +29,25 @@ public class CanchaService {
     @Autowired
     private ReservationService reservationService;
 
-    public Cancha insertCancha(CanchaDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
-        if(canchaRepository.existsByName(canchaDTO.getName())) {
+    public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
+        if(canchaRepository.existsByName(canchaDTO.name())) {
             throw new CanchaNameAlreadyExistsException("El nombre de la cancha ya existe");
         }
 
-        Brand brand = brandRepository.findById(canchaDTO.getBrandId())
+        Brand brand = brandRepository.findById(canchaDTO.brandId())
                 .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
 
         Cancha cancha = Cancha.builder()
-                .name(canchaDTO.getName())
-                .address(canchaDTO.getAddress())
-                .totalAmount(canchaDTO.getTotalAmount())
-                .openingHour(canchaDTO.getOpeningHour())
-                .closingHour(canchaDTO.getClosingHour())
-                .hasRoof(canchaDTO.isHasRoof())
-                .canShower(canchaDTO.isCanShower())
+                .name(canchaDTO.name())
+                .address(canchaDTO.address())
+                .totalAmount(canchaDTO.totalAmount())
+                .openingHour(canchaDTO.openingHour())
+                .closingHour(canchaDTO.closingHour())
+                .hasRoof(canchaDTO.hasRoof())
+                .canShower(canchaDTO.canShower())
                 .brand(brand)
-                .canchaType(canchaDTO.getCanchaType())
-                .working(canchaDTO.isWorking())
+                .canchaType(canchaDTO.canchaType())
+                .working(canchaDTO.working())
                 .build();
 
         return canchaRepository.save(cancha);

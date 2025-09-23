@@ -1,10 +1,6 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.dto.CanchaDTO;
-import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
-import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
-import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
-import com.example.CanchaSystem.exception.cancha.NoCanchasException;
+import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.service.CanchaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
+
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/cancha")
@@ -26,8 +21,8 @@ public class CanchaController {
     private CanchaService canchaService;
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertCancha(@Validated @RequestBody CanchaDTO canchaDTO) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(canchaService.insertCancha(canchaDTO));
+    public ResponseEntity<?> insertCancha(@Validated @RequestBody CanchaRequestDTO dto) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(canchaService.insertCancha(dto));
     }
 
     @GetMapping("/findall")
