@@ -1,11 +1,12 @@
 package com.example.CanchaSystem.service;
-import com.example.CanchaSystem.builder.Cancha.CanchaDirector;
+import com.example.CanchaSystem.dto.CanchaDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.*;
+import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,31 +22,36 @@ public class CanchaService {
     private CanchaRepository canchaRepository;
 
     @Autowired
+    private CanchaBrandRepository brandRepository;
+
+    @Autowired
     private ReviewService reviewService;
 
     @Autowired
     private ReservationService reservationService;
 
-    @Autowired
-    private  CanchaDirector director; // inyección del Director
+    public Cancha insertCancha(CanchaDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
+        if(canchaRepository.existsByName(canchaDTO.getName())) {
+            throw new CanchaNameAlreadyExistsException("El nombre de la cancha ya existe");
+        }
 
-    public Cancha createCustomCancha(String name, String address, double amount,
-                                     LocalTime opening, LocalTime closing,
-                                     boolean hasRoof, boolean canShower,
-                                     boolean working, Brand brand, CanchaType type)
-            throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
+        Brand brand = brandRepository.findById(canchaDTO.getBrandId())
+                .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
 
-        director.constructFullCancha(name, address, amount, opening, closing, hasRoof, canShower, working, brand, type);
-        Cancha cancha = director.getCancha();
+        Cancha cancha = Cancha.builder()
+                .name(canchaDTO.getName())
+                .address(canchaDTO.getAddress())
+                .totalAmount(canchaDTO.getTotalAmount())
+                .openingHour(canchaDTO.getOpeningHour())
+                .closingHour(canchaDTO.getClosingHour())
+                .hasRoof(canchaDTO.isHasRoof())
+                .canShower(canchaDTO.isCanShower())
+                .brand(brand)
+                .canchaType(canchaDTO.getCanchaType())
+                .working(canchaDTO.isWorking())
+                .build();
 
-        return insertCancha(cancha);
-    }
-
-
-    public Cancha insertCancha(Cancha cancha) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
-        if(!canchaRepository.existsByName(cancha.getName()))
-            return canchaRepository.save(cancha);
-        else throw new CanchaNameAlreadyExistsException("El nombre de la cancha ya existe");
+        return canchaRepository.save(cancha);
     }
 
     public List<Cancha> getAllCanchas() throws NoCanchasException {

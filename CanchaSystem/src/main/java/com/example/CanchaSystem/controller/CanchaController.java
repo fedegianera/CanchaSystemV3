@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.CanchaDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
@@ -25,8 +26,8 @@ public class CanchaController {
     private CanchaService canchaService;
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertCancha(@Validated @RequestBody Cancha cancha) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(canchaService.insertCancha(cancha));
+    public ResponseEntity<?> insertCancha(@Validated @RequestBody CanchaDTO canchaDTO) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(canchaService.insertCancha(canchaDTO));
     }
 
     @GetMapping("/findall")
