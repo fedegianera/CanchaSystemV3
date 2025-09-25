@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.repository.ClientRepository;
@@ -27,14 +28,11 @@ public class ClientController {
     @Autowired
     private ClientRepository clientRepository;
 
-    @Autowired
-    private OwnerRequestService ownerRequestService;
-
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
         Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-        return ResponseEntity.ok(Map.of("id",client.getId()));
+        return ResponseEntity.ok(Map.of("id", client.getId()));
     }
 
     @GetMapping("/name")
@@ -45,8 +43,8 @@ public class ClientController {
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertClient(@Validated @RequestBody Client client) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(clientService.insertClient(client));
+    public ResponseEntity<?> insertClient(@Validated @RequestBody ClientRequestDTO clientDTO) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(clientService.insertClient(clientDTO));
     }
 
     @GetMapping("/findall")
@@ -90,21 +88,12 @@ public class ClientController {
             return ResponseEntity.ok(clientService.findClientById(id));
     }
 
-    @PostMapping("/request")
-    public ResponseEntity<?> request(@Validated @RequestBody OwnerRequest ownerRequest){
-        return ResponseEntity.status(HttpStatus.CREATED).body(ownerRequestService.insertRequest(ownerRequest));
-    }
 
     @GetMapping("/verifyUsername")
     public boolean verifyUsername(@PathVariable String username) {
         return clientService.verifyUsername(username);
     }
 
-    @GetMapping("/request/{clientId}")
-    public ResponseEntity<OwnerRequest> getRequestByClientId(@PathVariable Long clientId) {
-        OwnerRequest request = ownerRequestService.findByClientId(clientId);
-        return ResponseEntity.ok(request);
-    }
 
 
 }

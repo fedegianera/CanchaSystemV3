@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.exception.client.UnactiveClientException;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
@@ -43,24 +44,31 @@ public class ClientService {
     private ReservationService reservationService;
 
 
-    public Client insertClient(Client client) {
-        if (clientRepository.existsByUsernameAndActive(client.getUsername(), true) || adminRepository.existsByUsername(client.getUsername()) || ownerRepository.existsByUsernameAndActive(client.getUsername(), true)) {
+    public Client insertClient(ClientRequestDTO clientDTO) {
+        if (clientRepository.existsByUsernameAndActive(clientDTO.username(), true) || adminRepository.existsByUsername(clientDTO.username()) || ownerRepository.existsByUsernameAndActive(clientDTO.username(), true)) {
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
         }
 
-        if (clientRepository.existsByMail(client.getMail())) {
+        if (clientRepository.existsByMail(clientDTO.mail())) {
             throw new MailAlreadyRegisteredException("El correo ya esta registrado");
         }
 
-        if (clientRepository.existsByCellNumber(client.getCellNumber())) {
+        if (clientRepository.existsByCellNumber(clientDTO.cellNumber())) {
             throw new CellNumberAlreadyAddedException("El numero ya esta añadido");
         }
 
         Role clientRole = roleRepo.findByName("CLIENT")
                 .orElseGet(() -> roleRepo.save(new Role("CLIENT")));
-        client.setRole(clientRole);
 
-        client.setPassword(passwordEncoder.encode(client.getPassword()));
+        Client client = Client.builder()
+                .name(clientDTO.name())
+                .lastName(clientDTO.lastName())
+                .username(clientDTO.username())
+                .password(passwordEncoder.encode(clientDTO.password()))
+                .mail(clientDTO.mail())
+                .cellNumber(clientDTO.cellNumber())
+                .role(clientRole)
+                .build();
 
         return clientRepository.save(client);
     }
