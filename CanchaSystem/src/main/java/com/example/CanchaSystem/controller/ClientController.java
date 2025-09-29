@@ -2,10 +2,8 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.OwnerRequest;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ClientService;
-import com.example.CanchaSystem.service.OwnerRequestService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

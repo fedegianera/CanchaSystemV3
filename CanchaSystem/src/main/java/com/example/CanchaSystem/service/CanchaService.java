@@ -1,10 +1,12 @@
 package com.example.CanchaSystem.service;
+import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.*;
+import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,15 +21,36 @@ public class CanchaService {
     private CanchaRepository canchaRepository;
 
     @Autowired
+    private CanchaBrandRepository brandRepository;
+
+    @Autowired
     private ReviewService reviewService;
 
     @Autowired
     private ReservationService reservationService;
 
-    public Cancha insertCancha(Cancha cancha) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
-        if(!canchaRepository.existsByName(cancha.getName()))
-            return canchaRepository.save(cancha);
-        else throw new CanchaNameAlreadyExistsException("El nombre de la cancha ya existe");
+    public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
+        if(canchaRepository.existsByName(canchaDTO.name())) {
+            throw new CanchaNameAlreadyExistsException("El nombre de la cancha ya existe");
+        }
+
+        Brand brand = brandRepository.findById(canchaDTO.brandId())
+                .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
+
+        Cancha cancha = Cancha.builder()
+                .name(canchaDTO.name())
+                .address(canchaDTO.address())
+                .totalAmount(canchaDTO.totalAmount())
+                .openingHour(canchaDTO.openingHour())
+                .closingHour(canchaDTO.closingHour())
+                .hasRoof(canchaDTO.hasRoof())
+                .canShower(canchaDTO.canShower())
+                .brand(brand)
+                .canchaType(canchaDTO.canchaType())
+                .working(canchaDTO.working())
+                .build();
+
+        return canchaRepository.save(cancha);
     }
 
     public List<Cancha> getAllCanchas() throws NoCanchasException {

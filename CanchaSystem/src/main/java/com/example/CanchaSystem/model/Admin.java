@@ -7,6 +7,7 @@ import org.springframework.lang.NonNullFields;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -14,8 +15,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class Admin {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false,unique = true)
     @Size(

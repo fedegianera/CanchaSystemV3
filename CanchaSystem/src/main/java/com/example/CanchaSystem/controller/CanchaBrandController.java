@@ -2,7 +2,7 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Cancha;
-import com.example.CanchaSystem.model.CanchaBrand;
+import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.CanchaBrandService;
@@ -32,16 +32,16 @@ public class CanchaBrandController {
     private OwnerRepository ownerRepository;
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody CanchaBrand canchaBrand, Authentication auth) {
+    public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody Brand brand, Authentication auth) {
 
             String username = auth.getName();
             Owner owner = ownerRepository.findByUsernameAndActive(username, true)
                     .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
 
 
-            canchaBrand.setOwner(owner);
+            brand.setOwner(owner);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(canchaBrandService.insertCanchaBrand(canchaBrand));
+            return ResponseEntity.status(HttpStatus.CREATED).body(canchaBrandService.insertCanchaBrand(brand));
 
     }
 
@@ -51,8 +51,8 @@ public class CanchaBrandController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateCanchaBrand(@RequestBody CanchaBrand canchaBrand) {
-            return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(canchaBrand));
+    public ResponseEntity<?> updateCanchaBrand(@RequestBody Brand brand) {
+            return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(brand));
     }
 
     @DeleteMapping("/deleteCanchaBrand/{id}")

@@ -4,17 +4,20 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Cancha {
 
     @Id
@@ -54,7 +57,7 @@ public class Cancha {
     @ManyToOne
     @JoinColumn(name = "brand_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private CanchaBrand brand;
+    private Brand brand;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
