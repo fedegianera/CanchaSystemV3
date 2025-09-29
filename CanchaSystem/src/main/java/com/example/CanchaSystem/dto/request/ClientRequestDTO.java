@@ -16,5 +16,8 @@ public record ClientRequestDTO (
         String mail,
 
         @NotNull
+        String password,
+
+        @NotNull
         String cellNumber
 ) {}

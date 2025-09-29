@@ -14,8 +14,6 @@ import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.owner.NoOwnersException;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.exception.owner.UnactiveOwnerException;
-import com.example.CanchaSystem.exception.requests.NoRequestsException;
-import com.example.CanchaSystem.exception.requests.RequestNotFoundException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
@@ -163,18 +161,6 @@ public class ExceptionController {
     @ExceptionHandler(UnactiveOwnerException.class)
     public ResponseEntity<Map<String, Object>> handleUnactiveOwner(UnactiveOwnerException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
-
-    @ExceptionHandler(NoRequestsException.class)
-    public ResponseEntity<Map<String, Object>> handleNoRequests(NoRequestsException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
-
-    @ExceptionHandler(RequestNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleRequestNotFound(RequestNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 

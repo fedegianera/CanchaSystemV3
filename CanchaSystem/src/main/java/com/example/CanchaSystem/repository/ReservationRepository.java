@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation,Long> {
@@ -19,7 +20,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     Optional<Reservation> findById(Long id);
 
     List<Reservation> findByCanchaId(Long canchaId);
-    List<Reservation> findByClientId(Long clientId);
+    List<Reservation> findByClientId(UUID clientId);
     List<Reservation> findByCanchaIdAndMatchDateBetween(Long canchaId, LocalDateTime from, LocalDateTime until);
     List<Reservation> findByStatus(ReservationStatus status);
 

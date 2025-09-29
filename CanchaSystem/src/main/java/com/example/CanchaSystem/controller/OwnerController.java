@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/owner")
@@ -59,13 +60,13 @@ public class OwnerController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteOwner(@PathVariable Long id) {
+    public ResponseEntity<?> deleteOwner(@PathVariable UUID id) {
             ownerService.deleteOwner(id);
             return ResponseEntity.ok(Map.of("message","Dueño eliminado"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findOwnerById(@PathVariable Long id) {
+    public ResponseEntity<?> findOwnerById(@PathVariable UUID id) {
             return ResponseEntity.ok(ownerService.findOwnerById(id));
     }
 

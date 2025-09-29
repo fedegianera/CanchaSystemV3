@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin")
@@ -19,9 +20,6 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
-
-    @Autowired
-    private OwnerRequestService ownerRequestService;
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertAdmin(@Validated @RequestBody Admin admin) {
@@ -39,28 +37,16 @@ public class AdminController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAdmin(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAdmin(@PathVariable UUID id) {
             adminService.deleteAdmin(id);
             return ResponseEntity.ok(Map.of("message","Administrador eliminado"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findAdminById(@PathVariable Long id) {
+    public ResponseEntity<?> findAdminById(@PathVariable UUID id) {
 
         return ResponseEntity.ok(adminService.findAdminById(id));
 
-    }
-
-    @PutMapping("/denyRequest/{requestId}")
-    public ResponseEntity<?> denyRequest(@PathVariable Long requestId){
-        ownerRequestService.updateRequest(requestId, OwnerRequestStatus.DENIED);
-        return ResponseEntity.ok("Solicitud rechazada correctamente.");
-    }
-
-    @PutMapping("/approveRequest/{requestId}")
-    public ResponseEntity<?> approveRequest(@PathVariable Long requestId){
-        ownerRequestService.updateRequest(requestId, OwnerRequestStatus.APPROVED);
-        return ResponseEntity.ok("Solicitud aceptada correctamente.");
     }
 
 }
