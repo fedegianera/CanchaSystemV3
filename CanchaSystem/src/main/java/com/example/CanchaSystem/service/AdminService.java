@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AdminService {
@@ -46,7 +47,7 @@ public class AdminService {
             throw new AdminNotFoundException("Administrador no encontrado");
     }
 
-    public void deleteAdmin(Long id) throws AdminNotFoundException{
+    public void deleteAdmin(UUID id) throws AdminNotFoundException{
         if (adminRepository.existsById(id)) {
             adminRepository.deleteById(id);
         }else
@@ -54,7 +55,7 @@ public class AdminService {
 
     }
 
-    public Admin findAdminById(Long id) throws AdminNotFoundException {
+    public Admin findAdminById(UUID id) throws AdminNotFoundException {
         return adminRepository.findById(id).orElseThrow(()-> new AdminNotFoundException("Administrador no encontrado"));
     }
 }

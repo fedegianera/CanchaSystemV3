@@ -28,8 +28,6 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("Intentando loguear con username: " + username);
-
         Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
         if (clientOpt.isPresent()) {
             Client client = clientOpt.get();
@@ -43,8 +41,6 @@ public class AuthService implements UserDetailsService {
         Optional<Owner> ownerOpt = ownerRepository.findByUsernameAndActive(username, true);
         if (ownerOpt.isPresent()) {
             Owner owner = ownerOpt.get();
-            System.out.println("Usuario encontrado como OWNER");
-            System.out.println("Rol cargado para " + username + ": " + owner.getRole().getName());
             return new org.springframework.security.core.userdetails.User(
                     owner.getUsername(),
                     owner.getPassword(),
@@ -55,7 +51,6 @@ public class AuthService implements UserDetailsService {
         Optional<Admin> adminOpt = adminRepository.findByUsername(username);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
-            System.out.println("Usuario encontrado como ADMIN");
             return new org.springframework.security.core.userdetails.User(
                     admin.getUsername(),
                     admin.getPassword(),

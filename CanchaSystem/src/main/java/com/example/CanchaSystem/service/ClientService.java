@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ClientService {
@@ -67,6 +68,7 @@ public class ClientService {
                 .password(passwordEncoder.encode(clientDTO.password()))
                 .mail(clientDTO.mail())
                 .cellNumber(clientDTO.cellNumber())
+                .active(true)
                 .role(clientRole)
                 .build();
 
@@ -115,7 +117,7 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public Client addMoneyToClientBank(Long clientId,double addedAmount){
+    public Client addMoneyToClientBank(UUID clientId,double addedAmount){
 
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
@@ -131,7 +133,7 @@ public class ClientService {
 
     }
 
-    public Client payFromClientBank(Long clientId, double amountToPay){
+    public Client payFromClientBank(UUID clientId, double amountToPay){
 
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
@@ -147,7 +149,7 @@ public class ClientService {
 
     }
 
-    public Client deleteClient(Long clientId) {
+    public Client deleteClient(UUID clientId) {
 
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
@@ -171,7 +173,7 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public Client findClientById(Long id) throws ClientNotFoundException {
+    public Client findClientById(UUID id) throws ClientNotFoundException {
         return clientRepository.findById(id).orElseThrow(()-> new ClientNotFoundException("Cliente no encontrado"));
     }
 

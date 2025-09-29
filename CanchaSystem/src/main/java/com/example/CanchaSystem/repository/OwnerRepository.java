@@ -7,10 +7,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface OwnerRepository extends JpaRepository<Owner, Long> {
-    boolean existsById(Long id);
+public interface OwnerRepository extends JpaRepository<Owner, UUID> {
+    boolean existsById(UUID id);
     boolean existsByUsernameAndActive(String username, boolean active);
     boolean existsByMail(String mail);
     boolean existsByCellNumber(String cellNumber);

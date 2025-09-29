@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Long> {
@@ -14,5 +15,5 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
 
     List<Review> findByCanchaIdAndActive(Long canchaId,boolean active);
     List<Review> findByCanchaId(Long canchaId);
-    List<Review> findByClientIdAndActive(Long clientId,boolean active);
+    List<Review> findByClientIdAndActive(UUID clientId, boolean active);
 }

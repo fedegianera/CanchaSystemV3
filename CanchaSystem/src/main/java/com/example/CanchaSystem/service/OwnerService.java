@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class OwnerService {
@@ -73,7 +74,7 @@ public class OwnerService {
         return ownerRepository.save(owner);
     }
 
-    public Owner addMoneyToOwnerBank(long ownerId,double addedAmount){
+    public Owner addMoneyToOwnerBank(UUID ownerId, double addedAmount){
 
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
@@ -109,7 +110,7 @@ public class OwnerService {
         return ownerRepository.save(owner);
     }
 
-    public void deleteOwner(Long ownerId){
+    public void deleteOwner(UUID ownerId){
 
         Owner owner = ownerRepository.findById(ownerId)
                 .orElseThrow(() -> new OwnerNotFoundException("Owner no encontrado"));
@@ -128,7 +129,7 @@ public class OwnerService {
 
     }
 
-    public Owner findOwnerById(Long id) throws OwnerNotFoundException {
+    public Owner findOwnerById(UUID id) throws OwnerNotFoundException {
         return ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("Dueño no encontrado"));
     }
 

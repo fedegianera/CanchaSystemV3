@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/client")
@@ -42,8 +43,8 @@ public class ClientController {
         return ResponseEntity.ok(Map.of("name",client.getName()));
     }
 
-    @PostMapping("/insert")
-    public ResponseEntity<?> insertClient(@Validated @RequestBody ClientRequestDTO clientDTO) {
+    @PostMapping("/insertClient")
+    public ResponseEntity<?> insertClient(@RequestBody ClientRequestDTO clientDTO) {
             return ResponseEntity.status(HttpStatus.CREATED).body(clientService.insertClient(clientDTO));
     }
 
@@ -64,7 +65,7 @@ public class ClientController {
     }
 
     @PutMapping("/addMoneyToClient/{clientId}/{amount}")
-    public ResponseEntity<?> AddMoneyToBankClient(@PathVariable Long clientId,@PathVariable double amount){
+    public ResponseEntity<?> AddMoneyToBankClient(@PathVariable UUID clientId, @PathVariable double amount){
 
         clientService.addMoneyToClientBank(clientId,amount);
 
@@ -78,13 +79,13 @@ public class ClientController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
+    public ResponseEntity<?> deleteClient(@PathVariable UUID id) {
             clientService.deleteClient(id);
             return ResponseEntity.ok(Map.of("message","Cliente eliminado"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findClientById(@PathVariable Long id) {
+    public ResponseEntity<?> findClientById(@PathVariable UUID id) {
             return ResponseEntity.ok(clientService.findClientById(id));
     }
 
