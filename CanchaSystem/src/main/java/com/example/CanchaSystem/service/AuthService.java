@@ -1,11 +1,13 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.interfaces.IUser;
 import com.example.CanchaSystem.model.Admin;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.AdminRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.OwnerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,14 @@ import java.util.Optional;
 @Service
 public class AuthService implements UserDetailsService {
 
-    private final ClientRepository clientRepository;
-    private final OwnerRepository ownerRepository;
-    private final AdminRepository adminRepository;
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private OwnerRepository ownerRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     public AuthService(ClientRepository clientRepository, OwnerRepository ownerRepository, AdminRepository adminRepository) {
         this.clientRepository = clientRepository;
@@ -28,35 +35,18 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
-        if (clientOpt.isPresent()) {
-            Client client = clientOpt.get();
-            return new org.springframework.security.core.userdetails.User(
-                    client.getUsername(),
-                    client.getPassword(),
-                    List.of(new SimpleGrantedAuthority("ROLE_" + client.getRole().getName()))
-            );
-        }
+        return clientRepository.findByUsernameAndActive(username,true)
+                .map(this::createUser)
+                .or(() -> ownerRepository.findByUsernameAndActive(username,true).map(this::createUser))
+                .or(() -> adminRepository.findByUsername(username).map(this::createUser))
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario "+ username +" no encontrado"));
+    }
 
-        Optional<Owner> ownerOpt = ownerRepository.findByUsernameAndActive(username, true);
-        if (ownerOpt.isPresent()) {
-            Owner owner = ownerOpt.get();
-            return new org.springframework.security.core.userdetails.User(
-                    owner.getUsername(),
-                    owner.getPassword(),
-                    List.of(new SimpleGrantedAuthority("ROLE_" + owner.getRole().getName()))
-            );
-        }
-
-        Optional<Admin> adminOpt = adminRepository.findByUsername(username);
-        if (adminOpt.isPresent()) {
-            Admin admin = adminOpt.get();
-            return new org.springframework.security.core.userdetails.User(
-                    admin.getUsername(),
-                    admin.getPassword(),
-                    List.of(new SimpleGrantedAuthority("ROLE_" + admin.getRole().getName()))
-            );
-        }
-        throw new UsernameNotFoundException("Usuario no encontrado: " + username);
+    private UserDetails createUser(IUser user){
+        return User.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .authorities(new SimpleGrantedAuthority("ROLE_" + user.getRoleName()))
+                .build();
     }
 }

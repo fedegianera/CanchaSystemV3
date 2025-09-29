@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.model;
 
+import com.example.CanchaSystem.interfaces.IUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Builder
-public class Client {
+public class Client implements IUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -69,6 +70,11 @@ public class Client {
 
     @Column(nullable = false)
     private double bankClient=0;
+
+    @Override
+    public String getRoleName() {
+        return role.getName();
+    }
 }
 
 

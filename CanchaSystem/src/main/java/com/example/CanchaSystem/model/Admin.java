@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.model;
 
+import com.example.CanchaSystem.interfaces.IUser;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Admin {
+public class Admin implements IUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -35,4 +36,9 @@ public class Admin {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @Override
+    public String getRoleName() {
+        return role.getName();
+    }
 }
