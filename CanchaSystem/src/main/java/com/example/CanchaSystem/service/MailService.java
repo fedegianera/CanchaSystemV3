@@ -78,7 +78,7 @@ public class MailService {
         mailSender.send(message);
     }
 
-    @Async
+    /*@Async
     public void sendReservationCancelNotice(String to, Reservation reservation) {
 
         if (reservation == null ||
@@ -112,7 +112,7 @@ public class MailService {
 
 
         mailSender.send(message);
-    }
+    }*/
 
     @Async
     public void sendReservationNoticeClient(String to, Reservation reservation) {
