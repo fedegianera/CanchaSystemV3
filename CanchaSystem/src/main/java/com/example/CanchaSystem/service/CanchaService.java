@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
+import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
@@ -156,8 +157,8 @@ public class CanchaService {
         return canchaRepository.findById(id).orElseThrow(()-> new CanchaNotFoundException("Cancha no encontrada"));
     }
 
-    public List<Cancha> getAllActiveCanchas() throws NoCanchasException {
-        List<Cancha> canchas =  canchaRepository.findByActiveAndWorking(true, true);
+    public List<CanchaResponseDTO> getAllActiveCanchas() throws NoCanchasException {
+        List<CanchaResponseDTO> canchas =  canchaRepository.findByActiveAndWorking(true, true);
         if(canchas.isEmpty()){
             throw new NoCanchasException("Todavia no hay Canchas activas");
         }
