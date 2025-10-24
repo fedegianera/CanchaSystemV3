@@ -9,6 +9,7 @@ import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
+import com.example.CanchaSystem.repository.EstablishmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,28 +26,22 @@ public class CanchaService {
     private CanchaBrandRepository brandRepository;
 
     @Autowired
+    private EstablishmentRepository establishmentRepository;
+
+    @Autowired
     private ReviewService reviewService;
 
     @Autowired
     private ReservationService reservationService;
 
     public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
-        if(canchaRepository.existsByName(canchaDTO.name())) {
-            throw new CanchaNameAlreadyExistsException("El nombre de la cancha ya existe");
-        }
-
-        Brand brand = brandRepository.findById(canchaDTO.brandId())
+        Establishment establishment = establishmentRepository.findById(canchaDTO.establishmentId())
                 .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
 
         Cancha cancha = Cancha.builder()
-                .name(canchaDTO.name())
-                .address(canchaDTO.address())
                 .totalAmount(canchaDTO.totalAmount())
-                .openingHour(canchaDTO.openingHour())
-                .closingHour(canchaDTO.closingHour())
                 .hasRoof(canchaDTO.hasRoof())
-                .canShower(canchaDTO.canShower())
-                .brand(brand)
+                .establishment(establishment)
                 .canchaType(canchaDTO.canchaType())
                 .working(canchaDTO.working())
                 .build();
@@ -89,14 +84,9 @@ public class CanchaService {
         Cancha cancha = canchaRepository.findById(id)
                 .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
 
-        cancha.setName(updated.getName());
-        cancha.setAddress(updated.getAddress());
         cancha.setTotalAmount(updated.getTotalAmount());
-        cancha.setOpeningHour(updated.getOpeningHour());
-        cancha.setClosingHour(updated.getClosingHour());
         cancha.setActive(updated.isActive());
         cancha.setHasRoof(updated.isHasRoof());
-        cancha.setCanShower(updated.isCanShower());
         cancha.setWorking(updated.isWorking());
         cancha.setCanchaType(updated.getCanchaType());
 
@@ -107,13 +97,8 @@ public class CanchaService {
         Cancha existing = canchaRepository.findByIdAndBrandOwnerUsernameAndActive(updated.getId(),username,true)
                 .orElseThrow(()->new CanchaNotFoundException("No se encontro su cancha"));
 
-        existing.setName(updated.getName());
-        existing.setAddress(updated.getAddress());
         existing.setCanchaType(updated.getCanchaType());
-        existing.setCanShower(updated.isCanShower());
-        existing.setBrand(updated.getBrand());
-        existing.setOpeningHour(updated.getOpeningHour());
-        existing.setClosingHour(updated.getClosingHour());
+        existing.setEstablishment(updated.getEstablishment());
         existing.setTotalAmount(updated.getTotalAmount());
         existing.setWorking(updated.isWorking());
 
@@ -175,8 +160,8 @@ public class CanchaService {
         return canchas;
     }
 
-    public List<Cancha> getActiveCanchasByBrandId(Long brandId) throws NoCanchasException {
-        List<Cancha> canchas = canchaRepository.findByBrandIdAndActiveAndWorking(brandId,true, true);
+    public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) throws NoCanchasException {
+        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
         if (canchas.isEmpty()) {
             throw new NoCanchasException("La marca no tiene canchas activas");
         }

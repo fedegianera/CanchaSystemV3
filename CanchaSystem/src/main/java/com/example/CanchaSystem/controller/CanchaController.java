@@ -77,14 +77,9 @@ public class CanchaController {
             return ResponseEntity.ok(cancha);
     }
 
-    @GetMapping("/getCanchasByOwnerId/{id}")
+    @GetMapping("/getCanchasByEstablishmentId/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getCanchasByOwnerId(@PathVariable Long id) {
-            return ResponseEntity.ok(canchaService.getCanchasByOwnerId(id));
-    }
-
-    @GetMapping("/getCanchasByBrandId/{id}")
-    public ResponseEntity<?> getCanchasByBrandId(@PathVariable Long id) {
-            return ResponseEntity.ok(canchaService.getCanchasByBrandId(id));
+    public ResponseEntity<?> getCanchasByEstablishmentId(@PathVariable Long id) {
+            return ResponseEntity.ok(canchaService.getActiveCanchasByEstablishmentId(id));
     }
 }

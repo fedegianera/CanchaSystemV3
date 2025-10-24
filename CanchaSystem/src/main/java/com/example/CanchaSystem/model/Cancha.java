@@ -24,26 +24,9 @@ public class Cancha {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    @Size(
-            min = 3,
-            max = 25,
-            message = "Name only accepts values between 3 and 15"
-    )
-    private String name;
-
-    @Column(nullable = false, unique = true)
-    private String address;
-
     @Column(nullable = false)
     @Min(1)
     private Double totalAmount;
-
-    @Column(nullable = false)
-    private LocalTime openingHour;
-
-    @Column(nullable = false)
-    private LocalTime closingHour;
 
     @Column(nullable = false)
     private boolean active = true;
@@ -51,13 +34,10 @@ public class Cancha {
     @Column(nullable = false)
     private boolean hasRoof;
 
-    @Column(nullable = false)
-    private boolean canShower;
-
     @ManyToOne
-    @JoinColumn(name = "brand_id", nullable = false)
+    @JoinColumn(name = "establishment_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Brand brand;
+    private Establishment establishment;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

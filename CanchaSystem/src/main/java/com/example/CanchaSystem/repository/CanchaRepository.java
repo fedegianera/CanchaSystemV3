@@ -19,7 +19,7 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     List<Cancha> findByBrandOwnerUsername(String username);
     List<Cancha> findByBrandOwnerIdAndActive(Long id,boolean active);
     List<Cancha> findByBrandOwnerId(Long id);
-    List<Cancha> findByBrandIdAndActiveAndWorking(Long id,boolean active, boolean working);
+    List<CanchaResponseDTO> findByEstablishmentIdAndActiveAndWorking(Long id,boolean active, boolean working);
     List<Cancha> findByBrandId(Long id);
     List<CanchaResponseDTO> findByActiveAndWorking(boolean active, boolean working);
 
