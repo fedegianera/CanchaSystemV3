@@ -58,25 +58,9 @@ public class CanchaService {
         return canchas;
     }
 
-    public List<Cancha> getCanchasByOwner(String username) throws NoCanchasException {
-        List<Cancha> canchas = canchaRepository.findByBrandOwnerUsername(username);
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("El dueño no tiene canchas registradas");
-        }
-        return canchas;
-    }
 
-    public List<Cancha> getCanchasByOwnerId(Long id) throws NoCanchasException {
-        List<Cancha> canchas = canchaRepository.findByBrandOwnerId(id);
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("El dueño no tiene canchas");
-        }
-
-        return canchas;
-    }
-
-    public List<Cancha> getCanchasByBrandId(Long id) throws NoCanchasException {
-        List<Cancha> canchas = canchaRepository.findByBrandId(id);
+    public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) throws NoCanchasException {
+        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentId(id);
         return canchas;
     }
 
@@ -91,18 +75,6 @@ public class CanchaService {
         cancha.setCanchaType(updated.getCanchaType());
 
         return canchaRepository.save(cancha);
-    }
-
-    public void updateOwnerCancha(Cancha updated, String username) throws CanchaNotFoundException {
-        Cancha existing = canchaRepository.findByIdAndBrandOwnerUsernameAndActive(updated.getId(),username,true)
-                .orElseThrow(()->new CanchaNotFoundException("No se encontro su cancha"));
-
-        existing.setCanchaType(updated.getCanchaType());
-        existing.setEstablishment(updated.getEstablishment());
-        existing.setTotalAmount(updated.getTotalAmount());
-        existing.setWorking(updated.isWorking());
-
-        canchaRepository.save(existing);
     }
 
     public void deleteCancha(Long canchaId) {
@@ -130,14 +102,6 @@ public class CanchaService {
         canchaRepository.save(cancha);
     }
 
-    public void deleteOwnerCancha(Long canchaId, String username) {
-        if (canchaRepository.existsByIdAndBrandOwnerUsername(canchaId, username)) {
-            Optional<Cancha> canchaOpt = canchaRepository.findById(canchaId);
-
-            deleteCancha(canchaOpt.get().getId());
-        } else throw new CanchaNotFoundException("Cancha de dueño no encontrada");
-    }
-
     public Cancha findCanchaById(Long id) throws CanchaNotFoundException {
         return canchaRepository.findById(id).orElseThrow(()-> new CanchaNotFoundException("Cancha no encontrada"));
     }
@@ -146,15 +110,6 @@ public class CanchaService {
         List<CanchaResponseDTO> canchas =  canchaRepository.findByActiveAndWorking(true, true);
         if(canchas.isEmpty()){
             throw new NoCanchasException("Todavia no hay Canchas activas");
-        }
-
-        return canchas;
-    }
-
-    public List<Cancha> getActiveCanchasByOwnerId(Long ownerId) throws NoCanchasException {
-        List<Cancha> canchas = canchaRepository.findByBrandOwnerIdAndActive(ownerId,true);
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("El dueño no tiene canchas activas");
         }
 
         return canchas;

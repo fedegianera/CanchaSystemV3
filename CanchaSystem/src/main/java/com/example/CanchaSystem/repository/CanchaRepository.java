@@ -11,17 +11,10 @@ import java.util.Optional;
 @Repository
 public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     boolean existsById(Long id);
-    boolean existsByAddress(String address);
-    boolean existsByName(String name);
-    boolean existsByIdAndBrandOwnerUsername(Long id, String username);
     Optional<Cancha> findById(Long id);
 
-    List<Cancha> findByBrandOwnerUsername(String username);
-    List<Cancha> findByBrandOwnerIdAndActive(Long id,boolean active);
-    List<Cancha> findByBrandOwnerId(Long id);
     List<CanchaResponseDTO> findByEstablishmentIdAndActiveAndWorking(Long id,boolean active, boolean working);
-    List<Cancha> findByBrandId(Long id);
+    List<CanchaResponseDTO> findByEstablishmentId(Long id);
     List<CanchaResponseDTO> findByActiveAndWorking(boolean active, boolean working);
 
-    Optional<Cancha> findByIdAndBrandOwnerUsernameAndActive(Long id, String username, boolean active);
 }

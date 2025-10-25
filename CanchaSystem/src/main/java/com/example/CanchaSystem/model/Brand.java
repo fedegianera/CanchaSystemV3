@@ -19,11 +19,6 @@ public class Brand {
     private Long id;
 
     @Column(nullable = false)
-    @Size(
-            min = 3,
-            max = 15,
-            message = "Brand Name only accepts values between 3 and 15"
-    )
     private String brandName;
 
     @ManyToOne

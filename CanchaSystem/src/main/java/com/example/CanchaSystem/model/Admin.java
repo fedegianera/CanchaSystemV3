@@ -20,17 +20,17 @@ public class Admin implements IUser {
     private UUID id;
 
     @Column(nullable = false,unique = true)
-    @Size(
-            min = 4,
-            message = "The Username must have 4 caracters"
-    )
+//    @Size(
+//            min = 4,
+//            message = "The Username must have 4 caracters"
+//    )
     private String username;
 
     @Column(nullable = false)
-    @Size(
-            min = 4,
-            message = "The Password must have 4 caracters"
-    )
+//    @Size(
+//            min = 4,
+//            message = "The Password must have 4 caracters"
+//    )
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER)

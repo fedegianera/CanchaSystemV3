@@ -18,7 +18,4 @@ public interface OwnerRepository extends JpaRepository<Owner, UUID> {
 
     Optional<Owner> findByUsernameAndActive(String username,boolean active);
 
-    @Query("SELECT cb.owner FROM Cancha c JOIN c.brand cb WHERE c.id = :canchaId AND cb.owner.active = :active")
-    Optional<Owner> findOwnerByCanchaIdAndActive(@Param("canchaId") Long canchaId, boolean active);
-
 }

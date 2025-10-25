@@ -133,10 +133,6 @@ public class OwnerService {
         return ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("Dueño no encontrado"));
     }
 
-    public Optional<Owner> getOwnerByCanchaId(Long canchaId) {
-        return ownerRepository.findOwnerByCanchaIdAndActive(canchaId, true);
-    }
-
     public boolean verifyUsername(String username) {
         return clientRepository.existsByUsernameAndActive(username, true) || adminRepository.existsByUsername(username) || ownerRepository.existsByUsernameAndActive(username, true);
     }

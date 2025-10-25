@@ -30,15 +30,15 @@ public class Review {
     private Cancha cancha;
 
     @Column(nullable = false)
-    @DecimalMin(value = "1.0", message = "La valoración mínima es 1")
-    @DecimalMax(value = "5.0", message = "La valoración máxima es 5")
+//    @DecimalMin(value = "1.0", message = "La valoración mínima es 1")
+//    @DecimalMax(value = "5.0", message = "La valoración máxima es 5")
     private double rating;
 
     @Column()
-    @Size(
-            max = 500,
-            message = "Message only accepts caracters between 5 and 500"
-    )
+//    @Size(
+//            max = 500,
+//            message = "Message only accepts caracters between 5 and 500"
+//    )
     private String message;
 
     @Column(nullable = false)

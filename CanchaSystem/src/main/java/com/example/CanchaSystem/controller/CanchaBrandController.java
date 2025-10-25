@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.model.Brand;
@@ -74,9 +75,9 @@ public class CanchaBrandController {
     }
 
 
-    @GetMapping("/{brandId}/canchas")
-    public ResponseEntity<List<Cancha>> getCanchasByBrand(@PathVariable Long brandId) {
-        return ResponseEntity.ok(canchaService.getCanchasByBrandId(brandId));
+    @GetMapping("/{establishmentId}/canchas")
+    public ResponseEntity<List<CanchaResponseDTO>> getCanchasByEstablishment(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(canchaService.getCanchasByEstablishmentId(establishmentId));
     }
 
 }

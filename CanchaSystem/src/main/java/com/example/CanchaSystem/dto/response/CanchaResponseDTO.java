@@ -10,5 +10,6 @@ public record CanchaResponseDTO (
         boolean hasRoof,
         boolean working,
         CanchaType canchaType,
-        Long establishmentId
+        Long establishmentId,
+        boolean active
 ) {}

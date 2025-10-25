@@ -25,7 +25,7 @@ public class Cancha {
     private Long id;
 
     @Column(nullable = false)
-    @Min(1)
+//    @Min(1)
     private Double totalAmount;
 
     @Column(nullable = false)

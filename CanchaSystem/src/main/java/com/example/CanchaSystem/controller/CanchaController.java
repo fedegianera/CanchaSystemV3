@@ -35,25 +35,17 @@ public class CanchaController {
         return ResponseEntity.ok(canchaService.getAllActiveCanchas());
     }
 
-    @GetMapping("/findMyCanchas")
-    @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<?> getAllMyCanchas(Authentication auth) {
-        String username = auth.getName();
-        return ResponseEntity.ok(canchaService.getCanchasByOwner(username));
-    }
+//    @GetMapping("/findMyCanchas")
+//    @PreAuthorize("hasRole('OWNER')")
+//    public ResponseEntity<?> getAllMyCanchas(Authentication auth) {
+//        String username = auth.getName();
+//        return ResponseEntity.ok(canchaService.getCanchasByOwner(username));
+//    }
 
     @PutMapping("/updateAny")
     public ResponseEntity<?> updateAnyCancha(@RequestBody Cancha cancha) {
             canchaService.updateCancha(cancha.getId(),cancha);
             return ResponseEntity.ok(Map.of("message", "Cancha actualizada correctamente"));
-    }
-
-    @PutMapping("/updateMyCancha")
-    @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<?> updateMyCancha(@RequestBody Cancha cancha, Authentication auth) {
-        String username = auth.getName();
-        canchaService.updateOwnerCancha(cancha,username);
-        return ResponseEntity.ok(Map.of("message", "Cancha actualizada correctamente"));
     }
 
     @DeleteMapping("/dropCanchaById/{id}")
@@ -63,14 +55,6 @@ public class CanchaController {
             return ResponseEntity.ok(Map.of("message", "Cancha eliminada correctamente"));
     }
 
-    @DeleteMapping("/dropMyCanchaById/{id}")
-    @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<?> deleteMyCancha(@PathVariable Long id, Authentication auth) {
-        String username = auth.getName();
-        canchaService.deleteOwnerCancha(id, username);
-        return ResponseEntity.ok(Map.of("message", "Cancha eliminada correctamente"));
-    }
-
     @GetMapping("/findCanchaById/{id}")
     public ResponseEntity<?> findAnyCanchaById(@PathVariable Long id) {
             Cancha cancha = canchaService.findCanchaById(id);
@@ -78,7 +62,6 @@ public class CanchaController {
     }
 
     @GetMapping("/getCanchasByEstablishmentId/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getCanchasByEstablishmentId(@PathVariable Long id) {
             return ResponseEntity.ok(canchaService.getActiveCanchasByEstablishmentId(id));
     }

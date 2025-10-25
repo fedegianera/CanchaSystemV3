@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface EstablishmentRepository  extends JpaRepository<Establishment, Long> {
     List<EstablishmentResponseDTO> findByActive(boolean active);
+
+    List<EstablishmentResponseDTO> findByBrandId(Long id);
 }

@@ -1,5 +1,7 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
+import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
@@ -7,9 +9,11 @@ import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.model.Brand;
+import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
+import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,9 @@ public class CanchaBrandService {
     private CanchaBrandRepository canchaBrandRepository;
 
     @Autowired
+    private EstablishmentRepository establishmentRepository;
+
+    @Autowired
     private CanchaRepository canchaRepository;
 
     @Autowired
@@ -31,6 +38,9 @@ public class CanchaBrandService {
 
     @Autowired
     private CanchaService canchaService;
+
+    @Autowired
+    private EstablishmentService establishmentService;
 
     public Brand insertCanchaBrand(Brand brand) throws CanchaBrandNameAlreadyExistsException {
         if (!canchaBrandRepository.existsByBrandName(brand.getBrandName())) {
@@ -63,11 +73,11 @@ public class CanchaBrandService {
         if (!brand.isActive())
             throw new UnableToDropException("La marca ya esta inactiva");
 
-        List<Cancha> canchas = canchaRepository.findByBrandId(canchaBrandId);
+        List<EstablishmentResponseDTO> establishments = establishmentRepository.findByBrandId(canchaBrandId);
 
-        for (Cancha cancha : canchas) {
-            if (cancha.isActive()) {
-                canchaService.deleteCancha(cancha.getId());
+        for (EstablishmentResponseDTO dto : establishments) {
+            if (dto.active()) {
+                establishmentService.deleteEstablishment(dto.id());
             }
         }
 
@@ -92,7 +102,7 @@ public class CanchaBrandService {
     }
 
 
-    public List<Cancha> getCanchasByBrandId(Long brandId) {
-        return canchaRepository.findByBrandId(brandId);
+    public List<CanchaResponseDTO> getCanchasByBrandId(Long brandId) {
+        return canchaRepository.findByEstablishmentId(brandId);
     }
 }
