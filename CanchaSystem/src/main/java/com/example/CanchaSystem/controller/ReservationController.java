@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
@@ -8,7 +9,6 @@ import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ClientService;
-import com.example.CanchaSystem.service.MailService;
 import com.example.CanchaSystem.service.OwnerService;
 import com.example.CanchaSystem.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,46 +44,14 @@ public class ReservationController {
     @Autowired
     private CanchaRepository canchaRepository;
 
-    @Autowired
-    private MailService mailService;
-
     @PostMapping("/insert")
     @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<?> insertReservation(@RequestBody Reservation reservation, Authentication auth) {
-        if (reservation.getMatchDate() == null || reservation.getMatchDate().isBefore(LocalDateTime.now())) {
+    public ResponseEntity<?> insertReservation(@RequestBody ReservationRequestDTO reservationDTO, Authentication auth) {
+        if (reservationDTO.matchDate() == null || reservationDTO.matchDate().isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest().body("La fecha del partido debe ser futura");
         }
 
-        String username = auth.getName();
-        Client client = clientRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        reservation.setClient(client); // fuerza el cliente logueado
-
-        Cancha cancha = canchaRepository.findById(reservation.getCancha().getId())
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
-
-        reservation.setCancha(cancha);
-
-        double deposit = cancha.getTotalAmount() / (double) cancha.getCanchaType().getTotalPlayers();
-
-        if (client.getBankClient() < deposit)
-            throw new NotEnoughMoneyException("No hay suficientes fondos");
-
-        Owner owner = ownerService.getOwnerByCanchaId(cancha.getId())
-                .orElseThrow(() -> new OwnerNotFoundException("No se encontró al dueño para la cancha"));
-
-        clientService.payFromClientBank(client.getId(),deposit);
-        ownerService.addMoneyToOwnerBank(owner.getId(),deposit);
-
-        reservation.setReservationDate(LocalDateTime.now());
-        reservation.setStatus(ReservationStatus.PENDING);
-        reservation.setDeposit(deposit);
-
-        mailService.sendReservationNoticeOwner(owner.getMail(), reservation);
-        mailService.sendReservationNoticeClient(client.getMail(), reservation);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.insertReservation(reservation));
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.insertReservation(reservationDTO, auth));
     }
 
     @GetMapping("/findall")

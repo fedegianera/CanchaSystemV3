@@ -15,9 +15,6 @@ import java.util.List;
 public class NotificationService {
 
     @Autowired
-    MailService mailService;
-
-    @Autowired
     ReservationRepository reservationRepository;
 
     @Scheduled(cron = "0 0 7 * * ?")
@@ -30,7 +27,6 @@ public class NotificationService {
         for (Reservation reservation : reservations) {
             if (reservation.getClient() != null && reservation.getClient().getMail() != null &&
                     reservation.getCancha() != null) {
-                mailService.sendReminder(reservation.getClient().getMail(), reservation);
             } else {
                throw new MissingDataException("Los datos de la reserva id: "+ reservation.getId() + " son inválidos");
             }

@@ -1,4 +1,12 @@
 package com.example.CanchaSystem.dto.request;
 
-public class ReservationRequestDTO {
-}
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record ReservationRequestDTO (
+    Long establishmentId,
+    Long canchaId,
+    LocalDateTime reservationDate,
+    LocalDateTime matchDate,
+    Double deposit
+){}

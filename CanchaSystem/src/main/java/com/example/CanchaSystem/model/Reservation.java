@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(
         uniqueConstraints = @UniqueConstraint(columnNames = {"matchDate", "cancha_id"})
 )
@@ -29,11 +31,11 @@ public class Reservation {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "client_id",nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "cancha_id",nullable = false)
+    @JoinColumn(name = "cancha_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Cancha cancha;
 

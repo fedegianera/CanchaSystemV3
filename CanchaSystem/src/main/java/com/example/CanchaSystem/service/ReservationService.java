@@ -1,8 +1,11 @@
 package com.example.CanchaSystem.service;
 
 
+import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
+import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
+import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
@@ -12,6 +15,7 @@ import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,15 +35,30 @@ public class ReservationService {
     @Autowired
     private ClientRepository clientRepository;
 
-    @Autowired
-    private MailService mailService;
 
 
-    public Reservation insertReservation(Reservation reservation)
+    public Reservation insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
-        if(!reservationRepository.existsBymatchDateAndCanchaId(reservation.getMatchDate(),reservation.getCancha().getId()))
-            return reservationRepository.save(reservation);
-        else
+        if(!reservationRepository.existsBymatchDateAndCanchaId(reservationDTO.matchDate(), reservationDTO.canchaId())) {
+            String username = auth.getName();
+
+            Client client = clientRepository.findByUsernameAndActive(username, true)
+                    .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+
+            Cancha cancha = canchaRepository.findById(reservationDTO.canchaId())
+                    .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+
+            Reservation reservation = Reservation.builder()
+                    .client(client)
+                    .cancha(cancha)
+                    .reservationDate(reservationDTO.reservationDate())
+                    .matchDate(reservationDTO.matchDate())
+                    .deposit(reservationDTO.deposit())
+                    .status(ReservationStatus.PENDING)
+                    .build();
+
+            return reservation;
+        } else
             throw new IllegalReservationDateException("La fecha ya esta reservada");
     }
 
@@ -96,20 +115,20 @@ public class ReservationService {
         return reservationRepository.findByCanchaId(canchaId);
     }
 
-    public List<LocalTime> getAvailableHours(Long canchaId, LocalDate day)throws CanchaNotFoundException{
+    public List<LocalTime> getAvailableHours(Long canchaId, LocalDate day) throws CanchaNotFoundException {
         Cancha canchaAux = canchaRepository.findById(canchaId)
                 .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
 
-        LocalTime firstHour = canchaAux.getOpeningHour();
+        LocalTime firstHour = canchaAux.getEstablishment().getOpeningHour();
         List<LocalTime> allHours = new ArrayList<>();
 
-        while (firstHour.isBefore(canchaAux.getClosingHour())){
+        while (firstHour.isBefore(canchaAux.getEstablishment().getClosingHour())){
             allHours.add(firstHour);
             firstHour = firstHour.plusHours(1);
         }
 
-        LocalDateTime from = day.atTime(canchaAux.getOpeningHour());
-        LocalDateTime until = day.atTime(canchaAux.getClosingHour());
+        LocalDateTime from = day.atTime(canchaAux.getEstablishment().getOpeningHour());
+        LocalDateTime until = day.atTime(canchaAux.getEstablishment().getClosingHour());
 
         List<Reservation> reservations = reservationRepository
                 .findByCanchaIdAndMatchDateBetweenAndStatus(canchaId,from,until,ReservationStatus.PENDING);
@@ -184,15 +203,6 @@ public class ReservationService {
 //            }
 //        }
 //    }
-
-
-    public Optional<Owner> getOwnerFromReservation(Long reservationId) {
-        return reservationRepository.findById(reservationId)
-                .map(Reservation::getCancha)
-                .map(Cancha::getBrand)
-                .map(Brand::getOwner);
-    }
-
 
 }
 
