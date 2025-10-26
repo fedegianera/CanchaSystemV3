@@ -27,7 +27,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
 
     List<Reservation> findByMatchDateBetweenAndStatus(LocalDateTime from, LocalDateTime until,ReservationStatus status);
     List<Reservation> findByMatchDateBeforeAndStatus(LocalDateTime now, ReservationStatus status);
-    List<ReservationResponseDTO> findByCanchaIdAndMatchDateBetweenAndStatus(Long canchaId, LocalDateTime start, LocalDateTime end, ReservationStatus status);
+    List<Reservation> findByCanchaIdAndMatchDateBetweenAndStatus(Long canchaId, LocalDateTime start, LocalDateTime end, ReservationStatus status);
 
 
 

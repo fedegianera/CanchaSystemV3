@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -125,7 +126,7 @@ public class ReservationService {
 
     //EN DUDA
     public Map<String, List<LocalTime>> getAvailableHours(Long establishmentId, LocalDate day) throws CanchaNotFoundException {
-        EstablishmentResponseDTO establishment = establishmentRepository.findById(establishmentId)
+        EstablishmentResponseDTO establishment = establishmentRepository.findByIdAndActive(establishmentId, true)
                 .orElseThrow(() -> new CanchaNotFoundException("Establecimiento no encontrado"));
 
         List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId, true, true);
@@ -154,14 +155,19 @@ public class ReservationService {
             CanchaType type = entry.getKey();
             List<CanchaResponseDTO> sameTypeCanchas = entry.getValue();
 
-            List<ReservationResponseDTO> reservations = new ArrayList<>();
+            List<Reservation> reservations = new ArrayList<>();
+
             for (CanchaResponseDTO cancha : sameTypeCanchas) {
                 reservations.addAll(reservationRepository.findByCanchaIdAndMatchDateBetweenAndStatus(
                         cancha.id(), from, until, ReservationStatus.PENDING));
             }
 
             Map<LocalTime, Long> reservationsCount = reservations.stream()
-                    .collect(Collectors.groupingBy(res -> res.matchDate().toLocalTime(), Collectors.counting()));
+                    .collect(Collectors.groupingBy(
+                            r -> r.getMatchDate().toLocalTime().truncatedTo(ChronoUnit.HOURS),
+                            Collectors.counting()
+                    ));
+
 
             int totalCanchas = sameTypeCanchas.size();
 

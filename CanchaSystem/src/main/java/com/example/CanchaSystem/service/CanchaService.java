@@ -1,6 +1,7 @@
 package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
+import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
@@ -36,7 +37,7 @@ public class CanchaService {
 
     public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
         Establishment establishment = establishmentRepository.findById(canchaDTO.establishmentId())
-                .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
+                .orElseThrow(() -> new CanchaNotFoundException("Marca no encontrada"));
 
         Cancha cancha = Cancha.builder()
                 .totalAmount(canchaDTO.totalAmount())
