@@ -43,38 +43,32 @@ public class CanchaBrandService {
     private EstablishmentService establishmentService;
 
     public Brand insertCanchaBrand(Brand brand) throws CanchaBrandNameAlreadyExistsException {
-        if (!canchaBrandRepository.existsByBrandName(brand.getBrandName())) {
-            return canchaBrandRepository.save(brand);
-        } else throw new CanchaBrandNameAlreadyExistsException("El nombre de la Marca ya existe");
+        if (canchaBrandRepository.existsByBrandName(brand.getBrandName()))
+            throw new CanchaBrandNameAlreadyExistsException("El nombre de la Marca ya existe");
+
+        return canchaBrandRepository.save(brand);
     }
 
     public List<Brand> getAllCanchaBrands() throws NoCanchaBrandsException {
-        List<Brand> brands = canchaBrandRepository.findAll();
-        if (brands.isEmpty())
-            throw new NoCanchaBrandsException("Todavia no hay Marcas registradas");
-        return brands;
+        return canchaBrandRepository.findAll();
     }
 
-    public Brand updateCanchaBrand(Brand brandFromRequest) throws CanchaBrandNotFoundException {
-        Brand brand = canchaBrandRepository.findById(brandFromRequest.getId())
-                .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
+    public Brand updateCanchaBrand(Brand updated) throws CanchaBrandNotFoundException {
+        Brand brand = findCanchaBrandById(updated.getId());
 
-        brand.setBrandName(brandFromRequest.getBrandName());
-        brand.setActive(brandFromRequest.isActive());
+        brand.setBrandName(updated.getBrandName());
+        brand.setActive(updated.isActive());
 
         return canchaBrandRepository.save(brand);
     }
 
     public void deleteCanchaBrand(Long canchaBrandId) {
-
-        Brand brand = canchaBrandRepository.findById(canchaBrandId)
-                .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
+        Brand brand = findCanchaBrandById(canchaBrandId);
 
         if (!brand.isActive())
-            throw new UnableToDropException("La marca ya esta inactiva");
+            throw new UnableToDropException("La marca ya está inactiva");
 
         List<EstablishmentResponseDTO> establishments = establishmentRepository.findByBrandId(canchaBrandId);
-
         for (EstablishmentResponseDTO dto : establishments) {
             if (dto.active()) {
                 establishmentService.deleteEstablishment(dto.id());
@@ -86,7 +80,8 @@ public class CanchaBrandService {
     }
 
     public Brand findCanchaBrandById(Long id) throws CanchaBrandNotFoundException {
-        return canchaBrandRepository.findById(id).orElseThrow(()-> new CanchaBrandNotFoundException("Marca no encontrada"));
+        return canchaBrandRepository.findById(id)
+                .orElseThrow(()-> new CanchaBrandNotFoundException("Marca no encontrada"));
     }
 
     public List<Brand> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
@@ -96,9 +91,8 @@ public class CanchaBrandService {
             throw new OwnerNotFoundException("Dueño no encontrado");
 
         Owner owner = optOwner.get();
-        List<Brand> brands = canchaBrandRepository.findByOwnerIdAndActive(owner.getId(), true);
 
-        return brands;
+        return canchaBrandRepository.findByOwnerIdAndActive(owner.getId(), true);
     }
 
 

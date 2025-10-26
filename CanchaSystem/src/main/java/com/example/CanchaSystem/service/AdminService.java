@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,33 +27,34 @@ public class AdminService {
         Role adminRole = roleRepository.findByName("ADMIN")
                 .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
 
-        if (!adminRepository.existsByUsername(admin.getUsername())) {
-            admin.setRole(adminRole);
-            return adminRepository.save(admin);
-        }
-        else throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
+        if (adminRepository.existsByUsername(admin.getUsername()))
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
 
-    public List<Admin> getAllAdmins() throws NoAdminsException {
-        List<Admin> admins = adminRepository.findAll();
-        if(admins.isEmpty())
-            throw new NoAdminsException("Todavia no hay administradores registrados");
-        return admins;
+        admin.setRole(adminRole);
+        return adminRepository.save(admin);
     }
 
-    public Admin updateAdmin(Admin admin) throws AdminNotFoundException {
-        if(adminRepository.existsById(admin.getId())){
-            return adminRepository.save(admin);
-        }else
-            throw new AdminNotFoundException("Administrador no encontrado");
+    public List<Admin> getAllAdmins() {
+        return adminRepository.findAll();
     }
 
-    public void deleteAdmin(UUID id) throws AdminNotFoundException{
-        if (adminRepository.existsById(id)) {
-            adminRepository.deleteById(id);
-        }else
+    public Admin updateAdmin(Admin updated) throws AdminNotFoundException {
+        Admin admin = findAdminById(updated.getId());
+
+        admin.setUsername(updated.getUsername());
+        admin.setPassword(updated.getPassword());
+
+        return adminRepository.save(admin);
+    }
+
+    public Admin deleteAdmin(UUID id) throws AdminNotFoundException {
+        Optional<Admin> admin = adminRepository.findById(id);
+
+        if (admin.isEmpty())
             throw new AdminNotFoundException("Administrador no encontrado");
 
+        adminRepository.deleteById(id);
+        return admin.get();
     }
 
     public Admin findAdminById(UUID id) throws AdminNotFoundException {

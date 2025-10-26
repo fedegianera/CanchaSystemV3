@@ -51,23 +51,16 @@ public class CanchaService {
     }
 
     public List<Cancha> getAllCanchas() throws NoCanchasException {
-        List<Cancha> canchas =  canchaRepository.findAll();
-        if(canchas.isEmpty()){
-            throw new NoCanchasException("Todavia no hay Canchas registradas");
-        }
-
-        return canchas;
+        return canchaRepository.findAll();
     }
 
 
     public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) throws NoCanchasException {
-        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentId(id);
-        return canchas;
+        return canchaRepository.findByEstablishmentId(id);
     }
 
-    public Cancha updateCancha(Long id,Cancha updated) throws CanchaNotFoundException {
-        Cancha cancha = canchaRepository.findById(id)
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+    public Cancha updateCancha(Long id, Cancha updated) throws CanchaNotFoundException {
+        Cancha cancha = findCanchaById(id);
 
         cancha.setTotalAmount(updated.getTotalAmount());
         cancha.setActive(updated.isActive());
@@ -79,21 +72,18 @@ public class CanchaService {
     }
 
     public void deleteCancha(Long canchaId) {
-
-        Cancha cancha = canchaRepository.findById(canchaId)
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+        Cancha cancha = findCanchaById(canchaId);
 
         if (!cancha.isActive())
-            throw new UnableToDropException("La cancha ya esta inactivo");
+            throw new UnableToDropException("La cancha ya está inactiva");
 
         List<Review> reviews = reviewService.getAllReviewsByCanchaId(cancha.getId());
-
         for (Review review : reviews) {
             reviewService.deleteReview(review.getId());
         }
 
         List<Reservation> reservations = reservationService.findReservationsByCanchaId(cancha.getId());
-
+        // TODO: reservation.active attr
         for (Reservation reservation : reservations) {
             reservationService.cancelReservation(reservation);
         }
@@ -104,25 +94,16 @@ public class CanchaService {
     }
 
     public Cancha findCanchaById(Long id) throws CanchaNotFoundException {
-        return canchaRepository.findById(id).orElseThrow(()-> new CanchaNotFoundException("Cancha no encontrada"));
+        return canchaRepository.findById(id)
+                .orElseThrow(()-> new CanchaNotFoundException("Cancha no encontrada"));
     }
 
     public List<CanchaResponseDTO> getAllActiveCanchas() throws NoCanchasException {
-        List<CanchaResponseDTO> canchas =  canchaRepository.findByActiveAndWorking(true, true);
-        if(canchas.isEmpty()){
-            throw new NoCanchasException("Todavia no hay Canchas activas");
-        }
-
-        return canchas;
+        return canchaRepository.findByActiveAndWorking(true, true);
     }
 
     public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) throws NoCanchasException {
-        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("La marca no tiene canchas activas");
-        }
-
-        return canchas;
+        return canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
     }
 
 }
