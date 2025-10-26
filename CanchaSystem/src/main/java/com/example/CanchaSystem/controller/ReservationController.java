@@ -45,13 +45,15 @@ public class ReservationController {
     private CanchaRepository canchaRepository;
 
     @PostMapping("/insert")
-    @PreAuthorize("hasRole('CLIENT')")
+//    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<?> insertReservation(@RequestBody ReservationRequestDTO reservationDTO, Authentication auth) {
         if (reservationDTO.matchDate() == null || reservationDTO.matchDate().isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest().body("La fecha del partido debe ser futura");
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.insertReservation(reservationDTO, auth));
+        reservationService.insertReservation(reservationDTO, auth);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Reserva hecha");
     }
 
     @GetMapping("/findall")

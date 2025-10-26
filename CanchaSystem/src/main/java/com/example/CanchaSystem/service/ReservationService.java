@@ -46,7 +46,7 @@ public class ReservationService {
 
 
 
-    public Reservation insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
+    public void insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
         if(!reservationRepository.existsBymatchDateAndCanchaId(reservationDTO.matchDate(), reservationDTO.canchaId())) {
             String username = auth.getName();
@@ -65,8 +65,6 @@ public class ReservationService {
                     .deposit(reservationDTO.deposit())
                     .status(ReservationStatus.PENDING)
                     .build();
-
-            return reservation;
         } else
             throw new IllegalReservationDateException("La fecha ya esta reservada");
     }
