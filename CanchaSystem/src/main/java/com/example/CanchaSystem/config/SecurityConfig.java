@@ -45,7 +45,9 @@ public class SecurityConfig {
                                 "/register.html", "/client/insertClient",
                                 "/css/**", "/register.js", "/login.js", "/images/**",
                                 "/login.html", "/login.css", "/home-client.css", "/client-canchas.css",
-                                "/details-cancha.css", "register.css", "/establishment/findAllActive", "/cancha/getCanchasByEstablishmentId/{id}"
+                                "/details-cancha.css", "register.css", "/establishment/findAllActive", "/cancha/getCanchasByEstablishmentId/{id}" +
+                                        "" +
+                                        ""
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

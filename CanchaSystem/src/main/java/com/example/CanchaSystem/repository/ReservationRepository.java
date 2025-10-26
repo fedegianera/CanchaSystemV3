@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.repository;
 
+import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.model.Reservation;
 import com.example.CanchaSystem.model.ReservationStatus;
@@ -26,7 +27,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
 
     List<Reservation> findByMatchDateBetweenAndStatus(LocalDateTime from, LocalDateTime until,ReservationStatus status);
     List<Reservation> findByMatchDateBeforeAndStatus(LocalDateTime now, ReservationStatus status);
-    List<Reservation> findByCanchaIdAndMatchDateBetweenAndStatus(Long canchaId, LocalDateTime start, LocalDateTime end, ReservationStatus status);
+    List<ReservationResponseDTO> findByCanchaIdAndMatchDateBetweenAndStatus(Long canchaId, LocalDateTime start, LocalDateTime end, ReservationStatus status);
 
 
 

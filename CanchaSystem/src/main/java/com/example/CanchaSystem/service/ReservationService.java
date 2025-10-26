@@ -2,6 +2,9 @@ package com.example.CanchaSystem.service;
 
 
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
+import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
+import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
+import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
@@ -12,8 +15,10 @@ import com.example.CanchaSystem.exception.reservation.ReservationNotFoundExcepti
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
+import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -34,6 +39,9 @@ public class ReservationService {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private EstablishmentRepository establishmentRepository;
 
 
 
@@ -115,32 +123,58 @@ public class ReservationService {
         return reservationRepository.findByCanchaId(canchaId);
     }
 
-    public List<LocalTime> getAvailableHours(Long canchaId, LocalDate day) throws CanchaNotFoundException {
-        Cancha canchaAux = canchaRepository.findById(canchaId)
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+    //EN DUDA
+    public Map<String, List<LocalTime>> getAvailableHours(Long establishmentId, LocalDate day) throws CanchaNotFoundException {
+        EstablishmentResponseDTO establishment = establishmentRepository.findById(establishmentId)
+                .orElseThrow(() -> new CanchaNotFoundException("Establecimiento no encontrado"));
 
-        LocalTime firstHour = canchaAux.getEstablishment().getOpeningHour();
-        List<LocalTime> allHours = new ArrayList<>();
-
-        while (firstHour.isBefore(canchaAux.getEstablishment().getClosingHour())){
-            allHours.add(firstHour);
-            firstHour = firstHour.plusHours(1);
+        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId, true, true);
+        if (canchas.isEmpty()) {
+            throw new CanchaNotFoundException("Cancha/s inexistente/s");
         }
 
-        LocalDateTime from = day.atTime(canchaAux.getEstablishment().getOpeningHour());
-        LocalDateTime until = day.atTime(canchaAux.getEstablishment().getClosingHour());
+        Map<CanchaType, List<CanchaResponseDTO>> groupedByType = new HashMap<>();
+        for (CanchaResponseDTO cancha : canchas) {
+            groupedByType.computeIfAbsent(cancha.canchaType(), k -> new ArrayList<>()).add(cancha);
+        }
 
-        List<Reservation> reservations = reservationRepository
-                .findByCanchaIdAndMatchDateBetweenAndStatus(canchaId,from,until,ReservationStatus.PENDING);
+        List<LocalTime> allHours = new ArrayList<>();
+        LocalTime currentHour = establishment.openingHour();
+        while (currentHour.isBefore(establishment.closingHour())) {
+            allHours.add(currentHour);
+            currentHour = currentHour.plusHours(1);
+        }
 
-        Set<LocalTime> reservedHours = reservations.stream()
-                .map(reservation -> reservation.getMatchDate().toLocalTime())
-                .collect(Collectors.toSet());
+        LocalDateTime from = day.atTime(establishment.openingHour());
+        LocalDateTime until = day.atTime(establishment.closingHour());
 
-        return allHours.stream()
-                .filter(availableHour -> !reservedHours.contains(availableHour))
-                .collect(Collectors.toList());
+        Map<String, List<LocalTime>> availableHoursMap = new HashMap<>();
+
+        for (Map.Entry<CanchaType, List<CanchaResponseDTO>> entry : groupedByType.entrySet()) {
+            CanchaType type = entry.getKey();
+            List<CanchaResponseDTO> sameTypeCanchas = entry.getValue();
+
+            List<ReservationResponseDTO> reservations = new ArrayList<>();
+            for (CanchaResponseDTO cancha : sameTypeCanchas) {
+                reservations.addAll(reservationRepository.findByCanchaIdAndMatchDateBetweenAndStatus(
+                        cancha.id(), from, until, ReservationStatus.PENDING));
+            }
+
+            Map<LocalTime, Long> reservationsCount = reservations.stream()
+                    .collect(Collectors.groupingBy(res -> res.matchDate().toLocalTime(), Collectors.counting()));
+
+            int totalCanchas = sameTypeCanchas.size();
+
+            List<LocalTime> availableHours = allHours.stream()
+                    .filter(hour -> reservationsCount.getOrDefault(hour, 0L) < totalCanchas)
+                    .toList();
+
+            availableHoursMap.put(type.name(), availableHours);
+        }
+
+        return availableHoursMap;
     }
+
 
     public Reservation completeReservation(Reservation reservation){
         if(reservationRepository.existsById(reservation.getId())){
