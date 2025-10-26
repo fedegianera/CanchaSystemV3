@@ -46,17 +46,15 @@ public class ClientService {
 
 
     public Client insertClient(ClientRequestDTO clientDTO) {
-        if (clientRepository.existsByUsernameAndActive(clientDTO.username(), true) || adminRepository.existsByUsername(clientDTO.username()) || ownerRepository.existsByUsernameAndActive(clientDTO.username(), true)) {
+        // TODO: admin existsByUsernameAndActive()
+        if (clientRepository.existsByUsernameAndActive(clientDTO.username(), true)
+                || adminRepository.existsByUsername(clientDTO.username())
+                || ownerRepository.existsByUsernameAndActive(clientDTO.username(), true))
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
-
-        if (clientRepository.existsByMail(clientDTO.mail())) {
-            throw new MailAlreadyRegisteredException("El correo ya esta registrado");
-        }
-
-        if (clientRepository.existsByCellNumber(clientDTO.cellNumber())) {
-            throw new CellNumberAlreadyAddedException("El numero ya esta añadido");
-        }
+        if (clientRepository.existsByMail(clientDTO.mail()))
+            throw new MailAlreadyRegisteredException("El correo ya está registrado");
+        if (clientRepository.existsByCellNumber(clientDTO.cellNumber()))
+            throw new CellNumberAlreadyAddedException("El número ya esta añadido");
 
         Role clientRole = roleRepo.findByName("CLIENT")
                 .orElseGet(() -> roleRepo.save(new Role("CLIENT")));
@@ -76,39 +74,33 @@ public class ClientService {
     }
 
     public List<Client> getAllClients() throws NoClientsException {
-        List<Client> clients = clientRepository.findAll();
-        if(clients.isEmpty())
-            throw new NoClientsException("Todavia no hay clientes registrados");
-        return clients;
-
+        return clientRepository.findAll();
     }
 
-    public Client updateClient(Client clientFromRequest) throws ClientNotFoundException {
-        Client client = clientRepository.findById(clientFromRequest.getId())
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+    public Client updateClient(Client update) throws ClientNotFoundException {
+        Client client = findClientById(update.getId());
 
-        client.setName(clientFromRequest.getName());
-        client.setLastName(clientFromRequest.getLastName());
-        client.setUsername(clientFromRequest.getUsername());
-        client.setMail(clientFromRequest.getMail());
-        client.setCellNumber(clientFromRequest.getCellNumber());
+        client.setName(update.getName());
+        client.setLastName(update.getLastName());
+        client.setUsername(update.getUsername());
+        client.setMail(update.getMail());
+        client.setCellNumber(update.getCellNumber());
 
         return clientRepository.save(client);
     }
 
-    public Client updateClientAdmin(Client clientFromRequest) throws ClientNotFoundException {
-        Client client = clientRepository.findById(clientFromRequest.getId())
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+    public Client updateClientAdmin(Client update) throws ClientNotFoundException {
+        Client client = findClientById(update.getId());
 
-        client.setName(clientFromRequest.getName());
-        client.setLastName(clientFromRequest.getLastName());
-        client.setUsername(clientFromRequest.getUsername());
-        client.setMail(clientFromRequest.getMail());
-        client.setCellNumber(clientFromRequest.getCellNumber());
-        client.setBankClient(clientFromRequest.getBankClient());
-        client.setActive(clientFromRequest.isActive());
+        client.setName(update.getName());
+        client.setLastName(update.getLastName());
+        client.setUsername(update.getUsername());
+        client.setMail(update.getMail());
+        client.setCellNumber(update.getCellNumber());
+        client.setBankClient(update.getBankClient());
+        client.setActive(update.isActive());
 
-        String pass = clientFromRequest.getPassword();
+        String pass = update.getPassword();
 
         if (!pass.isEmpty()) {
             client.setPassword(passwordEncoder.encode(pass));
@@ -117,54 +109,44 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public Client addMoneyToClientBank(UUID clientId,double addedAmount){
+    public Client addMoneyToClientBank(UUID clientId, double addedAmount) {
+        if (addedAmount <= 0)
+            throw new IllegalAmountException("Monto inválido");
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+        Client client = findClientById(clientId);
 
         if (!client.isActive())
             throw new UnactiveClientException("Cliente dado de baja");
 
-        if (addedAmount <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
-        client.setBankClient(client.getBankClient()+addedAmount);
+        client.setBankClient(client.getBankClient() + addedAmount);
         return clientRepository.save(client);
-
     }
 
-    public Client payFromClientBank(UUID clientId, double amountToPay){
+    public Client payFromClientBank(UUID clientId, double amountToPay) {
+        if (amountToPay <= 0)
+            throw new IllegalAmountException("Monto inválido");
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+        Client client = findClientById(clientId);
 
         if (!client.isActive())
             throw new UnactiveClientException("Cliente dado de baja");
-
-        if (amountToPay <= 0)
-            throw new IllegalAmountException("Monto invalido");
 
         client.setBankClient(client.getBankClient()-amountToPay);
         return clientRepository.save(client);
-
     }
 
     public Client deleteClient(UUID clientId) {
-
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+        Client client = findClientById(clientId);
 
         if (!client.isActive())
-            throw new UnableToDropException("El cliente ya esta inactivo");
+            throw new UnableToDropException("El cliente ya está inactivo");
 
         List<Review> reviews = reviewService.getAllReviewsByClient(client.getUsername());
-
         for (Review review : reviews) {
             reviewService.deleteReview(review.getId());
         }
 
         List<Reservation> reservations = reservationService.findReservationsByClient(client.getUsername());
-
         for (Reservation reservation : reservations) {
             reservationService.cancelReservation(reservation);
         }
@@ -178,6 +160,8 @@ public class ClientService {
     }
 
     public boolean verifyUsername(String username) {
-        return clientRepository.existsByUsernameAndActive(username, true) || adminRepository.existsByUsername(username) || ownerRepository.existsByUsernameAndActive(username, true);
+        return clientRepository.existsByUsernameAndActive(username, true)
+                || adminRepository.existsByUsername(username)
+                || ownerRepository.existsByUsernameAndActive(username, true);
     }
 }

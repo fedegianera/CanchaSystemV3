@@ -44,55 +44,47 @@ public class OwnerService {
         Role ownerRole = roleRepository.findByName("OWNER")
                 .orElseGet(() -> roleRepository.save(new Role("OWNER")));
 
-        if(!ownerRepository.existsByUsernameAndActive(owner.getUsername(), true)) {
-            owner.setRole(ownerRole);
+        if (ownerRepository.existsByUsernameAndActive(owner.getUsername(), true))
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
 
-            owner.setPassword(passwordEncoder.encode(owner.getPassword()));
-            return ownerRepository.save(owner);
+        owner.setRole(ownerRole);
+        owner.setPassword(passwordEncoder.encode(owner.getPassword()));
 
-        }  else throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+        return ownerRepository.save(owner);
     }
 
     public List<Owner> getAllOwners() throws NoOwnersException {
-        List<Owner> owners = ownerRepository.findAll();
-        if(owners.isEmpty())
-            throw new NoOwnersException("Todavia no hay dueños registrados");
-        return owners;
+        return ownerRepository.findAll();
     }
 
-    public Owner updateOwner(Owner ownerFromRequest) throws OwnerNotFoundException {
-        Owner owner = ownerRepository.findById(ownerFromRequest.getId())
-                .orElseThrow(() -> new ClientNotFoundException("Dueño no encontrado"));
+    public Owner updateOwner(Owner update) throws OwnerNotFoundException {
+        Owner owner = findOwnerById(update.getId());
 
-        owner.setName(ownerFromRequest.getName());
-        owner.setLastName(ownerFromRequest.getLastName());
-        owner.setUsername(ownerFromRequest.getUsername());
-        owner.setMail(ownerFromRequest.getMail());
-        owner.setCellNumber(ownerFromRequest.getCellNumber());
-        owner.setBankOwner(ownerFromRequest.getBankOwner());
+        owner.setName(update.getName());
+        owner.setLastName(update.getLastName());
+        owner.setUsername(update.getUsername());
+        owner.setMail(update.getMail());
+        owner.setCellNumber(update.getCellNumber());
+        owner.setBankOwner(update.getBankOwner());
 
         return ownerRepository.save(owner);
     }
 
     public Owner addMoneyToOwnerBank(UUID ownerId, double addedAmount){
+        if (addedAmount <= 0)
+            throw new IllegalAmountException("Monto inválido");
 
-        Owner owner = ownerRepository.findById(ownerId)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+        Owner owner = findOwnerById(ownerId);
 
         if (!owner.isActive())
             throw new UnactiveOwnerException("Dueño dado de baja");
 
-        if (addedAmount <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
         owner.setBankOwner(owner.getBankOwner()+addedAmount);
         return ownerRepository.save(owner);
-
     }
 
     public Owner updateOwnerAdmin(Owner ownerFromRequest) throws OwnerNotFoundException {
-        Owner owner = ownerRepository.findById(ownerFromRequest.getId())
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+        Owner owner = findOwnerById(ownerFromRequest.getId());
 
         owner.setName(ownerFromRequest.getName());
         owner.setLastName(ownerFromRequest.getLastName());
@@ -111,31 +103,29 @@ public class OwnerService {
     }
 
     public void deleteOwner(UUID ownerId){
-
-        Owner owner = ownerRepository.findById(ownerId)
-                .orElseThrow(() -> new OwnerNotFoundException("Owner no encontrado"));
+        Owner owner = findOwnerById(ownerId);
 
         if (!owner.isActive())
-            throw new UnableToDropException("El dueño ya esta inactiva");
+            throw new UnableToDropException("El dueño ya está inactivo");
 
         List<Brand> brands = canchaBrandService.findCanchaBrandsByOwnerUsername(owner.getUsername());
-
         for (Brand brand : brands) {
             canchaBrandService.deleteCanchaBrand(brand.getId());
         }
 
         owner.setActive(false);
         ownerRepository.save(owner);
-
     }
 
     public Owner findOwnerById(UUID id) throws OwnerNotFoundException {
-        return ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("Dueño no encontrado"));
+        return ownerRepository.findById(id)
+                .orElseThrow(()-> new OwnerNotFoundException("Dueño no encontrado"));
     }
 
     public boolean verifyUsername(String username) {
-        return clientRepository.existsByUsernameAndActive(username, true) || adminRepository.existsByUsername(username) || ownerRepository.existsByUsernameAndActive(username, true);
+        return clientRepository.existsByUsernameAndActive(username, true)
+                || adminRepository.existsByUsername(username)
+                || ownerRepository.existsByUsernameAndActive(username, true);
     }
-
 }
 
