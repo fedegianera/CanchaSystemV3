@@ -48,55 +48,55 @@ public class ReservationService {
 
     public void insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
-        if(!reservationRepository.existsBymatchDateAndCanchaId(reservationDTO.matchDate(), reservationDTO.canchaId())) {
-            String username = auth.getName();
-
-            Client client = clientRepository.findByUsernameAndActive(username, true)
-                    .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-            Cancha cancha = canchaRepository.findById(reservationDTO.canchaId())
-                    .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
-
-            Reservation reservation = Reservation.builder()
-                    .client(client)
-                    .cancha(cancha)
-                    .reservationDate(reservationDTO.reservationDate())
-                    .matchDate(reservationDTO.matchDate())
-                    .deposit(reservationDTO.deposit())
-                    .status(ReservationStatus.PENDING)
-                    .build();
-        } else
+        if (reservationRepository.existsBymatchDateAndCanchaId(reservationDTO.matchDate(), reservationDTO.canchaId()))
             throw new IllegalReservationDateException("La fecha ya esta reservada");
+
+        String username = auth.getName();
+
+        Client client = clientRepository.findByUsernameAndActive(username, true)
+                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+
+        Cancha cancha = canchaRepository.findById(reservationDTO.canchaId())
+                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+
+        Reservation reservation = Reservation.builder()
+                .client(client)
+                .cancha(cancha)
+                .reservationDate(reservationDTO.reservationDate())
+                .matchDate(reservationDTO.matchDate())
+                .deposit(reservationDTO.deposit())
+                .status(ReservationStatus.PENDING)
+                .build();
+
+        reservationRepository.save(reservation);
     }
 
-    public List<Reservation> getAllReservations() throws NoReservationsException {
-        if(!reservationRepository.findAll().isEmpty()){
-            return reservationRepository.findAll();
-        }else
-            throw new NoReservationsException("Todavia no hay reservas registradas");
-
-
+    public List<Reservation> getAllReservations() {
+        return reservationRepository.findAll();
     }
 
     public Reservation updateReservation(Reservation reservation) throws ReservationNotFoundException {
-        Reservation existing = reservationRepository.findById(reservation.getId())
-                .orElseThrow(() ->  new ReservationNotFoundException("Reserva no encontrada"));
+        Reservation existing = findReservationById(reservation.getId());
+
         existing.setStatus(reservation.getStatus());
         existing.setMatchDate(reservation.getMatchDate());
-        return reservationRepository.save(existing);
 
+        return reservationRepository.save(existing);
     }
 
-    public void deleteReservation(Long id) throws ReservationNotFoundException{
-        if (reservationRepository.existsById(id)) {
-            reservationRepository.deleteById(id);
-        }else
+    public Reservation deleteReservation(Long id) throws ReservationNotFoundException {
+        Optional<Reservation> optReservation = reservationRepository.findById(id);
+
+        if (optReservation.isEmpty())
             throw new ReservationNotFoundException("Reserva no encontrada");
 
+        reservationRepository.deleteById(id);
+        return optReservation.get();
     }
 
     public Reservation findReservationById(Long id) throws ReservationNotFoundException {
-        return reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+        return reservationRepository.findById(id)
+                .orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
     }
 
     public List<Reservation> findReservationsByClient(String username) throws NoReservationsException {

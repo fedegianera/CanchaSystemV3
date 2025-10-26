@@ -28,49 +28,39 @@ public class ReviewService {
     }
 
     public List<Review> getAllReviews() throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findAll();
-        if(!reviews.isEmpty()){
-            return reviews;
-        }else
-            throw new NoReviewsException("Todavia no hay reseñas hechas");
+        return reviewRepository.findAll();
     }
 
     public Review updateReview(Review review) throws ReviewNotFoundException {
-        Review existing = reviewRepository.findById(review.getId())
-                .orElseThrow(() -> new ReviewNotFoundException("Reseña no encontrada"));
+        Review existing = findReviewById(review.getId());
 
         existing.setRating(review.getRating());
         existing.setMessage(review.getMessage());
+
         return reviewRepository.save(existing);
     }
 
     public void deleteReview(Long reviewId){
-
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ReviewNotFoundException("Review no encontrado"));
+        Review review = findReviewById(reviewId);
 
         if (!review.isActive())
-            throw new UnableToDropException("La review ya esta inactiva");
+            throw new UnableToDropException("La review ya está inactiva");
 
         review.setActive(false);
         reviewRepository.save(review);
-
     }
 
     public Review findReviewById(Long id) throws ReviewNotFoundException {
-        return reviewRepository.findById(id).orElseThrow(()-> new ReviewNotFoundException("Reseña no encontrada"));
+        return reviewRepository.findById(id)
+                .orElseThrow(()-> new ReviewNotFoundException("Reseña no encontrada"));
     }
 
     public List<Review> getAllReviewsByCanchaId(Long canchaId) throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findByCanchaIdAndActive(canchaId, true);
-
-        return reviews;
+        return reviewRepository.findByCanchaIdAndActive(canchaId, true);
     }
 
     public List<Review> getAllReviewsByCanchaIdAdmin(Long canchaId) throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findByCanchaId(canchaId);
-
-        return reviews;
+        return reviewRepository.findByCanchaId(canchaId);
     }
 
     public List<Review> getAllReviewsByClient(String username) throws NoReviewsException, ClientNotFoundException {
@@ -82,16 +72,10 @@ public class ReviewService {
 
         Client client = clientOpt.get();
 
-        List<Review> reviews = reviewRepository.findByClientIdAndActive(client.getId(), true);
-
-        if (!reviews.isEmpty()){
-            return reviews;
-        }else
-            throw new NoReviewsException("Todavia no hay reseñas hechas por el cliente");
+        return reviewRepository.findByClientIdAndActive(client.getId(), true);
     }
 
     public boolean clientAlreadyReviewedCancha(Long canchaId,Long clientId){
         return reviewRepository.existsByCanchaIdAndClientIdAndActive(canchaId,clientId, true);
     }
-
 }
