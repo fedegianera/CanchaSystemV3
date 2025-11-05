@@ -105,7 +105,6 @@ public class ClientService {
         client.setUsername(clientFromRequest.getUsername());
         client.setMail(clientFromRequest.getMail());
         client.setCellNumber(clientFromRequest.getCellNumber());
-        client.setBankClient(clientFromRequest.getBankClient());
         client.setActive(clientFromRequest.isActive());
 
         String pass = clientFromRequest.getPassword();
@@ -128,7 +127,6 @@ public class ClientService {
         if (addedAmount <= 0)
             throw new IllegalAmountException("Monto invalido");
 
-        client.setBankClient(client.getBankClient()+addedAmount);
         return clientRepository.save(client);
 
     }
@@ -144,7 +142,6 @@ public class ClientService {
         if (amountToPay <= 0)
             throw new IllegalAmountException("Monto invalido");
 
-        client.setBankClient(client.getBankClient()-amountToPay);
         return clientRepository.save(client);
 
     }

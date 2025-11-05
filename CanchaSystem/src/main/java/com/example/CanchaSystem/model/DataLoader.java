@@ -1,6 +1,6 @@
-//package com.example.CanchaSystem.config;
+//package com.example.CanchaSystem.model;
 //
-//import com.example.CanchaSystem.model.*;
+//
 //import com.example.CanchaSystem.repository.*;
 //import com.github.javafaker.Faker;
 //import org.springframework.boot.CommandLineRunner;
@@ -138,7 +138,6 @@
 //            client.setMail(faker.internet().emailAddress());
 //            client.setCellNumber(faker.phoneNumber().cellPhone());
 //            client.setRole(clientRole);
-//            client.setBankClient(faker.number().randomDouble(2, 0, 1000));
 //            client.setActive(true);
 //            clients.add(clientRepository.save(client));
 //        }
