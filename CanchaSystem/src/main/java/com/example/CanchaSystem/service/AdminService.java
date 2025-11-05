@@ -48,16 +48,14 @@ public class AdminService {
     }
 
     public Admin deleteAdmin(UUID id) throws AdminNotFoundException {
-        Optional<Admin> admin = adminRepository.findById(id);
-
-        if (admin.isEmpty())
-            throw new AdminNotFoundException("Administrador no encontrado");
+        Admin admin = findAdminById(id);
 
         adminRepository.deleteById(id);
-        return admin.get();
+        return admin;
     }
 
     public Admin findAdminById(UUID id) throws AdminNotFoundException {
-        return adminRepository.findById(id).orElseThrow(()-> new AdminNotFoundException("Administrador no encontrado"));
+        return adminRepository.findById(id)
+                .orElseThrow(()-> new AdminNotFoundException("Administrador no encontrado"));
     }
 }

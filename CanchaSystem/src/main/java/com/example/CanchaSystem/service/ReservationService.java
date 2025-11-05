@@ -4,22 +4,16 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
-import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -39,7 +33,7 @@ public class ReservationService {
     private CanchaRepository canchaRepository;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
 
     @Autowired
     private EstablishmentRepository establishmentRepository;
@@ -53,8 +47,7 @@ public class ReservationService {
 
         String username = auth.getName();
 
-        Client client = clientRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+        Client client = clientService.findByUsernameAndActive(username);
 
         Cancha cancha = canchaRepository.findById(reservationDTO.canchaId())
                 .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
@@ -85,13 +78,11 @@ public class ReservationService {
     }
 
     public Reservation deleteReservation(Long id) throws ReservationNotFoundException {
-        Optional<Reservation> optReservation = reservationRepository.findById(id);
-
-        if (optReservation.isEmpty())
-            throw new ReservationNotFoundException("Reserva no encontrada");
+        Reservation reservation = findReservationById(id);
 
         reservationRepository.deleteById(id);
-        return optReservation.get();
+
+        return reservation;
     }
 
     public Reservation findReservationById(Long id) throws ReservationNotFoundException {
@@ -100,22 +91,9 @@ public class ReservationService {
     }
 
     public List<Reservation> findReservationsByClient(String username) throws NoReservationsException {
-        Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
+        Client client = clientService.findByUsernameAndActive(username);
 
-        if (clientOpt.isEmpty()) {
-            throw new ClientNotFoundException("Cliente no encontrado");
-        }
-
-        Client client = clientOpt.get();
-
-        List<Reservation> reservations = reservationRepository.findByClientId(client.getId());
-
-        if (!reservations.isEmpty()) {
-            return reservations;
-        } else {
-            throw new NoReservationsException("Todavia no hay reservas hechas por el cliente");
-        }
-
+        return reservationRepository.findByClientId(client.getId());
     }
 
     public List<Reservation> findReservationsByCanchaId(Long canchaId){
@@ -179,7 +157,7 @@ public class ReservationService {
         return availableHoursMap;
     }
 
-
+    // TODO: change to completeReservation(id)?
     public Reservation completeReservation(Reservation reservation){
         if(reservationRepository.existsById(reservation.getId())){
             reservation.setStatus(ReservationStatus.COMPLETED);
@@ -188,6 +166,7 @@ public class ReservationService {
             throw new ReservationNotFoundException("Reserva no encontrada");
     }
 
+    // TODO: change to cancelReservation(id)?
     public Reservation cancelReservation(Reservation reservation){
         if(reservationRepository.existsById(reservation.getId())){
             reservation.setStatus(ReservationStatus.CANCELED);
