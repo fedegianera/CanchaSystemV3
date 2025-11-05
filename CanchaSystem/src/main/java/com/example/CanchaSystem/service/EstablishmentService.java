@@ -52,6 +52,7 @@ public class EstablishmentService {
 
     public Establishment findEstablishmentById(Long id) throws ClientNotFoundException {
         return establishmentRepository.findById(id)
-                .orElseThrow(()-> new ClientNotFoundException("Establecimiento no encontrado"));
+                // todo: tiraba clientnotfound viste
+                .orElseThrow(ClientNotFoundException::new);
     }
 }

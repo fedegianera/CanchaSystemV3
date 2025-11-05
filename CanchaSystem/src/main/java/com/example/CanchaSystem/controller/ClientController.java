@@ -32,14 +32,14 @@ public class ClientController {
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
         Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
         return ResponseEntity.ok(Map.of("id", client.getId()));
     }
 
     @GetMapping("/name")
     public ResponseEntity<?> getClientName(@AuthenticationPrincipal UserDetails userDetails) {
         Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
         return ResponseEntity.ok(Map.of("name",client.getName()));
     }
 

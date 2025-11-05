@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus
 public class OwnerNotFoundException extends RuntimeException {
-    public OwnerNotFoundException(String message) {
-        super(message);
+    public OwnerNotFoundException() {
+        super("Dueño no encontrado");
     }
 }

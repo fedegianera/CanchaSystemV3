@@ -30,7 +30,7 @@ public class OwnerController {
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(OwnerNotFoundException::new);
         return ResponseEntity.ok(owner.getId());
     }
 
@@ -73,7 +73,7 @@ public class OwnerController {
     @GetMapping("/name")
     public ResponseEntity<?> getOwnerName(@AuthenticationPrincipal UserDetails userDetails) {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(OwnerNotFoundException::new);
         return ResponseEntity.ok(Map.of(
                 "name", owner.getName(),
                 "bankOwner", owner.getBankOwner()

@@ -81,14 +81,14 @@ public class CanchaBrandService {
 
     public Brand findCanchaBrandById(Long id) throws CanchaBrandNotFoundException {
         return canchaBrandRepository.findById(id)
-                .orElseThrow(()-> new CanchaBrandNotFoundException("Marca no encontrada"));
+                .orElseThrow(CanchaBrandNotFoundException::new);
     }
 
     public List<Brand> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
         Optional<Owner> optOwner = ownerRepository.findByUsernameAndActive(username, true);
 
         if (optOwner.isEmpty())
-            throw new OwnerNotFoundException("Dueño no encontrado");
+            throw new OwnerNotFoundException();
 
         Owner owner = optOwner.get();
 

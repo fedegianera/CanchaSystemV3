@@ -67,7 +67,7 @@ public class ReviewService {
         Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
 
         if (clientOpt.isEmpty()) {
-            throw new ClientNotFoundException("Cliente no encontrado");
+            throw new ClientNotFoundException();
         }
 
         Client client = clientOpt.get();

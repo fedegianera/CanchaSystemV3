@@ -37,7 +37,7 @@ public class CanchaBrandController {
 
             String username = auth.getName();
             Owner owner = ownerRepository.findByUsernameAndActive(username, true)
-                    .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                    .orElseThrow(OwnerNotFoundException::new);
 
 
             brand.setOwner(owner);

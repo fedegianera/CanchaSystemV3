@@ -56,6 +56,6 @@ public class AdminService {
 
     public Admin findAdminById(UUID id) throws AdminNotFoundException {
         return adminRepository.findById(id)
-                .orElseThrow(()-> new AdminNotFoundException("Administrador no encontrado"));
+                .orElseThrow(AdminNotFoundException::new);
     }
 }

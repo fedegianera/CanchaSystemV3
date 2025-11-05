@@ -157,12 +157,12 @@ public class ClientService {
 
     public Client findClientById(UUID id) throws ClientNotFoundException {
         return clientRepository.findById(id)
-                .orElseThrow(()-> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
     }
 
     public Client findByUsernameAndActive(String username) throws  ClientNotFoundException {
         return clientRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
     }
 
     public boolean verifyUsername(String username) {

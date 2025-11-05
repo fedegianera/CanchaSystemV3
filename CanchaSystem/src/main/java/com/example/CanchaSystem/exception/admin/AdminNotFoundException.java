@@ -1,7 +1,7 @@
 package com.example.CanchaSystem.exception.admin;
 
 public class AdminNotFoundException extends RuntimeException {
-    public AdminNotFoundException(String message) {
-        super(message);
+    public AdminNotFoundException() {
+        super("Administrador no encontrado");
     }
 }

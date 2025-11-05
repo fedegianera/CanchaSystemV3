@@ -31,7 +31,7 @@ public class ReviewController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(ClientNotFoundException::new);
 
         review.setClient(client);
 

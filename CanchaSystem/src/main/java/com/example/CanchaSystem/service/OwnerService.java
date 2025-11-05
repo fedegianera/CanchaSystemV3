@@ -119,7 +119,7 @@ public class OwnerService {
 
     public Owner findOwnerById(UUID id) throws OwnerNotFoundException {
         return ownerRepository.findById(id)
-                .orElseThrow(()-> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(OwnerNotFoundException::new);
     }
 
     public boolean verifyUsername(String username) {

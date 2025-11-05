@@ -50,7 +50,7 @@ public class ReservationService {
         Client client = clientService.findByUsernameAndActive(username);
 
         Cancha cancha = canchaRepository.findById(reservationDTO.canchaId())
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+                .orElseThrow(CanchaNotFoundException::new);
 
         Reservation reservation = Reservation.builder()
                 .client(client)
@@ -87,7 +87,7 @@ public class ReservationService {
 
     public Reservation findReservationById(Long id) throws ReservationNotFoundException {
         return reservationRepository.findById(id)
-                .orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+                .orElseThrow(ReservationNotFoundException::new);
     }
 
     public List<Reservation> findReservationsByClient(String username) throws NoReservationsException {
@@ -103,11 +103,11 @@ public class ReservationService {
     //EN DUDA
     public Map<String, List<LocalTime>> getAvailableHours(Long establishmentId, LocalDate day) throws CanchaNotFoundException {
         EstablishmentResponseDTO establishment = establishmentRepository.findByIdAndActive(establishmentId, true)
-                .orElseThrow(() -> new CanchaNotFoundException("Establecimiento no encontrado"));
+                .orElseThrow(CanchaNotFoundException::new);
 
         List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId, true, true);
         if (canchas.isEmpty()) {
-            throw new CanchaNotFoundException("Cancha/s inexistente/s");
+            throw new CanchaNotFoundException();
         }
 
         Map<CanchaType, List<CanchaResponseDTO>> groupedByType = new HashMap<>();
@@ -163,7 +163,7 @@ public class ReservationService {
             reservation.setStatus(ReservationStatus.COMPLETED);
             return reservationRepository.save(reservation);
         }else
-            throw new ReservationNotFoundException("Reserva no encontrada");
+            throw new ReservationNotFoundException();
     }
 
     // TODO: change to cancelReservation(id)?
@@ -172,7 +172,7 @@ public class ReservationService {
             reservation.setStatus(ReservationStatus.CANCELED);
             return reservationRepository.save(reservation);
         }else
-            throw new ReservationNotFoundException("Reserva no encontrada");
+            throw new ReservationNotFoundException();
     }
 
 
