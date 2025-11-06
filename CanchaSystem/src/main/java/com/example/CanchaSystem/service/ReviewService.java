@@ -52,7 +52,7 @@ public class ReviewService {
 
     public Review findReviewById(Long id) throws ReviewNotFoundException {
         return reviewRepository.findById(id)
-                .orElseThrow(()-> new ReviewNotFoundException("Reseña no encontrada"));
+                .orElseThrow(ReviewNotFoundException::new);
     }
 
     public List<Review> getAllReviewsByCanchaId(Long canchaId) throws NoReviewsException {
