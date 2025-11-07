@@ -4,6 +4,7 @@ import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.model.Brand;
+import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.CanchaBrandService;
@@ -62,11 +63,13 @@ public class CanchaBrandController {
             return ResponseEntity.ok(Map.of("message","Marca eliminada"));
     }
 
-    @GetMapping("findCanchaBrand/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> findCanchaBrandById(@PathVariable Long id) {
-            return ResponseEntity.ok(canchaBrandService.findCanchaBrandById(id));
+    @GetMapping("/findCanchaBrand/{id}")
+    public ResponseEntity<?> getBrandById(@PathVariable Long id) {
+        Brand brand = canchaBrandService.findCanchaBrandById(id);
+        return ResponseEntity.ok(brand);
+
     }
+
 
     @GetMapping("/findAllOwnerBrands")
     public ResponseEntity<?> findBrandsByOwnerId(Authentication auth){

@@ -19,7 +19,7 @@ public class JWTService {
                 .setSubject(userDetails.getUsername())
                 .claim("ROLES", userDetails.getAuthorities())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 30000))
+                .setExpiration(new Date(System.currentTimeMillis() + 3000000))
                 .signWith(Keys.hmacShaKeyFor(bromokey.getBytes()),SignatureAlgorithm.HS256)
                 .compact();
     }

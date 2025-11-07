@@ -38,7 +38,6 @@ public class CanchaService {
     public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
         Establishment establishment = establishmentRepository.findById(canchaDTO.establishmentId())
                 .orElseThrow(() -> new CanchaNotFoundException("Marca no encontrada"));
-
         Cancha cancha = Cancha.builder()
                 .totalAmount(canchaDTO.totalAmount())
                 .hasRoof(canchaDTO.hasRoof())

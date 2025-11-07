@@ -14,4 +14,6 @@ public interface EstablishmentRepository  extends JpaRepository<Establishment, L
     List<EstablishmentResponseDTO> findByBrandId(Long id);
 
     Optional<EstablishmentResponseDTO> findByIdAndActive(Long id, boolean active);
+
+    boolean existsByName(String name);
 }
