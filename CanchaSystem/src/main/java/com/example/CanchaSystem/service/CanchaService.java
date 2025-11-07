@@ -9,10 +9,7 @@ import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.*;
-import com.example.CanchaSystem.repository.CanchaBrandRepository;
-import com.example.CanchaSystem.repository.CanchaRepository;
-import com.example.CanchaSystem.repository.EstablishmentRepository;
-import com.example.CanchaSystem.repository.ReservationRepository;
+import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +27,9 @@ public class CanchaService {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @Autowired
     private EstablishmentRepository establishmentRepository;
@@ -98,7 +98,7 @@ public class CanchaService {
         if (!cancha.isActive())
             throw new UnableToDropException("La cancha ya esta inactivo");
 
-        List<Review> reviews = reviewService.getAllReviewsByCanchaId(cancha.getId());
+        List<Review> reviews = reviewRepository.findByCanchaIdAndActive(canchaId, true);
 
         for (Review review : reviews) {
             reviewService.deleteReview(review.getId());

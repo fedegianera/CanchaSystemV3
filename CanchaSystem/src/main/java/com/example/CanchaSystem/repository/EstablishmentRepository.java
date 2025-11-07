@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface EstablishmentRepository  extends JpaRepository<Establishment, Long> {
     List<Establishment> findByActive(boolean active);
 
-    List<Establishment> findByBrandId(Long id);
+    List<Establishment> findByBrandIdAndActive(Long id, boolean active);
 
     Optional<Establishment> findByIdAndActive(Long id, boolean active);
 }
