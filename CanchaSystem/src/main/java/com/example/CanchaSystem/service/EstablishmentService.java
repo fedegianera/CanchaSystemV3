@@ -3,15 +3,12 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
-import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
-import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
-import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
 import com.example.CanchaSystem.exception.establishment.EstablishmentNameAlreadyExistsException;
+import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.Brand;
-import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
@@ -20,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EstablishmentService {
@@ -46,6 +44,7 @@ public class EstablishmentService {
     }
 
 
+
     public Establishment insertEstablishment(EstablishmentRequestDTO establishment) throws EstablishmentNameAlreadyExistsException {
         if (!establishmentRepository.existsByName(establishment.name())) {
             Brand brand = canchaBrandRepository.findById(establishment.brandId())
@@ -65,6 +64,23 @@ public class EstablishmentService {
             return establishmentRepository.save(establishment1);
         } else throw new EstablishmentNameAlreadyExistsException("El nombre del establecimiento ya existe");
     }
+
+    public Establishment findEstablishmentById(Long id) throws EstablishmentNotFoundException {
+        return establishmentRepository.findById(id).orElseThrow(()-> new EstablishmentNotFoundException("establecimiento no encontrado"));
+    }
+
+
+    public List<EstablishmentResponseDTO> findEstablishmentsByBrandId(Long id) throws CanchaBrandNotFoundException {
+        Optional<Brand> brand= canchaBrandRepository.findById(id);
+
+        if (brand.isEmpty())
+            throw new CanchaBrandNotFoundException("Cancha no encontrada");
+
+        List<EstablishmentResponseDTO> establishments = establishmentRepository.findByBrandId(id);
+
+        return establishments;
+    }
+
 
     public void deleteEstablishment(Long establishmentId) {
         Establishment establishment = establishmentRepository.findById(establishmentId)

@@ -9,6 +9,7 @@ import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.CanchaBrandService;
 import com.example.CanchaSystem.service.CanchaService;
+import com.example.CanchaSystem.service.EstablishmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class CanchaBrandController {
 
     @Autowired
     private OwnerRepository ownerRepository;
+
+    @Autowired
+    private EstablishmentService establishmentService;
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody Brand brand, Authentication auth) {
@@ -76,7 +80,6 @@ public class CanchaBrandController {
         String username = auth.getName();
         return ResponseEntity.ok(canchaBrandService.findCanchaBrandsByOwnerUsername(username));
     }
-
 
     @GetMapping("/{establishmentId}/canchas")
     public ResponseEntity<List<CanchaResponseDTO>> getCanchasByEstablishment(@PathVariable Long establishmentId) {

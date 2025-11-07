@@ -102,6 +102,8 @@ public class CanchaBrandService {
     }
 
 
+
+
     public List<CanchaResponseDTO> getCanchasByBrandId(Long brandId) {
         return canchaRepository.findByEstablishmentId(brandId);
     }
