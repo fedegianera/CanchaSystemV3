@@ -1,6 +1,7 @@
 package com.example.CanchaSystem.dto.response;
 
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record ReviewResponseDTO (
@@ -8,5 +9,7 @@ public record ReviewResponseDTO (
         Double rating,
         String message,
         Long canchaId,
-        UUID clientId
+        UUID clientId,
+        String clientName,
+        LocalDate createdAt
 ) {}

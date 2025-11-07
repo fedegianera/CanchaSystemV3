@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,12 @@ public class Review {
 //    @DecimalMin(value = "1.0", message = "La valoración mínima es 1")
 //    @DecimalMax(value = "5.0", message = "La valoración máxima es 5")
     private double rating;
+
+    @Column(nullable = false)
+    LocalDate createdAt;
+
+    @Column(nullable = false)
+    String clientName;
 
     @Column()
 //    @Size(
