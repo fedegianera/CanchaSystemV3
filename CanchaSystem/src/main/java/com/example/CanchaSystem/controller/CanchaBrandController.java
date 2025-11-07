@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.BrandRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Cancha;
@@ -33,17 +34,10 @@ public class CanchaBrandController {
     private OwnerRepository ownerRepository;
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody Brand brand, Authentication auth) {
+    public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody BrandRequestDTO brandDto, Authentication auth) {
+        String username = auth.getName();
 
-            String username = auth.getName();
-            Owner owner = ownerRepository.findByUsernameAndActive(username, true)
-                    .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
-
-
-            brand.setOwner(owner);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(canchaBrandService.insertCanchaBrand(brand));
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(canchaBrandService.insertCanchaBrand(brandDto, username));
     }
 
     @GetMapping("/findall")
@@ -52,8 +46,8 @@ public class CanchaBrandController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateCanchaBrand(@RequestBody Brand brand) {
-            return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(brand));
+    public ResponseEntity<?> updateCanchaBrand(@RequestBody Long id, BrandRequestDTO brandDto) {
+            return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(id, brandDto));
     }
 
     @DeleteMapping("/deleteCanchaBrand/{id}")
@@ -76,7 +70,7 @@ public class CanchaBrandController {
 
 
     @GetMapping("/{establishmentId}/canchas")
-    public ResponseEntity<List<CanchaResponseDTO>> getCanchasByEstablishment(@PathVariable Long establishmentId) {
+    public ResponseEntity<?> getCanchasByEstablishment(@PathVariable Long establishmentId) {
         return ResponseEntity.ok(canchaService.getCanchasByEstablishmentId(establishmentId));
     }
 

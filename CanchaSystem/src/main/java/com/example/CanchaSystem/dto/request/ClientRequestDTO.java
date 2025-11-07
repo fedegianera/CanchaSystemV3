@@ -19,5 +19,8 @@ public record ClientRequestDTO (
         String password,
 
         @NotNull
-        String cellNumber
+        String cellNumber,
+
+        @NotNull
+        boolean active
 ) {}

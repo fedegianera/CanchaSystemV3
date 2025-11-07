@@ -1,7 +1,12 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.Mapper.BrandMapper;
+import com.example.CanchaSystem.Mapper.CanchaMapper;
+import com.example.CanchaSystem.dto.request.BrandRequestDTO;
+import com.example.CanchaSystem.dto.response.BrandResponseDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
+import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
@@ -42,25 +47,44 @@ public class CanchaBrandService {
     @Autowired
     private EstablishmentService establishmentService;
 
-    public Brand insertCanchaBrand(Brand brand) throws CanchaBrandNameAlreadyExistsException {
-        if (!canchaBrandRepository.existsByBrandName(brand.getBrandName())) {
-            return canchaBrandRepository.save(brand);
-        } else throw new CanchaBrandNameAlreadyExistsException("El nombre de la Marca ya existe");
+    @Autowired
+    private BrandMapper brandMapper;
+
+    @Autowired
+    private CanchaMapper canchaMapper;
+
+    public Brand insertCanchaBrand(BrandRequestDTO brandDto, String username)
+            throws CanchaBrandNameAlreadyExistsException {
+
+        if (canchaBrandRepository.existsByBrandName(brandDto.brandName())) {
+            throw new CanchaBrandNameAlreadyExistsException("El nombre de la Marca ya existe");
+        }
+
+        Owner owner = ownerRepository.findByUsernameAndActive(username, true)
+                .orElseThrow(() -> new OwnerNotFoundException("El dueño no existe"));
+
+        Brand brand = brandMapper.toEntity(brandDto);
+        brand.setOwner(owner);
+
+        return canchaBrandRepository.save(brand);
     }
 
-    public List<Brand> getAllCanchaBrands() throws NoCanchaBrandsException {
-        List<Brand> brands = canchaBrandRepository.findAll();
+
+    public List<BrandResponseDTO> getAllCanchaBrands() throws NoCanchaBrandsException {
+        List<Brand> brands = canchaBrandRepository.findAllByActive(true);
+
         if (brands.isEmpty())
             throw new NoCanchaBrandsException("Todavia no hay Marcas registradas");
-        return brands;
+
+        return brandMapper.toDto(brands);
     }
 
-    public Brand updateCanchaBrand(Brand brandFromRequest) throws CanchaBrandNotFoundException {
-        Brand brand = canchaBrandRepository.findById(brandFromRequest.getId())
+    public Brand updateCanchaBrand(Long id, BrandRequestDTO brandFromRequest) throws CanchaBrandNotFoundException {
+        Brand brand = canchaBrandRepository.findById(id)
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
 
-        brand.setBrandName(brandFromRequest.getBrandName());
-        brand.setActive(brandFromRequest.isActive());
+        brand.setBrandName(brandFromRequest.brandName());
+        brand.setActive(brandFromRequest.active());
 
         return canchaBrandRepository.save(brand);
     }
@@ -73,11 +97,11 @@ public class CanchaBrandService {
         if (!brand.isActive())
             throw new UnableToDropException("La marca ya esta inactiva");
 
-        List<EstablishmentResponseDTO> establishments = establishmentRepository.findByBrandId(canchaBrandId);
+        List<Establishment> establishments = establishmentRepository.findByBrandId(canchaBrandId);
 
-        for (EstablishmentResponseDTO dto : establishments) {
-            if (dto.active()) {
-                establishmentService.deleteEstablishment(dto.id());
+        for (Establishment establishment : establishments) {
+            if (establishment.isActive()) {
+                establishmentService.deleteEstablishment(establishment.getId());
             }
         }
 
@@ -85,11 +109,19 @@ public class CanchaBrandService {
         canchaBrandRepository.save(brand);
     }
 
-    public Brand findCanchaBrandById(Long id) throws CanchaBrandNotFoundException {
-        return canchaBrandRepository.findById(id).orElseThrow(()-> new CanchaBrandNotFoundException("Marca no encontrada"));
+    public BrandResponseDTO findCanchaBrandById(Long id) throws CanchaBrandNotFoundException {
+        Optional<Brand> brandOpt = canchaBrandRepository.findByIdAndActive(id, true);
+
+        if (brandOpt.isEmpty()) {
+            throw new CanchaBrandNotFoundException("Marca no encontrada");
+        }
+
+        Brand brand = brandOpt.get();
+
+        return brandMapper.toDto(brand);
     }
 
-    public List<Brand> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
+    public List<BrandResponseDTO> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
         Optional<Owner> optOwner = ownerRepository.findByUsernameAndActive(username, true);
 
         if (optOwner.isEmpty())
@@ -98,11 +130,16 @@ public class CanchaBrandService {
         Owner owner = optOwner.get();
         List<Brand> brands = canchaBrandRepository.findByOwnerIdAndActive(owner.getId(), true);
 
-        return brands;
+        return brandMapper.toDto(brands);
     }
 
 
     public List<CanchaResponseDTO> getCanchasByBrandId(Long brandId) {
-        return canchaRepository.findByEstablishmentId(brandId);
+        List<Cancha> canchas = canchaRepository.findByEstablishmentId(brandId);
+
+        if (canchas.isEmpty()) {
+            throw new NoCanchasException("El establecimiento no tiene canchas");
+        }
+        return canchaMapper.toDto(canchas);
     }
 }

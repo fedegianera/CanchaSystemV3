@@ -1,5 +1,8 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.Mapper.ReviewMapper;
+import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.exception.review.NoReviewsException;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ReviewService {
@@ -23,30 +27,41 @@ public class ReviewService {
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    private ReviewMapper reviewMapper;
+
     public Review insertReview(Review review) {
                         return reviewRepository.save(review);
     }
 
-    public List<Review> getAllReviews() throws NoReviewsException {
+    public List<ReviewResponseDTO> getAllReviews() throws NoReviewsException {
         List<Review> reviews = reviewRepository.findAll();
-        if(!reviews.isEmpty()){
-            return reviews;
-        }else
+
+        if(reviews.isEmpty()){
             throw new NoReviewsException("Todavia no hay reseñas hechas");
+        }
+
+        return reviewMapper.toDto(reviews);
     }
 
-    public Review updateReview(Review review) throws ReviewNotFoundException {
-        Review existing = reviewRepository.findById(review.getId())
-                .orElseThrow(() -> new ReviewNotFoundException("Reseña no encontrada"));
+    public Review updateReview(Long id, ReviewRequestDTO reviewDto) throws ReviewNotFoundException {
+        Optional<Review> reviewOpt = reviewRepository.findByIdAndActive(id, true);
 
-        existing.setRating(review.getRating());
-        existing.setMessage(review.getMessage());
-        return reviewRepository.save(existing);
+        if (reviewOpt.isEmpty()) {
+            throw new ReviewNotFoundException("No se encontro ninguna review con ese id");
+        }
+
+        Review review = reviewOpt.get();
+
+        review.setRating(reviewDto.rating());
+        review.setMessage(reviewDto.message());
+
+        return reviewRepository.save(review);
     }
 
     public void deleteReview(Long reviewId){
 
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findByIdAndActive(reviewId, true)
                 .orElseThrow(() -> new ReviewNotFoundException("Review no encontrado"));
 
         if (!review.isActive())
@@ -57,37 +72,54 @@ public class ReviewService {
 
     }
 
-    public Review findReviewById(Long id) throws ReviewNotFoundException {
-        return reviewRepository.findById(id).orElseThrow(()-> new ReviewNotFoundException("Reseña no encontrada"));
+    public ReviewResponseDTO findReviewById(Long id) throws ReviewNotFoundException {
+        Optional<Review> reviewOpt = reviewRepository.findByIdAndActive(id, true);
+
+        if (reviewOpt.isEmpty()) {
+            throw new ReviewNotFoundException("No se encontro ninguna review con ese id");
+        }
+
+        Review review = reviewOpt.get();
+
+        return reviewMapper.toDto(review);
     }
 
-    public List<Review> getAllReviewsByCanchaId(Long canchaId) throws NoReviewsException {
+    public List<ReviewResponseDTO> getAllReviewsByCanchaId(Long canchaId) throws NoReviewsException {
         List<Review> reviews = reviewRepository.findByCanchaIdAndActive(canchaId, true);
 
-        return reviews;
+        if (reviews.isEmpty()) {
+            throw new NoReviewsException("La cancha aun no tiene reviews");
+
+        }
+
+        return reviewMapper.toDto(reviews);
     }
 
-    public List<Review> getAllReviewsByCanchaIdAdmin(Long canchaId) throws NoReviewsException {
+    public List<ReviewResponseDTO> getAllReviewsByCanchaIdAdmin(Long canchaId) throws NoReviewsException {
         List<Review> reviews = reviewRepository.findByCanchaId(canchaId);
 
-        return reviews;
+        if (reviews.isEmpty()) {
+            throw new NoReviewsException("La cancha aun no tiene reviews");
+
+        }
+
+        return reviewMapper.toDto(reviews);
     }
 
-    public List<Review> getAllReviewsByClient(String username) throws NoReviewsException, ClientNotFoundException {
-        Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
+    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws NoReviewsException, ClientNotFoundException {
+        Optional<Client> clientOpt = clientRepository.findByIdAndActive(id, true);
 
         if (clientOpt.isEmpty()) {
             throw new ClientNotFoundException("Cliente no encontrado");
         }
 
-        Client client = clientOpt.get();
+        List<Review> reviews = reviewRepository.findByClientIdAndActive(id, true);
 
-        List<Review> reviews = reviewRepository.findByClientIdAndActive(client.getId(), true);
-
-        if (!reviews.isEmpty()){
-            return reviews;
-        }else
+        if (reviews.isEmpty()){
             throw new NoReviewsException("Todavia no hay reseñas hechas por el cliente");
+        }
+
+        return reviewMapper.toDto(reviews);
     }
 
     public boolean clientAlreadyReviewedCancha(Long canchaId,Long clientId){

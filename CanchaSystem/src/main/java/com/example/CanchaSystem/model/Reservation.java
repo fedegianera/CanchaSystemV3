@@ -47,10 +47,6 @@ public class Reservation {
     private LocalDateTime matchDate;
 
     @Column(nullable = false)
-//    @Min(1)
-    private Double deposit;
-
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ReservationStatus status = ReservationStatus.PENDING;
 

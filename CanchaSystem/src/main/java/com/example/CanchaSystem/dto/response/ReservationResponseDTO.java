@@ -12,6 +12,5 @@ public record ReservationResponseDTO (
     Long canchaId,
     LocalDateTime reservationDate,
     LocalDateTime matchDate,
-    Double deposit,
     ReservationStatus status
 ){}

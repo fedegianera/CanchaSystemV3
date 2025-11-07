@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,9 +14,11 @@ import java.util.UUID;
 public interface OwnerRepository extends JpaRepository<Owner, UUID> {
     boolean existsById(UUID id);
     boolean existsByUsernameAndActive(String username, boolean active);
-    boolean existsByMail(String mail);
-    boolean existsByCellNumber(String cellNumber);
+    boolean existsByMailAndActive(String mail, boolean active);
+    boolean existsByCellNumberAndActive(String cellNumber, boolean active);
 
     Optional<Owner> findByUsernameAndActive(String username,boolean active);
+    List<Owner> findAllByActive(boolean active);
+    Optional<Owner> findByIdAndActive(UUID id, boolean active);
 
 }

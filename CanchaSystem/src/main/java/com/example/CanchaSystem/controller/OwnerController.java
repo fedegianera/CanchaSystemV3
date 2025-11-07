@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.OwnerRepository;
@@ -35,8 +36,8 @@ public class OwnerController {
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertOwner(@Validated @RequestBody Owner owner) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(ownerService.insertOwner(owner));
+    public ResponseEntity<?> insertOwner(@Validated @RequestBody OwnerRequestDTO ownerRequestDTO) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ownerService.insertOwner(ownerRequestDTO));
     }
 
     @GetMapping("/findall")
@@ -45,8 +46,8 @@ public class OwnerController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateOwner(@RequestBody Owner owner, HttpServletRequest request) {
-        ownerService.updateOwner(owner);
+    public ResponseEntity<?> updateOwner(@RequestBody UUID id, OwnerRequestDTO ownerRequestDTO, HttpServletRequest request) {
+        ownerService.updateOwner(id, ownerRequestDTO);
 
         SecurityContextHolder.clearContext();
         request.getSession().invalidate();
@@ -55,8 +56,8 @@ public class OwnerController {
     }
 
     @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateOwnerAdmin(@RequestBody Owner owner) {
-        return ResponseEntity.ok(ownerService.updateOwnerAdmin(owner));
+    public ResponseEntity<?> updateOwnerAdmin(@RequestBody UUID id, OwnerRequestDTO ownerRequestDTO) {
+        return ResponseEntity.ok(ownerService.updateOwnerAdmin(id, ownerRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -75,8 +76,7 @@ public class OwnerController {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
                 .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
         return ResponseEntity.ok(Map.of(
-                "name", owner.getName(),
-                "bankOwner", owner.getBankOwner()
+                "name", owner.getName()
         ));
     }
 

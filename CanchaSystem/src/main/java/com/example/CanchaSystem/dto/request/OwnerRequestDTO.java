@@ -13,8 +13,14 @@ public record OwnerRequestDTO (
         String username,
 
         @NotNull
+        String password,
+
+        @NotNull
         String mail,
 
         @NotNull
-        String cellName
+        String cellNumber,
+
+        @NotNull
+        boolean active
 ) {}

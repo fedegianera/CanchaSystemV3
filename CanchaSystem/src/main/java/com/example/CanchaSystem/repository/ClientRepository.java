@@ -11,11 +11,12 @@ import java.util.UUID;
 @Repository
 public interface ClientRepository extends JpaRepository<Client, UUID> {
 
-   boolean existsById(UUID id);
+   boolean existsByIdAndActive(UUID id, boolean active);
    boolean existsByUsernameAndActive(String username, boolean active);
-   boolean existsByMail(String mail);
-   boolean existsByCellNumber(String cellNumber);
+   boolean existsByMailAndActive(String mail, boolean active);
+   boolean existsByCellNumberAndActive(String cellNumber, boolean active);
 
    Optional<Client> findByUsernameAndActive(String username, boolean active);
+   Optional<Client> findByIdAndActive(UUID id, boolean active);
 
 }

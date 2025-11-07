@@ -1,7 +1,8 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.Mapper.ClientMapper;
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
-import com.example.CanchaSystem.exception.client.UnactiveClientException;
+import com.example.CanchaSystem.dto.response.ClientResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NoClientsException;
@@ -9,15 +10,13 @@ import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Reservation;
 import com.example.CanchaSystem.model.Review;
 import com.example.CanchaSystem.model.Role;
-import com.example.CanchaSystem.repository.AdminRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.repository.OwnerRepository;
-import com.example.CanchaSystem.repository.RoleRepository;
+import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,6 +32,9 @@ public class ClientService {
     private OwnerRepository ownerRepository;
 
     @Autowired
+    private ReservationRepository reservationRepository;
+
+    @Autowired
     private RoleRepository roleRepo;
 
     @Autowired
@@ -44,17 +46,20 @@ public class ClientService {
     @Autowired
     private ReservationService reservationService;
 
+    @Autowired
+    private ClientMapper clientMapper;
+
 
     public Client insertClient(ClientRequestDTO clientDTO) {
         if (clientRepository.existsByUsernameAndActive(clientDTO.username(), true) || adminRepository.existsByUsername(clientDTO.username()) || ownerRepository.existsByUsernameAndActive(clientDTO.username(), true)) {
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
         }
 
-        if (clientRepository.existsByMail(clientDTO.mail())) {
+        if (clientRepository.existsByMailAndActive(clientDTO.mail(), true)) {
             throw new MailAlreadyRegisteredException("El correo ya esta registrado");
         }
 
-        if (clientRepository.existsByCellNumber(clientDTO.cellNumber())) {
+        if (clientRepository.existsByCellNumberAndActive(clientDTO.cellNumber(), true)) {
             throw new CellNumberAlreadyAddedException("El numero ya esta añadido");
         }
 
@@ -75,78 +80,45 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public List<Client> getAllClients() throws NoClientsException {
+    public List<ClientResponseDTO> getAllClients() throws NoClientsException {
         List<Client> clients = clientRepository.findAll();
-        if(clients.isEmpty())
+        if (clients.isEmpty())
             throw new NoClientsException("Todavia no hay clientes registrados");
-        return clients;
 
+        return clientMapper.toDto(clients);
     }
 
-    public Client updateClient(Client clientFromRequest) throws ClientNotFoundException {
-        Client client = clientRepository.findById(clientFromRequest.getId())
+    public Client updateClient(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {
+        Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
 
-        client.setName(clientFromRequest.getName());
-        client.setLastName(clientFromRequest.getLastName());
-        client.setUsername(clientFromRequest.getUsername());
-        client.setMail(clientFromRequest.getMail());
-        client.setCellNumber(clientFromRequest.getCellNumber());
+        client.setName(clientDto.name());
+        client.setLastName(clientDto.lastName());
+        client.setUsername(clientDto.username());
+        client.setMail(clientDto.mail());
+        client.setCellNumber(clientDto.cellNumber());
 
         return clientRepository.save(client);
     }
 
-    public Client updateClientAdmin(Client clientFromRequest) throws ClientNotFoundException {
-        Client client = clientRepository.findById(clientFromRequest.getId())
+    public Client updateClientAdmin(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {
+        Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
 
-        client.setName(clientFromRequest.getName());
-        client.setLastName(clientFromRequest.getLastName());
-        client.setUsername(clientFromRequest.getUsername());
-        client.setMail(clientFromRequest.getMail());
-        client.setCellNumber(clientFromRequest.getCellNumber());
-        client.setBankClient(clientFromRequest.getBankClient());
-        client.setActive(clientFromRequest.isActive());
+        client.setName(clientDto.name());
+        client.setLastName(clientDto.lastName());
+        client.setUsername(clientDto.username());
+        client.setMail(clientDto.mail());
+        client.setCellNumber(clientDto.cellNumber());
+        client.setActive(clientDto.active());
 
-        String pass = clientFromRequest.getPassword();
+        String pass = clientDto.password();
 
         if (!pass.isEmpty()) {
             client.setPassword(passwordEncoder.encode(pass));
         }
 
         return clientRepository.save(client);
-    }
-
-    public Client addMoneyToClientBank(UUID clientId,double addedAmount){
-
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        if (!client.isActive())
-            throw new UnactiveClientException("Cliente dado de baja");
-
-        if (addedAmount <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
-        client.setBankClient(client.getBankClient()+addedAmount);
-        return clientRepository.save(client);
-
-    }
-
-    public Client payFromClientBank(UUID clientId, double amountToPay){
-
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        if (!client.isActive())
-            throw new UnactiveClientException("Cliente dado de baja");
-
-        if (amountToPay <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
-        client.setBankClient(client.getBankClient()-amountToPay);
-        return clientRepository.save(client);
-
     }
 
     public Client deleteClient(UUID clientId) {
@@ -157,24 +129,32 @@ public class ClientService {
         if (!client.isActive())
             throw new UnableToDropException("El cliente ya esta inactivo");
 
-        List<Review> reviews = reviewService.getAllReviewsByClient(client.getUsername());
+        List<Review> reviews = reviewService.getAllReviewsByClientId(clientId);
 
         for (Review review : reviews) {
             reviewService.deleteReview(review.getId());
         }
 
-        List<Reservation> reservations = reservationService.findReservationsByClient(client.getUsername());
+        List<Reservation> reservations = reservationRepository.findByClientId(clientId);
 
         for (Reservation reservation : reservations) {
-            reservationService.cancelReservation(reservation);
+            reservationService.cancelReservation(reservation.getId());
         }
 
         client.setActive(false);
         return clientRepository.save(client);
     }
 
-    public Client findClientById(UUID id) throws ClientNotFoundException {
-        return clientRepository.findById(id).orElseThrow(()-> new ClientNotFoundException("Cliente no encontrado"));
+    public ClientResponseDTO findClientById(UUID id) throws ClientNotFoundException {
+        Optional<Client> clientOpt = clientRepository.findById(id);
+
+        if (clientOpt.isEmpty()) {
+            throw new ClientNotFoundException("Cliente no encontrado");
+        }
+
+        Client client = clientOpt.get();
+
+        return clientMapper.toDto(client);
     }
 
     public boolean verifyUsername(String username) {

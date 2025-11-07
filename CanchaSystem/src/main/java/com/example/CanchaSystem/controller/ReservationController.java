@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/reservation")
@@ -62,14 +63,8 @@ public class ReservationController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateReservation(@RequestBody Reservation reservation) {
-            return ResponseEntity.ok(reservationService.updateReservation(reservation));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteReservation(@PathVariable Long id) {
-            reservationService.deleteReservation(id);
-            return ResponseEntity.ok(Map.of("message","Reserva eliminada"));
+    public ResponseEntity<?> updateReservation(@RequestBody Long id, ReservationRequestDTO reservationRequestDTO) {
+            return ResponseEntity.ok(reservationService.updateReservation(id, reservationRequestDTO));
     }
 
     @GetMapping("/{id}")
@@ -77,11 +72,9 @@ public class ReservationController {
             return ResponseEntity.ok(reservationService.findReservationById(id));
     }
 
-    @GetMapping("/findReservationsByClient")
-    public ResponseEntity<?> findReservationsByClient(Authentication auth){
-        String username = auth.getName();
-
-        return ResponseEntity.ok(reservationService.findReservationsByClient(username));
+    @GetMapping("/findReservationsByClientId/{id}")
+    public ResponseEntity<?> findReservationsByClientId(UUID clientId){
+        return ResponseEntity.ok(reservationService.findReservationsByClientId(clientId));
     }
 
     @GetMapping("/getAvailableHours/{establishmentId}/{day}")

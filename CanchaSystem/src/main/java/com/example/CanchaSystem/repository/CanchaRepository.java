@@ -13,8 +13,8 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     boolean existsById(Long id);
     Optional<Cancha> findById(Long id);
 
-    List<CanchaResponseDTO> findByEstablishmentIdAndActiveAndWorking(Long id,boolean active, boolean working);
-    List<CanchaResponseDTO> findByEstablishmentId(Long id);
-    List<CanchaResponseDTO> findByActiveAndWorking(boolean active, boolean working);
+    List<Cancha> findByEstablishmentIdAndActiveAndWorking(Long id,boolean active, boolean working);
+    List<Cancha> findByEstablishmentId(Long id);
+    List<Cancha> findByActiveAndWorking(boolean active, boolean working);
 
 }

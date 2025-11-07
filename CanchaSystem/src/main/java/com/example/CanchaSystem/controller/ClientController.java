@@ -1,6 +1,7 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
+import com.example.CanchaSystem.dto.response.ClientResponseDTO;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.repository.ClientRepository;
@@ -55,8 +56,8 @@ public class ClientController {
 
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateClient(@RequestBody Client client, HttpServletRequest request) {
-        clientService.updateClient(client);
+    public ResponseEntity<?> updateClient(@RequestBody UUID id, ClientRequestDTO clientDto, HttpServletRequest request) {
+        clientService.updateClient(id, clientDto);
 
         SecurityContextHolder.clearContext();
         request.getSession().invalidate();
@@ -64,17 +65,9 @@ public class ClientController {
         return ResponseEntity.ok("Datos actualizados, inicie sesión nuevamente");
     }
 
-    @PutMapping("/addMoneyToClient/{clientId}/{amount}")
-    public ResponseEntity<?> AddMoneyToBankClient(@PathVariable UUID clientId, @PathVariable double amount){
-
-        clientService.addMoneyToClientBank(clientId,amount);
-
-        return ResponseEntity.ok("Saldo actualizado");
-    }
-
     @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateClientAdmin(@RequestBody Client client) {
-        clientService.updateClientAdmin(client);
+    public ResponseEntity<?> updateClientAdmin(@RequestBody UUID id, ClientRequestDTO clientDto) {
+        clientService.updateClientAdmin(id, clientDto);
         return ResponseEntity.ok("Datos actualizados");
     }
 

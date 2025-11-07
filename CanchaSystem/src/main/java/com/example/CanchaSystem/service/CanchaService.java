@@ -1,4 +1,5 @@
 package com.example.CanchaSystem.service;
+import com.example.CanchaSystem.Mapper.CanchaMapper;
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
@@ -11,6 +12,7 @@ import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
+import com.example.CanchaSystem.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,9 @@ public class CanchaService {
     private CanchaBrandRepository brandRepository;
 
     @Autowired
+    private ReservationRepository reservationRepository;
+
+    @Autowired
     private EstablishmentRepository establishmentRepository;
 
     @Autowired
@@ -34,6 +39,9 @@ public class CanchaService {
 
     @Autowired
     private ReservationService reservationService;
+
+    @Autowired
+    private CanchaMapper mapper;
 
     public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
         Establishment establishment = establishmentRepository.findById(canchaDTO.establishmentId())
@@ -50,30 +58,34 @@ public class CanchaService {
         return canchaRepository.save(cancha);
     }
 
-    public List<Cancha> getAllCanchas() throws NoCanchasException {
+    public List<CanchaResponseDTO> getAllCanchas() throws NoCanchasException {
         List<Cancha> canchas =  canchaRepository.findAll();
         if(canchas.isEmpty()){
             throw new NoCanchasException("Todavia no hay Canchas registradas");
         }
 
-        return canchas;
+        return mapper.toDto(canchas);
     }
 
 
     public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) throws NoCanchasException {
-        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentId(id);
-        return canchas;
+        List<Cancha> canchas = canchaRepository.findByEstablishmentId(id);
+
+        if (canchas.isEmpty()) {
+            throw new NoCanchasException("El establecimiento no tiene canchas");
+        }
+        return mapper.toDto(canchas);
     }
 
-    public Cancha updateCancha(Long id,Cancha updated) throws CanchaNotFoundException {
+    public Cancha updateCancha(Long id,CanchaRequestDTO canchaDto) throws CanchaNotFoundException {
         Cancha cancha = canchaRepository.findById(id)
                 .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
 
-        cancha.setTotalAmount(updated.getTotalAmount());
-        cancha.setActive(updated.isActive());
-        cancha.setHasRoof(updated.isHasRoof());
-        cancha.setWorking(updated.isWorking());
-        cancha.setCanchaType(updated.getCanchaType());
+        cancha.setTotalAmount(canchaDto.totalAmount());
+        cancha.setActive(canchaDto.active());
+        cancha.setHasRoof(canchaDto.hasRoof());
+        cancha.setWorking(canchaDto.working());
+        cancha.setCanchaType(canchaDto.canchaType());
 
         return canchaRepository.save(cancha);
     }
@@ -92,10 +104,10 @@ public class CanchaService {
             reviewService.deleteReview(review.getId());
         }
 
-        List<Reservation> reservations = reservationService.findReservationsByCanchaId(cancha.getId());
+        List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
 
         for (Reservation reservation : reservations) {
-            reservationService.cancelReservation(reservation);
+            reservationService.cancelReservation(reservation.getId());
         }
 
         cancha.setActive(false);
@@ -103,26 +115,37 @@ public class CanchaService {
         canchaRepository.save(cancha);
     }
 
-    public Cancha findCanchaById(Long id) throws CanchaNotFoundException {
-        return canchaRepository.findById(id).orElseThrow(()-> new CanchaNotFoundException("Cancha no encontrada"));
+    public CanchaResponseDTO findCanchaById(Long id) throws CanchaNotFoundException {
+        Optional<Cancha> canchaOpt = canchaRepository.findById(id);
+
+        if (canchaOpt.isEmpty()) {
+            throw new CanchaNotFoundException("Cancha no encontrada");
+        }
+
+        Cancha cancha = canchaOpt.get();
+
+
+        return mapper.toDto(cancha);
     }
 
     public List<CanchaResponseDTO> getAllActiveCanchas() throws NoCanchasException {
-        List<CanchaResponseDTO> canchas =  canchaRepository.findByActiveAndWorking(true, true);
+        List<Cancha> canchas =  canchaRepository.findByActiveAndWorking(true, true);
+
         if(canchas.isEmpty()){
             throw new NoCanchasException("Todavia no hay Canchas activas");
         }
 
-        return canchas;
+        return mapper.toDto(canchas);
     }
 
     public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) throws NoCanchasException {
-        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
+        List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
+
         if (canchas.isEmpty()) {
             throw new NoCanchasException("La marca no tiene canchas activas");
         }
 
-        return canchas;
+        return mapper.toDto(canchas);
     }
 
 }

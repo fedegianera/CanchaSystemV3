@@ -11,5 +11,8 @@ public record BrandRequestDTO (
     String brandName,
 
     @NotNull
-    UUID ownerId
+    UUID ownerId,
+
+    @NotNull
+    boolean active
 ) {}

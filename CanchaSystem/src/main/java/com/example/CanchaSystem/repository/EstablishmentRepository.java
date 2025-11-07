@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EstablishmentRepository  extends JpaRepository<Establishment, Long> {
-    List<EstablishmentResponseDTO> findByActive(boolean active);
+    List<Establishment> findByActive(boolean active);
 
-    List<EstablishmentResponseDTO> findByBrandId(Long id);
+    List<Establishment> findByBrandId(Long id);
 
-    Optional<EstablishmentResponseDTO> findByIdAndActive(Long id, boolean active);
+    Optional<Establishment> findByIdAndActive(Long id, boolean active);
 }

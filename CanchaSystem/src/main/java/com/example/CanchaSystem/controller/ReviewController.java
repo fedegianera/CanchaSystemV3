@@ -1,5 +1,7 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Review;
@@ -15,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/review")
@@ -45,8 +48,8 @@ public class ReviewController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateReview(@RequestBody Review review) {
-            return ResponseEntity.ok(reviewService.updateReview(review));
+    public ResponseEntity<?> updateReview(@RequestBody Long id, ReviewRequestDTO reviewDto) {
+            return ResponseEntity.ok(reviewService.updateReview(id, reviewDto));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -60,11 +63,9 @@ public class ReviewController {
             return ResponseEntity.ok(reviewService.findReviewById(id));
     }
 
-    @GetMapping("/findReviewsByClient")
-    public ResponseEntity<?> findReviewsByClientId(Authentication auth) {
-        String username = auth.getName();
-
-        return ResponseEntity.ok(reviewService.getAllReviewsByClient(username));
+    @GetMapping("/findReviewsByClientId/{id}")
+    public ResponseEntity<?> findReviewsByClientId(UUID id) {
+        return ResponseEntity.ok(reviewService.getAllReviewsByClientId(id));
     }
 
     @GetMapping("/findReviewsByCanchaId/{canchaId}")

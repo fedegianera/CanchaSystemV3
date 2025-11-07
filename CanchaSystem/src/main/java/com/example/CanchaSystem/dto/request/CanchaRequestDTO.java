@@ -19,5 +19,8 @@ public record CanchaRequestDTO (
         CanchaType canchaType,
 
         @NotNull
-        Long establishmentId
+        Long establishmentId,
+
+        @NotNull
+        boolean active
 ) {}

@@ -1,5 +1,7 @@
 package com.example.CanchaSystem.service;
 
+import com.example.CanchaSystem.Mapper.EstablishmentMapper;
+import com.example.CanchaSystem.Mapper.ReservationMapper;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
@@ -26,14 +28,27 @@ public class EstablishmentService {
     @Autowired
     private CanchaService canchaService;
 
+    @Autowired
+    private EstablishmentMapper mapper;
+
+    public List<EstablishmentResponseDTO> getAllEstablishments() {
+        List<Establishment> establishments = establishmentRepository.findAll();
+
+        if (establishments.isEmpty()) {
+            throw new NoCanchasException("Todavia no hay establecimientos registrados");
+        }
+
+        return mapper.toDto(establishments);
+    }
+
     public List<EstablishmentResponseDTO> getAllActiveEstablishment() {
-        List<EstablishmentResponseDTO> establishments = establishmentRepository.findByActive(true);
+        List<Establishment> establishments = establishmentRepository.findByActive(true);
 
         if (establishments.isEmpty()) {
             throw new NoCanchasException("Todavia no hay Establecimientos registrados");
         }
 
-        return establishments;
+        return mapper.toDto(establishments);
     }
 
     public void deleteEstablishment(Long establishmentId) {
@@ -44,11 +59,11 @@ public class EstablishmentService {
             throw new UnableToDropException("El establecimiento ya esta inactivo");
         }
 
-        List<CanchaResponseDTO> canchas = canchaRepository.findByEstablishmentId(establishmentId);
+        List<Cancha> canchas = canchaRepository.findByEstablishmentId(establishmentId);
 
-        for (CanchaResponseDTO dto : canchas) {
-            if (dto.active()) {
-                canchaService.deleteCancha(dto.id());
+        for (Cancha cancha : canchas) {
+            if (cancha.isActive()) {
+                canchaService.deleteCancha(cancha.getId());
             }
         }
 

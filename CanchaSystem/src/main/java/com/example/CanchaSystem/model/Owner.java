@@ -15,6 +15,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Owner implements IUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -63,9 +64,6 @@ public class Owner implements IUser {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
-
-    @Column(nullable = false)
-    private double bankOwner=0;
 
     @Column(nullable = false)
     private boolean active = true;

@@ -1,17 +1,13 @@
 package com.example.CanchaSystem.service;
 
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.exception.misc.IllegalAmountException;
-import com.example.CanchaSystem.exception.misc.UnableToDropException;
-import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
+import com.example.CanchaSystem.Mapper.OwnerMapper;
+import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
+import com.example.CanchaSystem.dto.response.OwnerResponseDTO;
+import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.owner.NoOwnersException;
 import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
-import com.example.CanchaSystem.exception.owner.UnactiveOwnerException;
 import com.example.CanchaSystem.model.*;
-import com.example.CanchaSystem.repository.AdminRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.repository.OwnerRepository;
-import com.example.CanchaSystem.repository.RoleRepository;
+import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,73 +31,88 @@ public class OwnerService {
     private ClientRepository clientRepository;
 
     @Autowired
+    private CanchaBrandRepository brandRepository;
+
+    @Autowired
     private AdminRepository adminRepository;
 
     @Autowired
     private CanchaBrandService canchaBrandService;
 
-    public Owner insertOwner(Owner owner) throws UsernameAlreadyExistsException {
-        Role ownerRole = roleRepository.findByName("OWNER")
+    @Autowired
+    private OwnerMapper ownerMapper;
+
+    public Owner insertOwner(OwnerRequestDTO ownerDto) throws UsernameAlreadyExistsException {
+        if (clientRepository.existsByUsernameAndActive(ownerDto.username(), true) || adminRepository.existsByUsername(ownerDto.username()) || ownerRepository.existsByUsernameAndActive(ownerDto.username(), true)) {
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+        }
+
+        if (clientRepository.existsByMailAndActive(ownerDto.mail(), true) || ownerRepository.existsByMailAndActive(ownerDto.mail(), true)) {
+            throw new MailAlreadyRegisteredException("El mail ya esta registrado");
+        }
+
+        if (clientRepository.existsByCellNumberAndActive(ownerDto.cellNumber(), true) || ownerRepository.existsByCellNumberAndActive(ownerDto.cellNumber(), true)) {
+            throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
+        }
+
+        Role role = roleRepository.findByName("OWNER")
                 .orElseGet(() -> roleRepository.save(new Role("OWNER")));
 
-        if(!ownerRepository.existsByUsernameAndActive(owner.getUsername(), true)) {
-            owner.setRole(ownerRole);
+        Owner owner = Owner.builder()
+                .name(ownerDto.name())
+                .lastName(ownerDto.lastName())
+                .username(ownerDto.username())
+                .password(passwordEncoder.encode(ownerDto.password()))
+                .mail(ownerDto.mail())
+                .cellNumber(ownerDto.cellNumber())
+                .active(true)
+                .role(role)
+                .build();
 
-            owner.setPassword(passwordEncoder.encode(owner.getPassword()));
-            return ownerRepository.save(owner);
-
-        }  else throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+        return ownerRepository.save(owner);
     }
 
-    public List<Owner> getAllOwners() throws NoOwnersException {
-        List<Owner> owners = ownerRepository.findAll();
-        if(owners.isEmpty())
+    public List<OwnerResponseDTO> getAllOwners() throws NoOwnersException {
+        List<Owner> owners = ownerRepository.findAllByActive(true);
+
+        if (owners.isEmpty()) {
             throw new NoOwnersException("Todavia no hay dueños registrados");
-        return owners;
+        }
+
+
+        return ownerMapper.toDto(owners);
     }
 
-    public Owner updateOwner(Owner ownerFromRequest) throws OwnerNotFoundException {
-        Owner owner = ownerRepository.findById(ownerFromRequest.getId())
-                .orElseThrow(() -> new ClientNotFoundException("Dueño no encontrado"));
+    public Owner updateOwner(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
+        Optional<Owner> ownerOpt = ownerRepository.findByIdAndActive(id, true);
 
-        owner.setName(ownerFromRequest.getName());
-        owner.setLastName(ownerFromRequest.getLastName());
-        owner.setUsername(ownerFromRequest.getUsername());
-        owner.setMail(ownerFromRequest.getMail());
-        owner.setCellNumber(ownerFromRequest.getCellNumber());
-        owner.setBankOwner(ownerFromRequest.getBankOwner());
+        if (ownerOpt.isEmpty()) {
+            throw new OwnerNotFoundException("No se encontro el dueño");
+        }
+
+        Owner owner = ownerOpt.get();
+
+        owner.setName(ownerRequestDTO.name());
+        owner.setLastName(ownerRequestDTO.lastName());
+        owner.setUsername(ownerRequestDTO.username());
+        owner.setMail(ownerRequestDTO.mail());
+        owner.setCellNumber(ownerRequestDTO.cellNumber());
 
         return ownerRepository.save(owner);
     }
 
-    public Owner addMoneyToOwnerBank(UUID ownerId, double addedAmount){
-
-        Owner owner = ownerRepository.findById(ownerId)
+    public Owner updateOwnerAdmin(UUID id, OwnerRequestDTO ownerFromRequest) throws OwnerNotFoundException {
+        Owner owner = ownerRepository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
 
-        if (!owner.isActive())
-            throw new UnactiveOwnerException("Dueño dado de baja");
+        owner.setName(ownerFromRequest.name());
+        owner.setLastName(ownerFromRequest.lastName());
+        owner.setUsername(ownerFromRequest.username());
+        owner.setMail(ownerFromRequest.mail());
+        owner.setCellNumber(ownerFromRequest.cellNumber());
+        owner.setActive(ownerFromRequest.active());
 
-        if (addedAmount <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
-        owner.setBankOwner(owner.getBankOwner()+addedAmount);
-        return ownerRepository.save(owner);
-
-    }
-
-    public Owner updateOwnerAdmin(Owner ownerFromRequest) throws OwnerNotFoundException {
-        Owner owner = ownerRepository.findById(ownerFromRequest.getId())
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
-
-        owner.setName(ownerFromRequest.getName());
-        owner.setLastName(ownerFromRequest.getLastName());
-        owner.setUsername(ownerFromRequest.getUsername());
-        owner.setMail(ownerFromRequest.getMail());
-        owner.setCellNumber(ownerFromRequest.getCellNumber());
-        owner.setBankOwner(ownerFromRequest.getBankOwner());
-
-        String pass = ownerFromRequest.getPassword();
+        String pass = ownerFromRequest.password();
 
         if (!pass.isEmpty()) {
             owner.setPassword(passwordEncoder.encode(pass));
@@ -118,7 +129,7 @@ public class OwnerService {
         if (!owner.isActive())
             throw new UnableToDropException("El dueño ya esta inactiva");
 
-        List<Brand> brands = canchaBrandService.findCanchaBrandsByOwnerUsername(owner.getUsername());
+        List<Brand> brands = brandRepository.findByOwnerIdAndActive(ownerId, true);
 
         for (Brand brand : brands) {
             canchaBrandService.deleteCanchaBrand(brand.getId());
@@ -129,8 +140,16 @@ public class OwnerService {
 
     }
 
-    public Owner findOwnerById(UUID id) throws OwnerNotFoundException {
-        return ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("Dueño no encontrado"));
+    public OwnerResponseDTO findOwnerById(UUID id) throws OwnerNotFoundException {
+        Optional<Owner> ownerOpt = ownerRepository.findByIdAndActive(id, true);
+
+        if (ownerOpt.isEmpty()) {
+            throw new OwnerNotFoundException("Dueño no encontrado");
+        }
+
+        Owner owner = ownerOpt.get();
+
+        return ownerMapper.toDto(owner);
     }
 
     public boolean verifyUsername(String username) {

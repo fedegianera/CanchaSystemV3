@@ -1,6 +1,7 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
+import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.service.CanchaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,8 @@ public class CanchaController {
 //    }
 
     @PutMapping("/updateAny")
-    public ResponseEntity<?> updateAnyCancha(@RequestBody Cancha cancha) {
-            canchaService.updateCancha(cancha.getId(),cancha);
+    public ResponseEntity<?> updateAnyCancha(@RequestBody Long id, CanchaRequestDTO canchaDto) {
+            canchaService.updateCancha(id, canchaDto);
             return ResponseEntity.ok(Map.of("message", "Cancha actualizada correctamente"));
     }
 
@@ -57,7 +58,7 @@ public class CanchaController {
 
     @GetMapping("/findCanchaById/{id}")
     public ResponseEntity<?> findAnyCanchaById(@PathVariable Long id) {
-            Cancha cancha = canchaService.findCanchaById(id);
+            CanchaResponseDTO cancha = canchaService.findCanchaById(id);
             return ResponseEntity.ok(cancha);
     }
 
