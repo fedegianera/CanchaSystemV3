@@ -154,18 +154,7 @@
 //            reservationRepository.save(res);
 //        }
 //
-//        // 9️⃣ Crear Reviews
-//        for (int i = 0; i < 15; i++) {
-//            Review review = new Review();
-//            review.setClient(clients.get(random.nextInt(clients.size())));
-//            review.setCancha(canchas.get(random.nextInt(canchas.size())));
-//            review.setRating(faker.number().randomDouble(1, 1, 5));
-//            review.setMessage(faker.lorem().sentence());
-//            review.setClientName(faker.name().firstName());
-//            review.setCreatedAt(LocalDate.now().minusDays(faker.number().numberBetween(0, 10)));
-//            review.setActive(true);
-//            reviewRepository.save(review);
-//        }
+//
 //
 //        System.out.println("✅ Datos de prueba generados con Faker");
 //    }

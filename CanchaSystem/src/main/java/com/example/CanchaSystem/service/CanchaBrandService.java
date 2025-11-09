@@ -65,6 +65,7 @@ public class CanchaBrandService {
 
         Brand brand = brandMapper.toEntity(brandDto);
         brand.setOwner(owner);
+        brand.setActive(true);
 
         return canchaBrandRepository.save(brand);
     }

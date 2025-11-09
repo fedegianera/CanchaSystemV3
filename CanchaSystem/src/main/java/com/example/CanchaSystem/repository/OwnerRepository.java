@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.repository;
 
+import com.example.CanchaSystem.model.Admin;
 import com.example.CanchaSystem.model.Owner;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,8 @@ public interface OwnerRepository extends JpaRepository<Owner, UUID> {
     boolean existsByCellNumberAndActive(String cellNumber, boolean active);
 
     Optional<Owner> findByUsernameAndActive(String username,boolean active);
+    Optional<Owner> findByUsername(String username);
+
     List<Owner> findAllByActive(boolean active);
     Optional<Owner> findByIdAndActive(UUID id, boolean active);
 

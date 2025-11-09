@@ -1,6 +1,7 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
+import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.service.CanchaService;
@@ -43,14 +44,15 @@ public class CanchaController {
 //        return ResponseEntity.ok(canchaService.getCanchasByOwner(username));
 //    }
 
-    @PutMapping("/updateAny")
-    public ResponseEntity<?> updateAnyCancha(@RequestBody Long id, CanchaRequestDTO canchaDto) {
-            canchaService.updateCancha(id, canchaDto);
-            return ResponseEntity.ok(Map.of("message", "Cancha actualizada correctamente"));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateCancha(
+            @PathVariable Long id,
+            @RequestBody CanchaRequestDTO canchaDTO) {
+        return ResponseEntity.ok(canchaService.updateCancha(id, canchaDTO));
     }
 
+
     @DeleteMapping("/dropCanchaById/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteAnyCancha(@PathVariable Long id) {
             canchaService.deleteCancha(id);
             return ResponseEntity.ok(Map.of("message", "Cancha eliminada correctamente"));

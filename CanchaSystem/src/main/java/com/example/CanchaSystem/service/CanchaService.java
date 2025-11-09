@@ -53,6 +53,7 @@ public class CanchaService {
                 .establishment(establishment)
                 .canchaType(canchaDTO.canchaType())
                 .working(canchaDTO.working())
+                .active(true)
                 .build();
 
         return canchaRepository.save(cancha);

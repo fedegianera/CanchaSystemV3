@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.BrandRequestDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.service.EstablishmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,10 @@ public class EstablishmentController {
     }
 
     @PutMapping("/update/{id}")
-    ResponseEntity<?> updateEstablishment(@PathVariable Long id, EstablishmentRequestDTO establishmentDto) {
-        establishmentService.updateEstablishment(id, establishmentDto);
-        return ResponseEntity.ok(Map.of("message", "Cancha actualizada correctamente"));
+    public ResponseEntity<?> updateEstablishment(
+            @PathVariable Long id,
+            @RequestBody EstablishmentRequestDTO estDto) {
+        return ResponseEntity.ok(establishmentService.updateEstablishment(id, estDto));
     }
 
     @GetMapping("/getEstablishmentsByBrandId/{id}")

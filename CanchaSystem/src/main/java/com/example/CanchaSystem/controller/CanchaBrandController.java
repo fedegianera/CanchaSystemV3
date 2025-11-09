@@ -45,10 +45,13 @@ public class CanchaBrandController {
             return ResponseEntity.ok(canchaBrandService.getAllCanchaBrands());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateCanchaBrand(@RequestBody Long id, BrandRequestDTO brandDto) {
-            return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(id, brandDto));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateCanchaBrand(
+            @PathVariable Long id,
+            @RequestBody BrandRequestDTO brandDto) {
+        return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(id, brandDto));
     }
+
 
     @DeleteMapping("/deleteCanchaBrand/{id}")
     public ResponseEntity<?> deleteCanchaBrand(@PathVariable Long id) {
@@ -57,12 +60,11 @@ public class CanchaBrandController {
     }
 
     @GetMapping("findCanchaBrand/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findCanchaBrandById(@PathVariable Long id) {
             return ResponseEntity.ok(canchaBrandService.findCanchaBrandById(id));
     }
 
-    @GetMapping("/findAllOwnerBrands")
+        @GetMapping("/findAllOwnerBrands")
     public ResponseEntity<?> findBrandsByOwnerId(Authentication auth){
         String username = auth.getName();
         return ResponseEntity.ok(canchaBrandService.findCanchaBrandsByOwnerUsername(username));
