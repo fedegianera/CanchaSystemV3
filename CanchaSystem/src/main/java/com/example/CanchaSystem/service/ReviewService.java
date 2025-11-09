@@ -30,8 +30,8 @@ public class ReviewService {
     @Autowired
     private ReviewMapper reviewMapper;
 
-    public Review insertReview(Review review) {
-                        return reviewRepository.save(review);
+    public Review insertReview(ReviewRequestDTO review) {
+        return reviewRepository.save(reviewMapper.toEntity(review));
     }
 
     public List<ReviewResponseDTO> getAllReviews() throws NoReviewsException {

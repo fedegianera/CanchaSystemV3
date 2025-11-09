@@ -89,7 +89,7 @@ public class ReservationController {
     }
 
 
-    @GetMapping("/getReservationsByCanchaId/{canchaId}")
+    @GetMapping("/getReservationsByCanchaId/{establishmentId}")
     public ResponseEntity<?> getReservationsByCanchaId(@PathVariable Long canchaId) {
         return ResponseEntity.ok(reservationService.findReservationsByCanchaId(canchaId));
      }

@@ -8,7 +8,7 @@ public record ReviewResponseDTO (
         Long id,
         Double rating,
         String message,
-        Long canchaId,
+        Long establishmentId,
         UUID clientId,
         String clientName,
         LocalDate createdAt
