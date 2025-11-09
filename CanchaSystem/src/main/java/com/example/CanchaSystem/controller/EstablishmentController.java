@@ -21,6 +21,11 @@ public class EstablishmentController {
         return ResponseEntity.ok(establishmentService.getAllActiveEstablishment());
     }
 
+    @GetMapping("/find/{id}")
+    ResponseEntity<?> getActiveEstablishmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(establishmentService.getEstablishment(id));
+    }
+
     @PostMapping("/insert")
     ResponseEntity<?> createEstablishment(@Validated @RequestBody EstablishmentRequestDTO establishmentDto) {
         return ResponseEntity.ok(establishmentService.insertEstablishment(establishmentDto));

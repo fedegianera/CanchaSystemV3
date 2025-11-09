@@ -68,9 +68,6 @@ public class Client implements IUser {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role = new Role("CLIENT");
 
-    @Column(nullable = false)
-    private double bankClient=0;
-
     @Override
     public String getRoleName() {
         return role.getName();

@@ -10,10 +10,10 @@ import java.util.UUID;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Long> {
-    boolean existsByCanchaIdAndClientIdAndActive(Long canchaId, Long clientId, boolean active);
+    boolean existsByEstablishmentIdAndClientIdAndActive(Long establishmentId, Long clientId, boolean active);
     Optional<Review> findByIdAndActive(Long reviewId, boolean active);
 
-    List<Review> findByCanchaIdAndActive(Long canchaId,boolean active);
-    List<Review> findByCanchaId(Long canchaId);
+    List<Review> findByEstablishmentIdAndActive(Long establishmentId,boolean active);
+    List<Review> findByEstablishmentId(Long establishmentId);
     List<Review> findByClientIdAndActive(UUID clientId, boolean active);
 }

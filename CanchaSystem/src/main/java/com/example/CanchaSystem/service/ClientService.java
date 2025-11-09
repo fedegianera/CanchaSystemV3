@@ -3,6 +3,7 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.ClientMapper;
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.dto.response.ClientResponseDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NoClientsException;
@@ -129,10 +130,10 @@ public class ClientService {
         if (!client.isActive())
             throw new UnableToDropException("El cliente ya esta inactivo");
 
-        List<Review> reviews = reviewService.getAllReviewsByClientId(clientId);
+        List<ReviewResponseDTO> reviews = reviewService.getAllReviewsByClientId(clientId);
 
-        for (Review review : reviews) {
-            reviewService.deleteReview(review.getId());
+        for (ReviewResponseDTO review : reviews) {
+            reviewService.deleteReview(review.id());
         }
 
         List<Reservation> reservations = reservationRepository.findByClientId(clientId);

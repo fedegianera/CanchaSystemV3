@@ -68,9 +68,9 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getAllReviewsByClientId(id));
     }
 
-    @GetMapping("/findReviewsByCanchaId/{canchaId}")
-    public ResponseEntity<?> findReviewsByCanchaId(@PathVariable Long canchaId){
-        return ResponseEntity.ok(reviewService.getAllReviewsByCanchaId(canchaId));
+    @GetMapping("/findReviewsByEstablishmentId/{establishmentId}")
+    public ResponseEntity<?> findReviewsByEstablishmentId(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(reviewService.getAllReviewsByEstablishmentId(establishmentId));
     }
 
     @GetMapping("/findReviewsByCanchaIdAdmin/{canchaId}")

@@ -97,7 +97,7 @@ public class CanchaBrandService {
         if (!brand.isActive())
             throw new UnableToDropException("La marca ya esta inactiva");
 
-        List<Establishment> establishments = establishmentRepository.findByBrandId(canchaBrandId);
+        List<Establishment> establishments = establishmentRepository.findByBrandIdAndActive(canchaBrandId, true);
 
         for (Establishment establishment : establishments) {
             if (establishment.isActive()) {

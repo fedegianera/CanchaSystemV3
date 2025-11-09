@@ -1,4 +1,4 @@
-//package com.example.CanchaSystem.config;
+//package com.example.CanchaSystem.model;
 //
 //import com.example.CanchaSystem.model.*;
 //import com.example.CanchaSystem.repository.*;
@@ -6,6 +6,7 @@
 //import org.springframework.boot.CommandLineRunner;
 //import org.springframework.stereotype.Component;
 //
+//import java.time.LocalDate;
 //import java.time.LocalTime;
 //import java.time.LocalDateTime;
 //import java.util.ArrayList;
@@ -70,7 +71,6 @@
 //            owner.setMail(faker.internet().emailAddress());
 //            owner.setCellNumber(faker.phoneNumber().cellPhone());
 //            owner.setRole(ownerRole);
-//            owner.setBankOwner(faker.number().randomDouble(2, 1000, 10000));
 //            owners.add(ownerRepository.save(owner));
 //        }
 //
@@ -138,7 +138,6 @@
 //            client.setMail(faker.internet().emailAddress());
 //            client.setCellNumber(faker.phoneNumber().cellPhone());
 //            client.setRole(clientRole);
-//            client.setBankClient(faker.number().randomDouble(2, 0, 1000));
 //            client.setActive(true);
 //            clients.add(clientRepository.save(client));
 //        }
@@ -151,7 +150,6 @@
 //            res.setCancha(canchas.get(random.nextInt(canchas.size())));
 //            res.setReservationDate(LocalDateTime.now().minusDays(faker.number().numberBetween(0, 10)));
 //            res.setMatchDate(LocalDateTime.now().plusDays(faker.number().numberBetween(1, 20)));
-//            res.setDeposit(faker.number().randomDouble(2, 50, 500));
 //            res.setStatus(statuses[random.nextInt(statuses.length)]);
 //            reservationRepository.save(res);
 //        }
@@ -163,6 +161,8 @@
 //            review.setCancha(canchas.get(random.nextInt(canchas.size())));
 //            review.setRating(faker.number().randomDouble(1, 1, 5));
 //            review.setMessage(faker.lorem().sentence());
+//            review.setClientName(faker.name().firstName());
+//            review.setCreatedAt(LocalDate.now().minusDays(faker.number().numberBetween(0, 10)));
 //            review.setActive(true);
 //            reviewRepository.save(review);
 //        }

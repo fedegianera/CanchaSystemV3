@@ -5,6 +5,7 @@ import com.example.CanchaSystem.Mapper.ReservationMapper;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
+import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
@@ -45,6 +46,13 @@ public class EstablishmentService {
         }
 
         return mapper.toDto(establishments);
+    }
+
+    public EstablishmentResponseDTO getEstablishment(Long id){
+        Establishment establishment = establishmentRepository.findByIdAndActive(id, true).orElseThrow(
+                () -> new CanchaNotFoundException("Hubo problemas al buscar el establecimiento"));
+
+        return mapper.toDto(establishment);
     }
 
     public Establishment insertEstablishment(EstablishmentRequestDTO establishmentDto) {

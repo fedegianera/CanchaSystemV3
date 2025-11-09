@@ -26,9 +26,9 @@ public class Review {
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "cancha_id", nullable = false)
+    @JoinColumn(name = "establishment_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Cancha cancha;
+    private Establishment establishment;
 
     @Column(nullable = false)
 //    @DecimalMin(value = "1.0", message = "La valoración mínima es 1")

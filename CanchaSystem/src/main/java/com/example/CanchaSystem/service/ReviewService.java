@@ -84,8 +84,8 @@ public class ReviewService {
         return reviewMapper.toDto(review);
     }
 
-    public List<ReviewResponseDTO> getAllReviewsByCanchaId(Long canchaId) throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findByCanchaIdAndActive(canchaId, true);
+    public List<ReviewResponseDTO> getAllReviewsByEstablishmentId(Long establishmentId) throws NoReviewsException {
+        List<Review> reviews = reviewRepository.findByEstablishmentIdAndActive(establishmentId, true);
 
         if (reviews.isEmpty()) {
             throw new NoReviewsException("La cancha aun no tiene reviews");
@@ -96,7 +96,7 @@ public class ReviewService {
     }
 
     public List<ReviewResponseDTO> getAllReviewsByCanchaIdAdmin(Long canchaId) throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findByCanchaId(canchaId);
+        List<Review> reviews = reviewRepository.findByEstablishmentId(canchaId);
 
         if (reviews.isEmpty()) {
             throw new NoReviewsException("La cancha aun no tiene reviews");
@@ -123,7 +123,7 @@ public class ReviewService {
     }
 
     public boolean clientAlreadyReviewedCancha(Long canchaId,Long clientId){
-        return reviewRepository.existsByCanchaIdAndClientIdAndActive(canchaId,clientId, true);
+        return reviewRepository.existsByEstablishmentIdAndClientIdAndActive(canchaId,clientId, true);
     }
 
 }
