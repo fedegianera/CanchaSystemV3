@@ -9,6 +9,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -50,4 +51,19 @@ public class Review {
 
     @Column(nullable = false)
     private boolean active = true;
+
+    @PrePersist
+    public void prePersist() {
+        if (client != null && clientName == null) {
+            clientName = client.getName();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDate.now();
+        }
+    }
+
 }
+
+
+
+

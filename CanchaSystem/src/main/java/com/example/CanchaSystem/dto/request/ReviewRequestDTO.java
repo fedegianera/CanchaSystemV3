@@ -12,7 +12,7 @@ public record ReviewRequestDTO (
         String message,
 
         @NotNull
-        Long canchaId,
+        Long establishmentId,
 
         @NotNull
         UUID clientId,

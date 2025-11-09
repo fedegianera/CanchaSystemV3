@@ -148,4 +148,8 @@ public class CanchaService {
         return mapper.toDto(canchas);
     }
 
+    public List<CanchaType> getCanchaTypesByEstablishment(Long establishmentId) {
+        return canchaRepository.findDistinctTypesByEstablishmentId(establishmentId);
+    }
+
 }

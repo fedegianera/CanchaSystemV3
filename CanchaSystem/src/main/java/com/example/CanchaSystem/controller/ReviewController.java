@@ -30,13 +30,7 @@ public class ReviewController {
     private ClientRepository clientRepository;
     @PostMapping("/insert")
     public ResponseEntity<?> insertReview(
-            @Validated @RequestBody Review review,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        review.setClient(client);
+             @RequestBody ReviewRequestDTO review) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(reviewService.insertReview(review));
@@ -73,7 +67,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getAllReviewsByEstablishmentId(establishmentId));
     }
 
-    @GetMapping("/findReviewsByCanchaIdAdmin/{canchaId}")
+    @GetMapping("/findReviewsByCanchaIdAdmin/{establishmentId}")
     public ResponseEntity<?> findReviewsByCanchaIdAdmin(@PathVariable Long canchaId){
         return ResponseEntity.ok(reviewService.getAllReviewsByCanchaIdAdmin(canchaId));
     }
