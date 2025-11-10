@@ -7,6 +7,7 @@ import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Review;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ReviewService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +30,11 @@ public class ReviewController {
     @Autowired
     private ClientRepository clientRepository;
     @PostMapping("/insert")
-    public ResponseEntity<?> insertReview(
-             @RequestBody ReviewRequestDTO review) {
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(reviewService.insertReview(review));
+    public ResponseEntity<?> insertReview(@RequestBody @Valid ReviewRequestDTO dto) {
+        Review saved = reviewService.insertReview(dto);
+        return ResponseEntity.ok(saved);
     }
+
 
     @GetMapping("/findall")
     public ResponseEntity<?> getReviews() {

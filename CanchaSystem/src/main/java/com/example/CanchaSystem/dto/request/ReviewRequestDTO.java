@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public record ReviewRequestDTO (
         @NotNull
-        Double rating,
+        Long rating,
 
         String message,
 

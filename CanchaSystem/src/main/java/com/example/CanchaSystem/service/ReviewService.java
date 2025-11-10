@@ -8,8 +8,10 @@ import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.exception.review.NoReviewsException;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
 import com.example.CanchaSystem.model.Client;
+import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.model.Review;
 import com.example.CanchaSystem.repository.ClientRepository;
+import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,39 @@ public class ReviewService {
     @Autowired
     private ReviewMapper reviewMapper;
 
-    public Review insertReview(ReviewRequestDTO review) {
-        return reviewRepository.save(reviewMapper.toEntity(review));
-    }
+    @Autowired
+    private EstablishmentRepository establishmentRepository;
 
+    public Review insertReview(ReviewRequestDTO dto) {
+        // 1️⃣ Buscar el cliente por su UUID
+        Client client = clientRepository.findById(dto.clientId())
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        // 2️⃣ Buscar el establecimiento
+        Establishment est = establishmentRepository.findById(dto.establishmentId())
+                .orElseThrow(() -> new RuntimeException("Establishment not found"));
+
+        // 3️⃣ Crear la review
+        Review review = new Review();
+        review.setRating(dto.rating());
+        review.setMessage(dto.message());
+        review.setClient(client);
+        review.setClientName(dto.clientName());
+        review.setCreatedAt(dto.createdAt());
+        review.setEstablishment(est);
+        review.setActive(true);
+
+        System.out.println(review.getClient().getId());
+        System.out.println(review.getClient().getId());
+        System.out.println(review.getClient().getId());
+        System.out.println(review.getClient().getId());
+        System.out.println(review.getClient().getId());
+        System.out.println(review.getClient().getId());
+
+
+        // 4️⃣ Guardar
+        return reviewRepository.save(review);
+    }
     public List<ReviewResponseDTO> getAllReviews() throws NoReviewsException {
         List<Review> reviews = reviewRepository.findAll();
 
