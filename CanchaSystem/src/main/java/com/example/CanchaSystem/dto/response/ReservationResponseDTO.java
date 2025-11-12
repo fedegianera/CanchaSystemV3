@@ -8,7 +8,7 @@ import java.util.UUID;
 public record ReservationResponseDTO (
     Long id,
     UUID clientId,
-    Long establishmentId,
+    //Long establishmentId,
     Long canchaId,
     LocalDateTime reservationDate,
     LocalDateTime matchDate,

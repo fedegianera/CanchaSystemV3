@@ -3,6 +3,7 @@ package com.example.CanchaSystem.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
@@ -40,7 +41,7 @@ public class Reservation {
     private Cancha cancha;
 
     @Column(nullable = false)
-    @PastOrPresent
+    @FutureOrPresent
     private LocalDateTime reservationDate;
 
     @Column(nullable = false)

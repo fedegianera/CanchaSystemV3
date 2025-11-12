@@ -53,7 +53,7 @@ public class ReservationService {
     private ReservationMapper reservationMapper;
 
 
-    public void insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
+    public Reservation insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
         if(!reservationRepository.existsBymatchDateAndCanchaId(reservationDTO.matchDate(), reservationDTO.canchaId())) {
             String username = auth.getName();
@@ -71,6 +71,8 @@ public class ReservationService {
                     .matchDate(reservationDTO.matchDate())
                     .status(ReservationStatus.PENDING)
                     .build();
+
+            return reservationRepository.save(reservation);
         } else
             throw new IllegalReservationDateException("La fecha ya esta reservada");
     }
@@ -106,18 +108,40 @@ public class ReservationService {
     }
 
     public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) throws NoReservationsException {
-       if (!clientRepository.existsByIdAndActive(clientId, true)) {
-           throw new ClientNotFoundException("Cliente no encontrado");
-       }
+        if (!clientRepository.existsByIdAndActive(clientId, true)) {
+            throw new ClientNotFoundException("Cliente no encontrado");
+        }
+
+        System.out.println("🔍 Buscando reservas para clientId: " + clientId);
 
         List<Reservation> reservations = reservationRepository.findByClientId(clientId);
 
-        if (reservations.isEmpty()) {
-            throw new NoReservationsException("El cliente aun no ha hecho reservas");
+        System.out.println("📦 Resultado del repository: " + reservations);
+
+        if (reservations == null) {
+            System.out.println("⚠️ El repository devolvió null!");
+            throw new RuntimeException("El repository devolvió null");
         }
 
-        return reservationMapper.toDto(reservations);
+        if (reservations.isEmpty()) {
+            System.out.println("ℹ️ No hay reservas para este cliente.");
+            throw new NoReservationsException("El cliente aún no ha hecho reservas");
+        }
+
+        // Logueamos el contenido de la primera reserva para detectar relaciones nulas
+        Reservation first = reservations.get(0);
+        System.out.println("🧩 Primera reserva:");
+        System.out.println("   ID: " + first.getId());
+        System.out.println("   Cliente: " + (first.getClient() != null ? first.getClient().getId() : "NULL"));
+        System.out.println("   Cancha: " + (first.getCancha() != null ? first.getCancha().getId() : "NULL"));
+
+        List<ReservationResponseDTO> response = reservationMapper.toDto(reservations);
+
+        System.out.println("✅ Conversion exitosa. Total DTOs: " + response.size());
+
+        return response;
     }
+
 
     public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
         List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);

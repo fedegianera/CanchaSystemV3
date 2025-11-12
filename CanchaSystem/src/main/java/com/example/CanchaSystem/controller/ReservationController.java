@@ -46,16 +46,22 @@ public class ReservationController {
     private CanchaRepository canchaRepository;
 
     @PostMapping("/insert")
-//    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<?> insertReservation(@RequestBody ReservationRequestDTO reservationDTO, Authentication auth) {
         if (reservationDTO.matchDate() == null || reservationDTO.matchDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("La fecha del partido debe ser futura");
+            return ResponseEntity.badRequest().body(Map.of("error", "La fecha del partido debe ser futura"));
         }
 
-        reservationService.insertReservation(reservationDTO, auth);
+        Reservation reservation = reservationService.insertReservation(reservationDTO, auth);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Reserva hecha");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of(
+                        "message", "Reserva hecha",
+                        "reservationId", reservation.getId(),
+                        "matchDate", reservation.getMatchDate(),
+                        "status", reservation.getStatus().name()
+                ));
     }
+
 
     @GetMapping("/findall")
     public ResponseEntity<?> getReservations() {
@@ -73,8 +79,8 @@ public class ReservationController {
     }
 
     @GetMapping("/findReservationsByClientId/{id}")
-    public ResponseEntity<?> findReservationsByClientId(UUID clientId){
-        return ResponseEntity.ok(reservationService.findReservationsByClientId(clientId));
+    public ResponseEntity<?> findReservationsByClientId(@PathVariable("id") UUID id){
+        return ResponseEntity.ok(reservationService.findReservationsByClientId(id));
     }
 
     @GetMapping("/getAvailableHours/{establishmentId}/{day}")

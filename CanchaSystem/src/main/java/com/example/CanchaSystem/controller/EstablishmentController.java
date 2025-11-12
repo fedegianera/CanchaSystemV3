@@ -3,6 +3,7 @@ package com.example.CanchaSystem.controller;
 import com.example.CanchaSystem.dto.request.BrandRequestDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.model.CanchaType;
+import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.service.CanchaService;
 import com.example.CanchaSystem.service.EstablishmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class EstablishmentController {
 
     @Autowired
     private CanchaService canchaService;
+
+    @Autowired
+    private CanchaRepository canchaRepository;
 
     @GetMapping("/findall")
     ResponseEntity<?> getAllEstablishmentsActive() {
@@ -55,12 +59,17 @@ public class EstablishmentController {
         return ResponseEntity.ok(establishmentService.getEstablishmentsByBrandId(id));
     }
 
-    @GetMapping("/getCanchaTypes/{id}")
-    public ResponseEntity<List<CanchaType>> getCanchaTypes(@PathVariable("id") Long establishmentId) {
-        List<CanchaType> types = canchaService.getCanchaTypesByEstablishment(establishmentId);
-        if (types == null || types.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(types);
+    @GetMapping("/{id}/canchas/types")
+    public ResponseEntity<List<Map<String, Object>>> getCanchaTypes(@PathVariable Long id) {
+        List<Map<String, Object>> result = canchaRepository.findByEstablishmentId(id)
+                .stream()
+                .map(cancha -> Map.<String, Object>of(
+                        "id", cancha.getId(),
+                        "type", cancha.getCanchaType().name() // 👈 convertimos enum a String
+                ))
+                .toList();
+
+        return ResponseEntity.ok(result);
     }
+
 }
