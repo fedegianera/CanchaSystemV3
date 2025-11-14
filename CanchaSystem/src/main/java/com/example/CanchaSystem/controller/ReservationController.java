@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
@@ -68,9 +69,11 @@ public class ReservationController {
             return ResponseEntity.ok(reservationService.getAllReservations());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateReservation(@RequestBody Long id, ReservationRequestDTO reservationRequestDTO) {
-            return ResponseEntity.ok(reservationService.updateReservation(id, reservationRequestDTO));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateReservation(
+            @PathVariable Long id,
+            @RequestBody ReservationRequestDTO reservationRequestDTO) {
+        return ResponseEntity.ok(reservationService.updateReservation(id, reservationRequestDTO));
     }
 
     @GetMapping("/{id}")
@@ -99,4 +102,11 @@ public class ReservationController {
     public ResponseEntity<?> getReservationsByCanchaId(@PathVariable Long canchaId) {
         return ResponseEntity.ok(reservationService.findReservationsByCanchaId(canchaId));
      }
+
+
+    @DeleteMapping("/cancelReservation/{id}")
+    public ResponseEntity<?> cancelReservationById(@PathVariable("id") Long id){
+        return ResponseEntity.ok(reservationService.cancelReservation(id));
+    }
+
 }
