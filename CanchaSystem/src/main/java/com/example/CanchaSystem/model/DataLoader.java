@@ -52,6 +52,7 @@
 //    @Override
 //    public void run(String... args) throws Exception {
 //
+//
 //        // 1️⃣ Crear Roles solo si no existen
 //        Role adminRole = roleRepository.findByName("ADMIN")
 //                .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
