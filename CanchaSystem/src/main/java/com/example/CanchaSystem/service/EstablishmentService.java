@@ -2,6 +2,7 @@ package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.Mapper.EstablishmentMapper;
 import com.example.CanchaSystem.Mapper.ReservationMapper;
+import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
@@ -19,7 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class EstablishmentService {
@@ -31,6 +35,9 @@ public class EstablishmentService {
 
     @Autowired
     private CanchaService canchaService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @Autowired
     private CanchaBrandRepository brandRepository;
@@ -52,7 +59,20 @@ public class EstablishmentService {
         Establishment establishment = establishmentRepository.findByIdAndActive(id, true).orElseThrow(
                 () -> new CanchaNotFoundException("Hubo problemas al buscar el establecimiento"));
 
-        return mapper.toDto(establishment);
+        Double avgRating = reviewService.getEstablishmentAverageRating(id);
+        //return mapper.toDto(establishment);
+
+        return new EstablishmentResponseDTO(
+                id,
+                establishment.getName(),
+                establishment.getAddress(),
+                establishment.getOpeningHour(),
+                establishment.getClosingHour(),
+                establishment.isCanShower(),
+                establishment.getBrand().getId(),
+                establishment.isActive(),
+                avgRating
+        );
     }
 
     public Establishment insertEstablishment(EstablishmentRequestDTO establishmentDto) {
@@ -79,7 +99,24 @@ public class EstablishmentService {
             throw new NoCanchasException("Todavia no hay Establecimientos registrados");
         }
 
-        return mapper.toDto(establishments);
+        Map<Long, Double> avgRatingList = reviewService.getAllEstablishmentAverageRatings().stream()
+                .collect(Collectors.toMap(EstablishmentRatingDTO::getEstablishmentId, EstablishmentRatingDTO::getAverageRating));
+
+        return establishments.stream()
+                .map(est -> new EstablishmentResponseDTO(
+                        est.getId(),
+                        est.getName(),
+                        est.getAddress(),
+                        est.getClosingHour(),
+                        est.getOpeningHour(),
+                        est.isCanShower(),
+                        est.getBrand().getId(),
+                        est.isActive(),
+                        avgRatingList.getOrDefault(est.getId(),0.0)
+                ))
+                .toList();
+
+        //return mapper.toDto(establishments);
     }
 
     public Establishment deleteEstablishment(Long establishmentId) {
@@ -128,5 +165,13 @@ public class EstablishmentService {
         establishment.setClosingHour(establishmentDto.closingHour());
 
         return establishmentRepository.save(establishment);
+    }
+
+    public Map<Long, Double> loadExploreRatings() {
+        return reviewService.getAllEstablishmentAverageRatings().stream()
+                .collect(Collectors.toMap(
+                        EstablishmentRatingDTO::getEstablishmentId,
+                        EstablishmentRatingDTO::getAverageRating
+                ));
     }
 }

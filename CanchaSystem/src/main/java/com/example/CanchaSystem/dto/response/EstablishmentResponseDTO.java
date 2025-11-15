@@ -12,5 +12,6 @@ public record EstablishmentResponseDTO (
         LocalTime closingHour,
         boolean canShower,
         Long brandId,
-        boolean active
+        boolean active,
+        double averageRating
 ) {}

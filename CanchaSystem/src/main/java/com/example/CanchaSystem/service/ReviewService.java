@@ -1,6 +1,7 @@
 package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.Mapper.ReviewMapper;
+import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
@@ -155,6 +156,21 @@ public class ReviewService {
 
     public boolean clientAlreadyReviewedCancha(Long canchaId,Long clientId){
         return reviewRepository.existsByEstablishmentIdAndClientIdAndActive(canchaId,clientId, true);
+    }
+
+    public Double getEstablishmentAverageRating(Long id){
+        return reviewRepository.getAverageRatingByEstablishment(id);
+    }
+
+    public List<EstablishmentRatingDTO> getAllEstablishmentAverageRatings() {
+        List<Object[]> rows = reviewRepository.getAllEstablishmentAverages();
+
+        return rows.stream()
+                .map(r -> new EstablishmentRatingDTO(
+                        (Long) r[0],
+                        r[1] != null ? ((Double) r[1]) : 0.0
+                ))
+                .toList();
     }
 
 }
