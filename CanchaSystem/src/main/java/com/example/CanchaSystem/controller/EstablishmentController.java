@@ -58,18 +58,4 @@ public class EstablishmentController {
     ResponseEntity<?> getEstablishmentsByBrandId(@PathVariable Long id) {
         return ResponseEntity.ok(establishmentService.getEstablishmentsByBrandId(id));
     }
-
-    @GetMapping("/{id}/canchas/types")
-    public ResponseEntity<List<Map<String, Object>>> getCanchaTypes(@PathVariable Long id) {
-        List<Map<String, Object>> result = canchaRepository.findByEstablishmentId(id)
-                .stream()
-                .map(cancha -> Map.<String, Object>of(
-                        "id", cancha.getId(),
-                        "type", cancha.getCanchaType().name() // 👈 convertimos enum a String
-                ))
-                .toList();
-
-        return ResponseEntity.ok(result);
-    }
-
 }

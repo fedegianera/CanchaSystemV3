@@ -1,6 +1,5 @@
 package com.example.CanchaSystem.repository;
 
-import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.model.CanchaType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +18,7 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     List<Cancha> findByEstablishmentIdAndActiveAndWorking(Long id,boolean active, boolean working);
     List<Cancha> findByEstablishmentId(Long id);
     List<Cancha> findByActiveAndWorking(boolean active, boolean working);
+    List<Cancha> findByEstablishmentIdAndCanchaType(Long establishmentId, CanchaType type);
 
     @Query("SELECT DISTINCT c.canchaType FROM Cancha c WHERE c.establishment.id = :establishmentId")
     List<CanchaType> findDistinctTypesByEstablishmentId(@Param("establishmentId") Long establishmentId);

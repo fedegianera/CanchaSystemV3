@@ -86,15 +86,19 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.findReservationsByClientId(id));
     }
 
-    @GetMapping("/getAvailableHours/{establishmentId}/{day}")
+    @GetMapping("/getAvailableHours/{establishmentId}/{day}/{canchaType}")
     public ResponseEntity<?> obtainAvailableHours(
             @PathVariable Long establishmentId,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day) {
-            Map<String, List<LocalTime>> hours = reservationService.getAvailableHours(establishmentId, day);
-            if (hours == null || hours.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(hours);
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+            @PathVariable String canchaType) {
+
+        List<LocalTime> hours = reservationService.getAvailableHoursByType(establishmentId, day, canchaType);
+
+        if (hours == null || hours.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(hours);
     }
 
 
