@@ -60,13 +60,11 @@ public class ReservationService {
         Client client = clientRepository.findByUsernameAndActive(username, true)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
 
-        // Convertir la fecha ANTES de validar
         LocalDateTime correctedMatchDate = reservationDTO.matchDate()
                 .atOffset(ZoneOffset.UTC)
                 .withOffsetSameInstant(ZoneOffset.of("-03:00"))
                 .toLocalDateTime();
 
-        // Buscar canchas del tipo
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndCanchaType(
                 reservationDTO.establishmentId(),
                 reservationDTO.canchaType()
@@ -76,7 +74,6 @@ public class ReservationService {
             throw new CanchaNotFoundException("No existen canchas de ese tipo en este establecimiento");
         }
 
-        // Validar disponibilidad usando LA MISMA FECHA QUE SE VA A GUARDAR
         Cancha canchaDisponible = canchas.stream()
                 .filter(c -> !reservationRepository.existsByMatchDateAndCanchaIdAndStatus(
                         correctedMatchDate,
@@ -92,7 +89,7 @@ public class ReservationService {
                 .client(client)
                 .cancha(canchaDisponible)
                 .reservationDate(reservationDTO.reservationDate())
-                .matchDate(correctedMatchDate)   // <- MISMA FECHA
+                .matchDate(correctedMatchDate)
                 .status(ReservationStatus.PENDING)
                 .build();
 
@@ -152,7 +149,6 @@ public class ReservationService {
             throw new NoReservationsException("El cliente aún no ha hecho reservas");
         }
 
-        // Logueamos el contenido de la primera reserva para detectar relaciones nulas
         Reservation first = reservations.get(0);
         System.out.println("🧩 Primera reserva:");
         System.out.println("   ID: " + first.getId());

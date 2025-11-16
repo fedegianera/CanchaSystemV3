@@ -41,8 +41,8 @@ public class ReviewController {
             return ResponseEntity.ok(reviewService.getAllReviews());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateReview(@RequestBody Long id, ReviewRequestDTO reviewDto) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateReview(@PathVariable Long id, @RequestBody ReviewRequestDTO reviewDto) {
             return ResponseEntity.ok(reviewService.updateReview(id, reviewDto));
     }
 
@@ -72,9 +72,9 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getAllReviewsByCanchaIdAdmin(canchaId));
     }
 
-    @GetMapping("/clientReviewExists")
-    public boolean clientAlreadyReviewedCancha(@RequestParam Long canchaId, @RequestParam Long clientId){
-        return reviewService.clientAlreadyReviewedCancha(canchaId,clientId);
+    @GetMapping("/clientReviewExists/{establishmentId}/{clientId}")
+    public boolean clientAlreadyReviewedCancha(@PathVariable Long establishmentId , @PathVariable UUID clientId){
+        return reviewService.clientAlreadyReviewedCancha(establishmentId ,clientId);
     }
 
 

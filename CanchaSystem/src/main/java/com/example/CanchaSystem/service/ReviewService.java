@@ -3,6 +3,7 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.ReviewMapper;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
+import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
@@ -17,6 +18,7 @@ import com.example.CanchaSystem.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -124,6 +126,9 @@ public class ReviewService {
 
         }
 
+        System.out.println("REVIEWS ---------------------------------------------");
+        System.out.println(reviewMapper.toDto(reviews));
+
         return reviewMapper.toDto(reviews);
     }
 
@@ -154,8 +159,8 @@ public class ReviewService {
         return reviewMapper.toDto(reviews);
     }
 
-    public boolean clientAlreadyReviewedCancha(Long canchaId,Long clientId){
-        return reviewRepository.existsByEstablishmentIdAndClientIdAndActive(canchaId,clientId, true);
+    public boolean clientAlreadyReviewedCancha(Long establishmentId ,UUID clientId){
+        return reviewRepository.existsByEstablishmentIdAndClientIdAndActive(establishmentId , clientId, true);
     }
 
     public Double getEstablishmentAverageRating(Long id){

@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Long> {
-    boolean existsByEstablishmentIdAndClientIdAndActive(Long establishmentId, Long clientId, boolean active);
+    boolean existsByEstablishmentIdAndClientIdAndActive(Long establishmentId, UUID clientId, boolean active);
     Optional<Review> findByIdAndActive(Long reviewId, boolean active);
 
     List<Review> findByEstablishmentIdAndActive(Long establishmentId,boolean active);
