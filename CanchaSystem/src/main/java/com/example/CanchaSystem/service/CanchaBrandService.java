@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CanchaBrandService {
@@ -122,14 +123,14 @@ public class CanchaBrandService {
         return brandMapper.toDto(brand);
     }
 
-    public List<BrandResponseDTO> findCanchaBrandsByOwnerUsername(String username) throws OwnerNotFoundException {
-        Optional<Owner> optOwner = ownerRepository.findByUsernameAndActive(username, true);
+    public List<BrandResponseDTO> getBrandsByOwnerId(UUID id) throws OwnerNotFoundException {
+        Optional<Owner> optOwner = ownerRepository.findByIdAndActive(id, true);
 
         if (optOwner.isEmpty())
             throw new OwnerNotFoundException("Dueño no encontrado");
 
         Owner owner = optOwner.get();
-        List<Brand> brands = canchaBrandRepository.findByOwnerIdAndActive(owner.getId(), true);
+        List<Brand> brands = canchaBrandRepository.findByOwnerIdAndActive(id, true);
 
         return brandMapper.toDto(brands);
     }

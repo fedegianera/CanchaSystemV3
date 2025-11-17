@@ -14,11 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/canchaBrand")
@@ -64,10 +66,9 @@ public class CanchaBrandController {
             return ResponseEntity.ok(canchaBrandService.findCanchaBrandById(id));
     }
 
-        @GetMapping("/findAllOwnerBrands")
-    public ResponseEntity<?> findBrandsByOwnerId(Authentication auth){
-        String username = auth.getName();
-        return ResponseEntity.ok(canchaBrandService.findCanchaBrandsByOwnerUsername(username));
+    @GetMapping("/getBrandsByOwnerId/{id}")
+    public ResponseEntity<?> findBrandsByOwnerId(@PathVariable UUID id){
+        return ResponseEntity.ok(canchaBrandService.getBrandsByOwnerId(id));
     }
 
 

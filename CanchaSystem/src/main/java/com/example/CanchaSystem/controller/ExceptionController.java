@@ -62,7 +62,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoCanchasException.class)
     public ResponseEntity<Map<String, Object>> handleNoCanchas(NoCanchasException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.FOUND)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
