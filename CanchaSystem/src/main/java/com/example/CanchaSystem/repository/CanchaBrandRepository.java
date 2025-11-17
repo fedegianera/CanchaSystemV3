@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CanchaBrandRepository extends JpaRepository<Brand, Long> {
-    boolean existsByBrandName(String name);
+    boolean existsByBrandNameAndActive(String name, boolean active);
     List<Brand> findByOwnerIdAndActive(UUID ownerId, boolean active);
     List<Brand> findAllByActive(boolean active);
     Optional<Brand> findByIdAndActive(Long id, boolean active);

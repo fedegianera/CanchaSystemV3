@@ -54,10 +54,10 @@ public class CanchaBrandService {
     @Autowired
     private CanchaMapper canchaMapper;
 
-    public Brand insertCanchaBrand(BrandRequestDTO brandDto, String username)
+    public BrandResponseDTO insertCanchaBrand(BrandRequestDTO brandDto, String username)
             throws CanchaBrandNameAlreadyExistsException {
 
-        if (canchaBrandRepository.existsByBrandName(brandDto.brandName())) {
+        if (canchaBrandRepository.existsByBrandNameAndActive(brandDto.brandName(), true)) {
             throw new CanchaBrandNameAlreadyExistsException("El nombre de la Marca ya existe");
         }
 
@@ -68,7 +68,9 @@ public class CanchaBrandService {
         brand.setOwner(owner);
         brand.setActive(true);
 
-        return canchaBrandRepository.save(brand);
+        canchaBrandRepository.save(brand);
+
+        return brandMapper.toDto(brand);
     }
 
 
@@ -81,14 +83,20 @@ public class CanchaBrandService {
         return brandMapper.toDto(brands);
     }
 
-    public Brand updateCanchaBrand(Long id, BrandRequestDTO brandFromRequest) throws CanchaBrandNotFoundException {
+    public BrandResponseDTO updateCanchaBrand(Long id, BrandRequestDTO brandFromRequest) throws CanchaBrandNotFoundException {
         Brand brand = canchaBrandRepository.findById(id)
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
 
-        brand.setBrandName(brandFromRequest.brandName());
-        brand.setActive(brandFromRequest.active());
+        if (canchaBrandRepository.existsByBrandNameAndActive(brandFromRequest.brandName(), true)) {
+            throw new CanchaBrandNameAlreadyExistsException("El nombre ya esta en uso");
+        }
 
-        return canchaBrandRepository.save(brand);
+        brand.setBrandName(brandFromRequest.brandName());
+        brand.setActive(true);
+
+        canchaBrandRepository.save(brand);
+
+        return brandMapper.toDto(brand);
     }
 
     public void deleteCanchaBrand(Long canchaBrandId) {

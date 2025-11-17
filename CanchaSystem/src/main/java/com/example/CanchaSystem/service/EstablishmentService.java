@@ -60,22 +60,28 @@ public class EstablishmentService {
                 () -> new CanchaNotFoundException("Hubo problemas al buscar el establecimiento"));
 
         Double avgRating = reviewService.getEstablishmentAverageRating(id);
+        if (avgRating == null) avgRating = 0.0;
+        ;
         //return mapper.toDto(establishment);
 
-        return new EstablishmentResponseDTO(
-                id,
-                establishment.getName(),
-                establishment.getAddress(),
-                establishment.getOpeningHour(),
-                establishment.getClosingHour(),
-                establishment.isCanShower(),
-                establishment.getBrand().getId(),
-                establishment.isActive(),
-                avgRating
-        );
+        System.out.println("BRAND: " + establishment.getBrand());
+
+//        return new EstablishmentResponseDTO(
+//                id,
+//                establishment.getName(),
+//                establishment.getAddress(),
+//                establishment.getOpeningHour(),
+//                establishment.getClosingHour(),
+//                establishment.isCanShower(),
+//                establishment.getBrand().getId(),
+//                establishment.isActive(),
+//                avgRating
+//        );
+
+        return mapper.toDto(establishment);
     }
 
-    public Establishment insertEstablishment(EstablishmentRequestDTO establishmentDto) {
+    public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = brandRepository.findById(establishmentDto.brandId())
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
 
@@ -89,7 +95,9 @@ public class EstablishmentService {
                 .active(true)
                 .build();
 
-        return establishmentRepository.save(establishment);
+        establishmentRepository.save(establishment);
+
+        return mapper.toDto(establishment);
     }
 
     public List<EstablishmentResponseDTO> getAllActiveEstablishment() {
@@ -119,7 +127,7 @@ public class EstablishmentService {
         //return mapper.toDto(establishments);
     }
 
-    public Establishment deleteEstablishment(Long establishmentId) {
+    public void deleteEstablishment(Long establishmentId) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Establecimiento no encontrado"));
 
@@ -136,7 +144,7 @@ public class EstablishmentService {
         }
 
         establishment.setActive(false);
-        return establishmentRepository.save(establishment);
+        establishmentRepository.save(establishment);
     }
 
     public List<EstablishmentResponseDTO> getEstablishmentsByBrandId(Long brandId) {
@@ -149,7 +157,7 @@ public class EstablishmentService {
         return mapper.toDto(establishments);
     }
 
-    public Establishment updateEstablishment(Long id, EstablishmentRequestDTO establishmentDto) {
+    public EstablishmentResponseDTO updateEstablishment(Long id, EstablishmentRequestDTO establishmentDto) {
         Optional<Establishment> establishmentOpt = establishmentRepository.findByIdAndActive(id, true);
 
         if (establishmentOpt.isEmpty()) {
@@ -164,7 +172,9 @@ public class EstablishmentService {
         establishment.setOpeningHour(establishmentDto.openingHour());
         establishment.setClosingHour(establishmentDto.closingHour());
 
-        return establishmentRepository.save(establishment);
+        establishmentRepository.save(establishment);
+
+        return mapper.toDto(establishment);
     }
 
     public Map<Long, Double> loadExploreRatings() {

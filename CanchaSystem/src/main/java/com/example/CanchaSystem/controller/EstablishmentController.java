@@ -44,7 +44,8 @@ public class EstablishmentController {
 
     @DeleteMapping("/delete/{id}")
     ResponseEntity<?> deleteEstablishment(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(establishmentService.deleteEstablishment(id));
+        establishmentService.deleteEstablishment(id);
+        return ResponseEntity.ok(Map.of("message", "Establecimiento eliminado"));
     }
 
     @PutMapping("/update/{id}")
