@@ -31,7 +31,7 @@ public class ReviewController {
     private ClientRepository clientRepository;
     @PostMapping("/insert")
     public ResponseEntity<?> insertReview(@RequestBody @Valid ReviewRequestDTO dto) {
-        Review saved = reviewService.insertReview(dto);
+        ReviewResponseDTO saved = reviewService.insertReview(dto);
         return ResponseEntity.ok(saved);
     }
 
@@ -43,7 +43,8 @@ public class ReviewController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateReview(@PathVariable Long id, @RequestBody ReviewRequestDTO reviewDto) {
-            return ResponseEntity.ok(reviewService.updateReview(id, reviewDto));
+        ReviewResponseDTO review = reviewService.updateReview(id, reviewDto);
+        return ResponseEntity.ok(review);
     }
 
     @DeleteMapping("/delete/{id}")

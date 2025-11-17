@@ -38,7 +38,7 @@ public class ReviewService {
     @Autowired
     private EstablishmentRepository establishmentRepository;
 
-    public Review insertReview(ReviewRequestDTO dto) {
+    public ReviewResponseDTO insertReview(ReviewRequestDTO dto) {
         // 1️⃣ Buscar el cliente por su UUID
         Client client = clientRepository.findById(dto.clientId())
                 .orElseThrow(() -> new RuntimeException("Client not found"));
@@ -66,7 +66,9 @@ public class ReviewService {
 
 
         // 4️⃣ Guardar
-        return reviewRepository.save(review);
+        reviewRepository.save(review);
+
+        return reviewMapper.toDto(review);
     }
     public List<ReviewResponseDTO> getAllReviews() throws NoReviewsException {
         List<Review> reviews = reviewRepository.findAll();
@@ -78,7 +80,7 @@ public class ReviewService {
         return reviewMapper.toDto(reviews);
     }
 
-    public Review updateReview(Long id, ReviewRequestDTO reviewDto) throws ReviewNotFoundException {
+    public ReviewResponseDTO updateReview(Long id, ReviewRequestDTO reviewDto) throws ReviewNotFoundException {
         Optional<Review> reviewOpt = reviewRepository.findByIdAndActive(id, true);
 
         if (reviewOpt.isEmpty()) {
@@ -90,7 +92,9 @@ public class ReviewService {
         review.setRating(reviewDto.rating());
         review.setMessage(reviewDto.message());
 
-        return reviewRepository.save(review);
+        reviewRepository.save(review);
+
+        return reviewMapper.toDto(review);
     }
 
     public void deleteReview(Long reviewId){
