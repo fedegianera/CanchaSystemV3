@@ -7,6 +7,7 @@ import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ClientService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,8 +56,8 @@ public class ClientController {
     }
 
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateClient(@RequestBody UUID id, ClientRequestDTO clientDto, HttpServletRequest request) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateClient(@PathVariable UUID id, @RequestBody @Valid ClientRequestDTO clientDto, HttpServletRequest request) {
         clientService.updateClient(id, clientDto);
 
         SecurityContextHolder.clearContext();

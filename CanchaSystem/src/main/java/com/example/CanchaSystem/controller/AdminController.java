@@ -31,11 +31,6 @@ public class AdminController {
             return ResponseEntity.ok(adminService.getAllAdmins());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateAdmin(@RequestBody Admin admin) {
-            return ResponseEntity.ok(adminService.updateAdmin(admin));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAdmin(@PathVariable UUID id) {
             adminService.deleteAdmin(id);
