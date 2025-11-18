@@ -43,7 +43,7 @@ public class CanchaService {
     @Autowired
     private CanchaMapper mapper;
 
-    public Cancha insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
+    public CanchaResponseDTO insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
         Establishment establishment = establishmentRepository.findById(canchaDTO.establishmentId())
                 .orElseThrow(() -> new CanchaNotFoundException("Marca no encontrada"));
 
@@ -56,7 +56,9 @@ public class CanchaService {
                 .active(true)
                 .build();
 
-        return canchaRepository.save(cancha);
+        canchaRepository.save(cancha);
+
+        return mapper.toDto(cancha);
     }
 
     public List<CanchaResponseDTO> getAllCanchas() throws NoCanchasException {
@@ -78,17 +80,19 @@ public class CanchaService {
         return mapper.toDto(canchas);
     }
 
-    public Cancha updateCancha(Long id,CanchaRequestDTO canchaDto) throws CanchaNotFoundException {
+    public CanchaResponseDTO updateCancha(Long id,CanchaRequestDTO canchaDto) throws CanchaNotFoundException {
         Cancha cancha = canchaRepository.findById(id)
                 .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
 
         cancha.setTotalAmount(canchaDto.totalAmount());
-        cancha.setActive(canchaDto.active());
+        cancha.setActive(true);
         cancha.setHasRoof(canchaDto.hasRoof());
         cancha.setWorking(canchaDto.working());
         cancha.setCanchaType(canchaDto.canchaType());
 
-        return canchaRepository.save(cancha);
+        canchaRepository.save(cancha);
+
+        return mapper.toDto(cancha);
     }
 
     public void deleteCancha(Long canchaId) {

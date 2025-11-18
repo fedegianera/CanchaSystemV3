@@ -8,6 +8,7 @@ import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
+import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.Brand;
@@ -84,6 +85,10 @@ public class EstablishmentService {
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = brandRepository.findById(establishmentDto.brandId())
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
+
+        if (establishmentRepository.existsByNameAndActive(establishmentDto.name(), true)) {
+            throw new CanchaBrandNameAlreadyExistsException("El nombre del establecimiento ya existe");
+        }
 
         Establishment establishment = Establishment.builder()
                 .brand(brand)
@@ -164,7 +169,13 @@ public class EstablishmentService {
             throw new NoCanchasException("No se encontro un establecimiento con ese id");
         }
 
+
+
         Establishment establishment = establishmentOpt.get();
+
+        if (establishmentRepository.existsByNameAndActive(establishmentDto.name(), true) && !establishment.getName().equals(establishmentDto.name())) {
+            throw new CanchaBrandNameAlreadyExistsException("El nombre del establecimiento ya existe");
+        }
 
         establishment.setAddress(establishmentDto.address());
         establishment.setName(establishmentDto.name());
