@@ -20,10 +20,7 @@ import com.example.CanchaSystem.repository.EstablishmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -186,6 +183,16 @@ public class EstablishmentService {
         establishmentRepository.save(establishment);
 
         return mapper.toDto(establishment);
+    }
+
+    public List<EstablishmentResponseDTO> getEstablishmentsByOwnerId(UUID ownerId) {
+        List<Establishment> establishments = establishmentRepository.findByBrand_Owner_IdAndActive(ownerId, true);
+
+        if (establishments.isEmpty()) {
+            throw new NoCanchasException("El dueño aun no tiene sucursales");
+        }
+
+        return mapper.toDto(establishments);
     }
 
     public Map<Long, Double> loadExploreRatings() {

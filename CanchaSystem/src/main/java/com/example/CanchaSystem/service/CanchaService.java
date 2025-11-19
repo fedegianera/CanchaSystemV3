@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CanchaService {
@@ -148,6 +149,16 @@ public class CanchaService {
 
         if (canchas.isEmpty()) {
             throw new NoCanchasException("La marca no tiene canchas activas");
+        }
+
+        return mapper.toDto(canchas);
+    }
+
+    public List<CanchaResponseDTO> getCanchasByOwnerId(UUID id) {
+        List<Cancha> canchas = canchaRepository.findByEstablishment_Brand_Owner_IdAndActive(id, true);
+
+        if (canchas.isEmpty()) {
+            throw new NoCanchasException("El dueño aun no tiene canchas");
         }
 
         return mapper.toDto(canchas);

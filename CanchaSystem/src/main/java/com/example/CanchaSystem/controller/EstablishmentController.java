@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/establishment")
@@ -58,5 +59,10 @@ public class EstablishmentController {
     @GetMapping("/getEstablishmentsByBrandId/{id}")
     ResponseEntity<?> getEstablishmentsByBrandId(@PathVariable Long id) {
         return ResponseEntity.ok(establishmentService.getEstablishmentsByBrandId(id));
+    }
+
+    @GetMapping("getEstablishmentsByOwnerId/{id}")
+    ResponseEntity<?> getEstablishmentsByOwnerId(@PathVariable UUID id) {
+        return ResponseEntity.ok(establishmentService.getEstablishmentsByOwnerId(id));
     }
 }

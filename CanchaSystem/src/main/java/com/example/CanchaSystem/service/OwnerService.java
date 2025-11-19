@@ -42,7 +42,7 @@ public class OwnerService {
     @Autowired
     private OwnerMapper ownerMapper;
 
-    public Owner insertOwner(OwnerRequestDTO ownerDto) throws UsernameAlreadyExistsException {
+    public OwnerResponseDTO insertOwner(OwnerRequestDTO ownerDto) throws UsernameAlreadyExistsException {
         if (clientRepository.existsByUsernameAndActive(ownerDto.username(), true) || adminRepository.existsByUsername(ownerDto.username()) || ownerRepository.existsByUsernameAndActive(ownerDto.username(), true)) {
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
         }
@@ -69,7 +69,9 @@ public class OwnerService {
                 .role(role)
                 .build();
 
-        return ownerRepository.save(owner);
+        ownerRepository.save(owner);
+
+        return ownerMapper.toDto(owner);
     }
 
     public List<OwnerResponseDTO> getAllOwners() throws NoOwnersException {
@@ -83,14 +85,33 @@ public class OwnerService {
         return ownerMapper.toDto(owners);
     }
 
-    public Owner updateOwner(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
+    public OwnerResponseDTO updateOwner(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
         Optional<Owner> ownerOpt = ownerRepository.findByIdAndActive(id, true);
+
+        Owner owner = ownerOpt.get();
 
         if (ownerOpt.isEmpty()) {
             throw new OwnerNotFoundException("No se encontro el dueño");
         }
 
-        Owner owner = ownerOpt.get();
+        if ((clientRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true) ||
+                adminRepository.existsByUsername(ownerRequestDTO.username()) ||
+                ownerRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true)) &&
+                !ownerRequestDTO.username().equals(owner.getUsername())) {
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+        }
+
+        if ((clientRepository.existsByMailAndActive(ownerRequestDTO.mail(), true) ||
+                ownerRepository.existsByMailAndActive(ownerRequestDTO.mail(), true)) &&
+                !ownerRequestDTO.mail().equals(owner.getMail())) {
+            throw new MailAlreadyRegisteredException("El mail ya esta registrado");
+        }
+
+        if ((clientRepository.existsByCellNumberAndActive(ownerRequestDTO.cellNumber(), true) ||
+                ownerRepository.existsByCellNumberAndActive(ownerRequestDTO.cellNumber(), true)) &&
+                !ownerRequestDTO.cellNumber().equals(owner.getCellNumber())) {
+            throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
+        }
 
         owner.setName(ownerRequestDTO.name());
         owner.setLastName(ownerRequestDTO.lastName());
@@ -98,10 +119,12 @@ public class OwnerService {
         owner.setMail(ownerRequestDTO.mail());
         owner.setCellNumber(ownerRequestDTO.cellNumber());
 
-        return ownerRepository.save(owner);
+        ownerRepository.save(owner);
+
+        return ownerMapper.toDto(owner);
     }
 
-    public Owner updateOwnerAdmin(UUID id, OwnerRequestDTO ownerFromRequest) throws OwnerNotFoundException {
+    public OwnerResponseDTO updateOwnerAdmin(UUID id, OwnerRequestDTO ownerFromRequest) throws OwnerNotFoundException {
         Owner owner = ownerRepository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
 
@@ -118,7 +141,9 @@ public class OwnerService {
             owner.setPassword(passwordEncoder.encode(pass));
         }
 
-        return ownerRepository.save(owner);
+        ownerRepository.save(owner);
+
+        return ownerMapper.toDto(owner);
     }
 
     public void deleteOwner(UUID ownerId){

@@ -53,7 +53,7 @@ public class OwnerController {
         SecurityContextHolder.clearContext();
         request.getSession().invalidate();
 
-        return ResponseEntity.ok("Datos actualizados, inicie sesión nuevamente");
+        return ResponseEntity.ok(Map.of("message", "Datos actualizados, inicie sesión nuevamente"));
     }
 
     @PutMapping("/updateAdmin")

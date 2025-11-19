@@ -59,7 +59,7 @@ public class ReviewController {
     }
 
     @GetMapping("/findReviewsByClientId/{id}")
-    public ResponseEntity<?> findReviewsByClientId(UUID id) {
+    public ResponseEntity<?> findReviewsByClientId(@PathVariable UUID id) {
         return ResponseEntity.ok(reviewService.getAllReviewsByClientId(id));
     }
 

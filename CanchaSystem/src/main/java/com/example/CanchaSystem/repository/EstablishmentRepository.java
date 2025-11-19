@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface EstablishmentRepository  extends JpaRepository<Establishment, Long> {
     List<Establishment> findByActive(boolean active);
@@ -16,4 +17,7 @@ public interface EstablishmentRepository  extends JpaRepository<Establishment, L
     Optional<Establishment> findByIdAndActive(Long id, boolean active);
 
     boolean existsByNameAndActive(String name, boolean active);
+
+    List<Establishment> findByBrand_Owner_IdAndActive(UUID ownerId, boolean active);
+
 }
