@@ -124,18 +124,37 @@ public class OwnerService {
         return ownerMapper.toDto(owner);
     }
 
-    public OwnerResponseDTO updateOwnerAdmin(UUID id, OwnerRequestDTO ownerFromRequest) throws OwnerNotFoundException {
+    public OwnerResponseDTO updateOwnerAdmin(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
         Owner owner = ownerRepository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
 
-        owner.setName(ownerFromRequest.name());
-        owner.setLastName(ownerFromRequest.lastName());
-        owner.setUsername(ownerFromRequest.username());
-        owner.setMail(ownerFromRequest.mail());
-        owner.setCellNumber(ownerFromRequest.cellNumber());
-        owner.setActive(ownerFromRequest.active());
+        if ((clientRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true) ||
+                adminRepository.existsByUsername(ownerRequestDTO.username()) ||
+                ownerRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true)) &&
+                !ownerRequestDTO.username().equals(owner.getUsername())) {
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+        }
 
-        String pass = ownerFromRequest.password();
+        if ((clientRepository.existsByMailAndActive(ownerRequestDTO.mail(), true) ||
+                ownerRepository.existsByMailAndActive(ownerRequestDTO.mail(), true)) &&
+                !ownerRequestDTO.mail().equals(owner.getMail())) {
+            throw new MailAlreadyRegisteredException("El mail ya esta registrado");
+        }
+
+        if ((clientRepository.existsByCellNumberAndActive(ownerRequestDTO.cellNumber(), true) ||
+                ownerRepository.existsByCellNumberAndActive(ownerRequestDTO.cellNumber(), true)) &&
+                !ownerRequestDTO.cellNumber().equals(owner.getCellNumber())) {
+            throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
+        }
+
+        owner.setName(ownerRequestDTO.name());
+        owner.setLastName(ownerRequestDTO.lastName());
+        owner.setUsername(ownerRequestDTO.username());
+        owner.setMail(ownerRequestDTO.mail());
+        owner.setCellNumber(ownerRequestDTO.cellNumber());
+        owner.setActive(ownerRequestDTO.active());
+
+        String pass = ownerRequestDTO.password();
 
         if (!pass.isEmpty()) {
             owner.setPassword(passwordEncoder.encode(pass));

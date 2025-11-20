@@ -50,7 +50,7 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.CREATED).body(clientService.insertClient(clientDTO));
     }
 
-    @GetMapping("/findall")
+    @GetMapping("/findallActive")
     public ResponseEntity<?> getClients() {
             return ResponseEntity.ok(clientService.getAllClients());
     }
@@ -66,8 +66,8 @@ public class ClientController {
         return ResponseEntity.ok(Map.of("message", "Datos actualizados, inicie sesión nuevamente"));
     }
 
-    @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateClientAdmin(@RequestBody UUID id, ClientRequestDTO clientDto) {
+    @PutMapping("/updateAdmin/{id}")
+    public ResponseEntity<?> updateClientAdmin(@PathVariable UUID id, @RequestBody ClientRequestDTO clientDto) {
         clientService.updateClientAdmin(id, clientDto);
         return ResponseEntity.ok("Datos actualizados");
     }
@@ -78,7 +78,7 @@ public class ClientController {
             return ResponseEntity.ok(Map.of("message","Cliente eliminado"));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/findClient/{id}")
     public ResponseEntity<?> findClientById(@PathVariable UUID id) {
             return ResponseEntity.ok(clientService.findClientById(id));
     }

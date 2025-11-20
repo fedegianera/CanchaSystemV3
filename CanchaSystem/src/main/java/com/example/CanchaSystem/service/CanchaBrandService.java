@@ -80,6 +80,9 @@ public class CanchaBrandService {
         if (brands.isEmpty())
             throw new NoCanchaBrandsException("Todavia no hay Marcas registradas");
 
+        System.out.println("-----------------------------------------------------------------");
+        System.out.println(brands);
+
         return brandMapper.toDto(brands);
     }
 

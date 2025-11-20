@@ -41,7 +41,7 @@ public class OwnerController {
             return ResponseEntity.status(HttpStatus.CREATED).body(ownerService.insertOwner(ownerRequestDTO));
     }
 
-    @GetMapping("/findall")
+    @GetMapping("/findallActive")
     public ResponseEntity<?> getOwners() {
             return ResponseEntity.ok(ownerService.getAllOwners());
     }
@@ -56,8 +56,8 @@ public class OwnerController {
         return ResponseEntity.ok(Map.of("message", "Datos actualizados, inicie sesión nuevamente"));
     }
 
-    @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateOwnerAdmin(@RequestBody UUID id, OwnerRequestDTO ownerRequestDTO) {
+    @PutMapping("/updateAdmin/{id}")
+    public ResponseEntity<?> updateOwnerAdmin(@PathVariable UUID id, @RequestBody OwnerRequestDTO ownerRequestDTO) {
         return ResponseEntity.ok(ownerService.updateOwnerAdmin(id, ownerRequestDTO));
     }
 
@@ -67,7 +67,7 @@ public class OwnerController {
             return ResponseEntity.ok(Map.of("message","Dueño eliminado"));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/findOwner/{id}")
     public ResponseEntity<?> findOwnerById(@PathVariable UUID id) {
             return ResponseEntity.ok(ownerService.findOwnerById(id));
     }

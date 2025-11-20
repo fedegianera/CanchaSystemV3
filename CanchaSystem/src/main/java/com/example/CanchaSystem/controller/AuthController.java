@@ -78,6 +78,7 @@ public class AuthController {
                         .map(Admin::getId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found"));
 
+                break;
             default:
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unknown role: " + role);
         }
