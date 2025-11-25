@@ -13,9 +13,7 @@ import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CanchaService {
@@ -166,6 +164,22 @@ public class CanchaService {
 
     public List<CanchaType> getCanchaTypesByEstablishment(Long establishmentId) {
         return canchaRepository.findDistinctTypesByEstablishmentId(establishmentId);
+    }
+
+    public Map<Long, List<CanchaType>> getCanchaTypesByEstablishment() {
+
+        List<Object[]> rows = canchaRepository.findAllEstablishmentCanchaTypes();
+
+        Map<Long, List<CanchaType>> result = new HashMap<>();
+
+        for (Object[] row : rows) {
+            Long estId = (Long) row[0];
+            CanchaType type = (CanchaType) row[1];
+
+            result.computeIfAbsent(estId, k -> new ArrayList<>()).add(type);
+        }
+
+        return result;
     }
 
 }

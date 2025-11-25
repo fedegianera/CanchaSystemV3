@@ -184,7 +184,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoReviewsException.class)
     public ResponseEntity<Map<String, Object>> handleNoReviews(NoReviewsException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 

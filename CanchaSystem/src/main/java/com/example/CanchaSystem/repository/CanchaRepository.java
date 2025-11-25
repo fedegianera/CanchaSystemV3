@@ -26,4 +26,10 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     @Query("SELECT DISTINCT c.canchaType FROM Cancha c WHERE c.establishment.id = :establishmentId")
     List<CanchaType> findDistinctTypesByEstablishmentId(@Param("establishmentId") Long establishmentId);
 
+    @Query("""
+    SELECT c.establishment.id, c.canchaType
+    FROM Cancha c
+    WHERE c.active = true AND c.working = true
+    """)
+    List<Object[]> findAllEstablishmentCanchaTypes();
 }
