@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/cancha")
@@ -67,5 +68,10 @@ public class CanchaController {
     @GetMapping("/getCanchasByEstablishmentId/{id}")
     public ResponseEntity<?> getCanchasByEstablishmentId(@PathVariable Long id) {
             return ResponseEntity.ok(canchaService.getActiveCanchasByEstablishmentId(id));
+    }
+
+    @GetMapping("getCanchasByOwnerId/{id}")
+    public ResponseEntity<?> getCanchasByOwnerId(@PathVariable UUID id) {
+        return ResponseEntity.ok(canchaService.getCanchasByOwnerId(id));
     }
 }

@@ -6,6 +6,7 @@ import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.OwnerService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,14 +46,14 @@ public class OwnerController {
             return ResponseEntity.ok(ownerService.getAllOwners());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateOwner(@RequestBody UUID id, OwnerRequestDTO ownerRequestDTO, HttpServletRequest request) {
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateOwner(@PathVariable("id") UUID id, @RequestBody @Valid OwnerRequestDTO ownerRequestDTO, HttpServletRequest request) {
         ownerService.updateOwner(id, ownerRequestDTO);
 
         SecurityContextHolder.clearContext();
         request.getSession().invalidate();
 
-        return ResponseEntity.ok("Datos actualizados, inicie sesión nuevamente");
+        return ResponseEntity.ok(Map.of("message", "Datos actualizados, inicie sesión nuevamente"));
     }
 
     @PutMapping("/updateAdmin")

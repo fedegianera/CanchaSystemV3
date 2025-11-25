@@ -3,6 +3,7 @@ package com.example.CanchaSystem.dto.response;
 import com.example.CanchaSystem.model.CanchaType;
 
 import java.time.LocalTime;
+import java.util.List;
 
 public record EstablishmentResponseDTO (
         Long id,
@@ -13,5 +14,6 @@ public record EstablishmentResponseDTO (
         boolean canShower,
         Long brandId,
         boolean active,
-        double averageRating
+        double averageRating,
+        List<CanchaType> types
 ) {}

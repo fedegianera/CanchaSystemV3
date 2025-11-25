@@ -51,7 +51,7 @@ public class ClientService {
     private ClientMapper clientMapper;
 
 
-    public Client insertClient(ClientRequestDTO clientDTO) {
+    public ClientResponseDTO insertClient(ClientRequestDTO clientDTO) {
         if (clientRepository.existsByUsernameAndActive(clientDTO.username(), true) || adminRepository.existsByUsername(clientDTO.username()) || ownerRepository.existsByUsernameAndActive(clientDTO.username(), true)) {
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
         }
@@ -78,7 +78,9 @@ public class ClientService {
                 .role(clientRole)
                 .build();
 
-        return clientRepository.save(client);
+        clientRepository.save(client);
+
+        return clientMapper.toDto(client);
     }
 
     public List<ClientResponseDTO> getAllClients() throws NoClientsException {
@@ -89,9 +91,28 @@ public class ClientService {
         return clientMapper.toDto(clients);
     }
 
-    public Client updateClient(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {
+    public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+
+        if ((clientRepository.existsByUsernameAndActive(clientDto.username(), true) ||
+                adminRepository.existsByUsername(clientDto.username()) ||
+                ownerRepository.existsByUsernameAndActive(clientDto.username(), true)) &&
+                !clientDto.username().equals(client.getUsername())) {
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+        }
+
+        if ((clientRepository.existsByMailAndActive(clientDto.mail(), true) ||
+                ownerRepository.existsByMailAndActive(clientDto.mail(), true)) &&
+                !clientDto.mail().equals(client.getMail())) {
+            throw new MailAlreadyRegisteredException("El mail ya esta registrado");
+        }
+
+        if ((clientRepository.existsByCellNumberAndActive(clientDto.cellNumber(), true) ||
+                ownerRepository.existsByCellNumberAndActive(clientDto.cellNumber(), true)) &&
+                !clientDto.cellNumber().equals(client.getCellNumber())) {
+            throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
+        }
 
         client.setName(clientDto.name());
         client.setLastName(clientDto.lastName());
@@ -99,7 +120,9 @@ public class ClientService {
         client.setMail(clientDto.mail());
         client.setCellNumber(clientDto.cellNumber());
 
-        return clientRepository.save(client);
+        clientRepository.save(client);
+
+        return clientMapper.toDto(client);
     }
 
     public Client updateClientAdmin(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {

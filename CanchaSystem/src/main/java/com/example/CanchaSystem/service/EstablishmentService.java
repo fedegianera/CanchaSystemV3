@@ -8,10 +8,12 @@ import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
+import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.Cancha;
+import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
@@ -19,10 +21,7 @@ import com.example.CanchaSystem.repository.EstablishmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,6 +61,8 @@ public class EstablishmentService {
         Double avgRating = reviewService.getEstablishmentAverageRating(id);
         //return mapper.toDto(establishment);
 
+        Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
+
         return new EstablishmentResponseDTO(
                 id,
                 establishment.getName(),
@@ -71,13 +72,18 @@ public class EstablishmentService {
                 establishment.isCanShower(),
                 establishment.getBrand().getId(),
                 establishment.isActive(),
-                avgRating
+                avgRating,
+                canchaTypes.getOrDefault(establishment.getId(),List.of())
         );
     }
 
-    public Establishment insertEstablishment(EstablishmentRequestDTO establishmentDto) {
+    public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = brandRepository.findById(establishmentDto.brandId())
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
+
+        if (establishmentRepository.existsByNameAndActive(establishmentDto.name(), true)) {
+            throw new CanchaBrandNameAlreadyExistsException("El nombre del establecimiento ya existe");
+        }
 
         Establishment establishment = Establishment.builder()
                 .brand(brand)
@@ -89,7 +95,9 @@ public class EstablishmentService {
                 .active(true)
                 .build();
 
-        return establishmentRepository.save(establishment);
+        establishmentRepository.save(establishment);
+
+        return mapper.toDto(establishment);
     }
 
     public List<EstablishmentResponseDTO> getAllActiveEstablishment() {
@@ -102,6 +110,8 @@ public class EstablishmentService {
         Map<Long, Double> avgRatingList = reviewService.getAllEstablishmentAverageRatings().stream()
                 .collect(Collectors.toMap(EstablishmentRatingDTO::getEstablishmentId, EstablishmentRatingDTO::getAverageRating));
 
+        Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
+
         return establishments.stream()
                 .map(est -> new EstablishmentResponseDTO(
                         est.getId(),
@@ -112,14 +122,15 @@ public class EstablishmentService {
                         est.isCanShower(),
                         est.getBrand().getId(),
                         est.isActive(),
-                        avgRatingList.getOrDefault(est.getId(),0.0)
+                        avgRatingList.getOrDefault(est.getId(),0.0),
+                        canchaTypes.getOrDefault(est.getId(),List.of())
                 ))
                 .toList();
 
         //return mapper.toDto(establishments);
     }
 
-    public Establishment deleteEstablishment(Long establishmentId) {
+    public void deleteEstablishment(Long establishmentId) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Establecimiento no encontrado"));
 
@@ -136,7 +147,7 @@ public class EstablishmentService {
         }
 
         establishment.setActive(false);
-        return establishmentRepository.save(establishment);
+        establishmentRepository.save(establishment);
     }
 
     public List<EstablishmentResponseDTO> getEstablishmentsByBrandId(Long brandId) {
@@ -149,14 +160,20 @@ public class EstablishmentService {
         return mapper.toDto(establishments);
     }
 
-    public Establishment updateEstablishment(Long id, EstablishmentRequestDTO establishmentDto) {
+    public EstablishmentResponseDTO updateEstablishment(Long id, EstablishmentRequestDTO establishmentDto) {
         Optional<Establishment> establishmentOpt = establishmentRepository.findByIdAndActive(id, true);
 
         if (establishmentOpt.isEmpty()) {
             throw new NoCanchasException("No se encontro un establecimiento con ese id");
         }
 
+
+
         Establishment establishment = establishmentOpt.get();
+
+        if (establishmentRepository.existsByNameAndActive(establishmentDto.name(), true) && !establishment.getName().equals(establishmentDto.name())) {
+            throw new CanchaBrandNameAlreadyExistsException("El nombre del establecimiento ya existe");
+        }
 
         establishment.setAddress(establishmentDto.address());
         establishment.setName(establishmentDto.name());
@@ -164,7 +181,19 @@ public class EstablishmentService {
         establishment.setOpeningHour(establishmentDto.openingHour());
         establishment.setClosingHour(establishmentDto.closingHour());
 
-        return establishmentRepository.save(establishment);
+        establishmentRepository.save(establishment);
+
+        return mapper.toDto(establishment);
+    }
+
+    public List<EstablishmentResponseDTO> getEstablishmentsByOwnerId(UUID ownerId) {
+        List<Establishment> establishments = establishmentRepository.findByBrand_Owner_IdAndActive(ownerId, true);
+
+        if (establishments.isEmpty()) {
+            throw new NoCanchasException("El dueño aun no tiene sucursales");
+        }
+
+        return mapper.toDto(establishments);
     }
 
     public Map<Long, Double> loadExploreRatings() {
