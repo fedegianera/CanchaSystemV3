@@ -2,6 +2,7 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
+import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
@@ -52,14 +53,14 @@ public class ReservationController {
             return ResponseEntity.badRequest().body(Map.of("error", "La fecha del partido debe ser futura"));
         }
 
-        Reservation reservation = reservationService.insertReservation(reservationDTO, auth);
+        ReservationResponseDTO reservation = reservationService.insertReservation(reservationDTO, auth);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of(
                         "message", "Reserva hecha",
-                        "reservationId", reservation.getId(),
-                        "matchDate", reservation.getMatchDate(),
-                        "status", reservation.getStatus().name()
+                        "reservationId", reservation.id(),
+                        "matchDate", reservation.matchDate(),
+                        "status", reservation.status().name()
                 ));
     }
 
@@ -102,10 +103,15 @@ public class ReservationController {
     }
 
 
-    @GetMapping("/getReservationsByCanchaId/{establishmentId}")
+    @GetMapping("/getReservationsByCanchaId/{canchaId}")
     public ResponseEntity<?> getReservationsByCanchaId(@PathVariable Long canchaId) {
         return ResponseEntity.ok(reservationService.findReservationsByCanchaId(canchaId));
      }
+
+    @GetMapping("/getReservationsByEstablishmentId/{establishmentId}")
+    public ResponseEntity<?> getReservationsByEstablishmentId(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(reservationService.findReservationsByEstablishmentId(establishmentId));
+    }
 
 
     @DeleteMapping("/cancelReservation/{id}")

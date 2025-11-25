@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.dto.response;
 
+import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.model.ReservationStatus;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ public record ReservationResponseDTO (
     UUID clientId,
     Long establishmentId,
     Long canchaId,
+    CanchaType canchaType,
     LocalDateTime reservationDate,
     LocalDateTime matchDate,
     ReservationStatus status

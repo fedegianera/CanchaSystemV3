@@ -102,7 +102,7 @@ public class CanchaService {
         if (!cancha.isActive())
             throw new UnableToDropException("La cancha ya esta inactivo");
 
-        List<Review> reviews = reviewRepository.findByEstablishmentIdAndActive(canchaId, true);
+        List<Review> reviews = reviewRepository.findByEstablishmentIdAndActive(cancha.getEstablishment().getId(), true);
 
         for (Review review : reviews) {
             reviewService.deleteReview(review.getId());
