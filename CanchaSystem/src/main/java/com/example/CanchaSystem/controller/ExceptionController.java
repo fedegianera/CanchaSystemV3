@@ -38,7 +38,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoAdminsException.class)
     public ResponseEntity<Map<String, Object>> handleNoAdmins(NoAdminsException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -62,7 +62,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoCanchasException.class)
     public ResponseEntity<Map<String, Object>> handleNoCanchas(NoCanchasException ex) {
-        return ResponseEntity.status(HttpStatus.FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -80,7 +80,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoCanchaBrandsException.class)
     public ResponseEntity<Map<String, Object>> handleNoCanchaBrands(NoCanchaBrandsException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -93,7 +93,7 @@ public class ExceptionController {
     @ExceptionHandler(NoClientsException.class)
     public ResponseEntity<Map<String, Object>> handleNoClients(NoClientsException ex) {
         //System.out.println("Entro al handler");
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -148,7 +148,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoOwnersException.class)
     public ResponseEntity<Map<String, Object>> handleNoOwners(NoOwnersException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -172,7 +172,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoReservationsException.class)
     public ResponseEntity<Map<String, Object>> handleNoReservations(NoReservationsException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -184,7 +184,7 @@ public class ExceptionController {
 
     @ExceptionHandler(NoReviewsException.class)
     public ResponseEntity<Map<String, Object>> handleNoReviews(NoReviewsException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 

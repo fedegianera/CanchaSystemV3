@@ -45,11 +45,6 @@ public class EstablishmentService {
 
     public List<EstablishmentResponseDTO> getAllEstablishments() {
         List<Establishment> establishments = establishmentRepository.findAll();
-
-        if (establishments.isEmpty()) {
-            throw new NoCanchasException("Todavia no hay establecimientos registrados");
-        }
-
         return mapper.toDto(establishments);
     }
 
@@ -104,11 +99,6 @@ public class EstablishmentService {
 
     public List<EstablishmentResponseDTO> getAllActiveEstablishment() {
         List<Establishment> establishments = establishmentRepository.findByActive(true);
-
-        if (establishments.isEmpty()) {
-            throw new NoCanchasException("Todavia no hay Establecimientos registrados");
-        }
-
         Map<Long, Double> avgRatingList = reviewService.getAllEstablishmentAverageRatings().stream()
                 .collect(Collectors.toMap(EstablishmentRatingDTO::getEstablishmentId, EstablishmentRatingDTO::getAverageRating));
 
@@ -151,11 +141,6 @@ public class EstablishmentService {
 
     public List<EstablishmentResponseDTO> getEstablishmentsByBrandId(Long brandId) {
         List<Establishment> establishments = establishmentRepository.findByBrandIdAndActive(brandId, true);
-
-        if (establishments.isEmpty()) {
-            throw new NoCanchasException("La marca no tiene establecimientos aun");
-        }
-
         return mapper.toDto(establishments);
     }
 
@@ -163,7 +148,7 @@ public class EstablishmentService {
         Optional<Establishment> establishmentOpt = establishmentRepository.findByIdAndActive(id, true);
 
         if (establishmentOpt.isEmpty()) {
-            throw new NoCanchasException("No se encontro un establecimiento con ese id");
+            throw new CanchaNotFoundException("No se encontro un establecimiento con ese id");
         }
 
 
@@ -187,11 +172,6 @@ public class EstablishmentService {
 
     public List<EstablishmentResponseDTO> getEstablishmentsByOwnerId(UUID ownerId) {
         List<Establishment> establishments = establishmentRepository.findByBrand_Owner_IdAndActive(ownerId, true);
-
-        if (establishments.isEmpty()) {
-            throw new NoCanchasException("El dueño aun no tiene sucursales");
-        }
-
         return mapper.toDto(establishments);
     }
 

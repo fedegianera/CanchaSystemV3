@@ -77,9 +77,6 @@ public class CanchaBrandService {
     public List<BrandResponseDTO> getAllCanchaBrands() throws NoCanchaBrandsException {
         List<Brand> brands = canchaBrandRepository.findAllByActive(true);
 
-        if (brands.isEmpty())
-            throw new NoCanchaBrandsException("Todavia no hay Marcas registradas");
-
         System.out.println("-----------------------------------------------------------------");
         System.out.println(brands);
 
@@ -103,12 +100,11 @@ public class CanchaBrandService {
     }
 
     public void deleteCanchaBrand(Long canchaBrandId) {
-
         Brand brand = canchaBrandRepository.findById(canchaBrandId)
                 .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
 
         if (!brand.isActive())
-            throw new UnableToDropException("La marca ya esta inactiva");
+            throw new UnableToDropException("La marca ya está inactiva");
 
         List<Establishment> establishments = establishmentRepository.findByBrandIdAndActive(canchaBrandId, true);
 
@@ -149,10 +145,6 @@ public class CanchaBrandService {
 
     public List<CanchaResponseDTO> getCanchasByBrandId(Long brandId) {
         List<Cancha> canchas = canchaRepository.findByEstablishmentId(brandId);
-
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("El establecimiento no tiene canchas");
-        }
         return canchaMapper.toDto(canchas);
     }
 }

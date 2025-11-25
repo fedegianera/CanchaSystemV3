@@ -100,12 +100,6 @@ public class ReservationService {
 
     public List<ReservationResponseDTO> getAllReservations() throws NoReservationsException {
         List<Reservation> reservations = reservationRepository.findAll();
-
-        if (reservations.isEmpty()) {
-            throw new NoReservationsException("Aun no hay reservas hechas");
-        }
-
-
         return reservationMapper.toDto(reservations);
     }
 
@@ -144,11 +138,6 @@ public class ReservationService {
             throw new RuntimeException("El repository devolvió null");
         }
 
-        if (reservations.isEmpty()) {
-            System.out.println("ℹ️ No hay reservas para este cliente.");
-            throw new NoReservationsException("El cliente aún no ha hecho reservas");
-        }
-
         Reservation first = reservations.get(0);
         System.out.println("🧩 Primera reserva:");
         System.out.println("   ID: " + first.getId());
@@ -165,11 +154,6 @@ public class ReservationService {
 
     public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
         List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
-
-        if (reservations.isEmpty()) {
-            throw new NoReservationsException("No existen reservas para esa cancha");
-        }
-
         return reservationMapper.toDto(reservations);
     }
 
