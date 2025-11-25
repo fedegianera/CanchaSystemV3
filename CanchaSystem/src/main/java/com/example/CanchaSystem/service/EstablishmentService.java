@@ -59,6 +59,8 @@ public class EstablishmentService {
                 () -> new CanchaNotFoundException("Hubo problemas al buscar el establecimiento"));
 
         Double avgRating = reviewService.getEstablishmentAverageRating(id);
+        if (avgRating == null) avgRating = 0.0;
+        ;
         //return mapper.toDto(establishment);
 
         Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
