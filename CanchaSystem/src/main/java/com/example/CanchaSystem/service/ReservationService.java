@@ -54,7 +54,7 @@ public class ReservationService {
     private ReservationMapper reservationMapper;
 
 
-    public Reservation insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
+    public ReservationResponseDTO insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
 
         String username = auth.getName();
@@ -94,7 +94,9 @@ public class ReservationService {
                 .status(ReservationStatus.PENDING)
                 .build();
 
-        return reservationRepository.save(reservation);
+        reservationRepository.save(reservation);
+
+        return reservationMapper.toDto(reservation);
     }
 
 
@@ -110,7 +112,7 @@ public class ReservationService {
         return reservationMapper.toDto(reservations);
     }
 
-    public Reservation updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) throws ReservationNotFoundException {
+    public ReservationResponseDTO updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) throws ReservationNotFoundException {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
@@ -122,11 +124,15 @@ public class ReservationService {
         reservation.setStatus(reservationRequestDTO.status());
         reservation.setMatchDate(reservationRequestDTO.matchDate());
 
-        return reservationRepository.save(reservation);
+        reservationRepository.save(reservation);
+
+        return reservationMapper.toDto(reservation);
     }
 
-    public Reservation findReservationById(Long id) throws ReservationNotFoundException {
-        return reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+    public ReservationResponseDTO findReservationById(Long id) throws ReservationNotFoundException {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+
+        return reservationMapper.toDto(reservation);
     }
 
     public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) throws NoReservationsException {
@@ -150,22 +156,23 @@ public class ReservationService {
             throw new NoReservationsException("El cliente aún no ha hecho reservas");
         }
 
-        Reservation first = reservations.get(0);
-        System.out.println("🧩 Primera reserva:");
-        System.out.println("   ID: " + first.getId());
-        System.out.println("   Cliente: " + (first.getClient() != null ? first.getClient().getId() : "NULL"));
-        System.out.println("   Cancha: " + (first.getCancha() != null ? first.getCancha().getId() : "NULL"));
 
-        List<ReservationResponseDTO> response = reservationMapper.toDto(reservations);
-
-        System.out.println("✅ Conversion exitosa. Total DTOs: " + response.size());
-
-        return response;
+        return reservationMapper.toDto(reservations);
     }
 
 
     public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
         List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
+
+        if (reservations.isEmpty()) {
+            throw new NoReservationsException("No existen reservas para esa cancha");
+        }
+
+        return reservationMapper.toDto(reservations);
+    }
+
+    public List<ReservationResponseDTO> findReservationsByEstablishmentId(Long establishmentId){
+        List<Reservation> reservations = reservationRepository.findByCanchaEstablishmentId(establishmentId);
 
         if (reservations.isEmpty()) {
             throw new NoReservationsException("No existen reservas para esa cancha");
