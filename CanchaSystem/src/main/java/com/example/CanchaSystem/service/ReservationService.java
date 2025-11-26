@@ -18,6 +18,7 @@ import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -257,6 +258,17 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.CANCELED);
 
         return reservationRepository.save(reservation);
+    }
+
+    @Scheduled(cron = "0 0 * * * ?")
+    public void completePastReservations() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Reservation> toComplete =
+                reservationRepository.findByMatchDateBeforeAndStatus(now, ReservationStatus.PENDING);
+
+        toComplete.forEach(r -> r.setStatus(ReservationStatus.COMPLETED));
+
+        reservationRepository.saveAll(toComplete); // AHORA COMITEA SIN VALIDATION FAILURE
     }
 
 
