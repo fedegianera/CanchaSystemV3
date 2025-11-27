@@ -69,7 +69,7 @@ public class ClientController {
     @PutMapping("/updateAdmin/{id}")
     public ResponseEntity<?> updateClientAdmin(@PathVariable UUID id, @RequestBody ClientRequestDTO clientDto) {
         clientService.updateClientAdmin(id, clientDto);
-        return ResponseEntity.ok("Datos actualizados");
+        return ResponseEntity.ok(Map.of("message","Datos actualizados"));
     }
 
     @DeleteMapping("/delete/{id}")
