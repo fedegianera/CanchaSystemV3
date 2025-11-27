@@ -76,24 +76,18 @@ public class OwnerService {
 
     public List<OwnerResponseDTO> getAllOwners() throws NoOwnersException {
         List<Owner> owners = ownerRepository.findAllByActive(true);
-
-        if (owners.isEmpty()) {
-            throw new NoOwnersException("Todavia no hay dueños registrados");
-        }
-
-
         return ownerMapper.toDto(owners);
     }
 
     public OwnerResponseDTO updateOwner(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
         Optional<Owner> ownerOpt = ownerRepository.findByIdAndActive(id, true);
 
-        Owner owner = ownerOpt.get();
 
         if (ownerOpt.isEmpty()) {
             throw new OwnerNotFoundException("No se encontro el dueño");
         }
 
+        Owner owner = ownerOpt.get();
         if ((clientRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true) ||
                 adminRepository.existsByUsername(ownerRequestDTO.username()) ||
                 ownerRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true)) &&

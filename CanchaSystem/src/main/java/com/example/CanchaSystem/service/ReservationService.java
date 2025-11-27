@@ -101,14 +101,8 @@ public class ReservationService {
 
 
 
-    public List<ReservationResponseDTO> getAllReservations() throws NoReservationsException {
+    public List<ReservationResponseDTO> getAllReservations() {
         List<Reservation> reservations = reservationRepository.findAll();
-
-        if (reservations.isEmpty()) {
-            throw new NoReservationsException("Aun no hay reservas hechas");
-        }
-
-
         return reservationMapper.toDto(reservations);
     }
 
@@ -135,7 +129,7 @@ public class ReservationService {
         return reservationMapper.toDto(reservation);
     }
 
-    public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) throws NoReservationsException {
+    public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) {
         if (!clientRepository.existsByIdAndActive(clientId, true)) {
             throw new ClientNotFoundException("Cliente no encontrado");
         }
@@ -151,28 +145,18 @@ public class ReservationService {
             throw new RuntimeException("El repository devolvió null");
         }
 
-        if (reservations.isEmpty()) {
-            System.out.println("ℹ️ No hay reservas para este cliente.");
-            throw new NoReservationsException("El cliente aún no ha hecho reservas");
-        }
-
-
         return reservationMapper.toDto(reservations);
     }
 
 
     public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
         List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
-
-        if (reservations.isEmpty()) {
-            throw new NoReservationsException("No existen reservas para esa cancha");
-        }
-
         return reservationMapper.toDto(reservations);
     }
 
     public List<ReservationResponseDTO> findReservationsByEstablishmentId(Long establishmentId){
         List<Reservation> reservations = reservationRepository.findByCanchaEstablishmentId(establishmentId);
+<<<<<<< HEAD
 
         if (reservations.isEmpty()) {
             throw new NoReservationsException("No existen reservas para esa cancha");
@@ -181,6 +165,8 @@ public class ReservationService {
         System.out.println("-----------------------------------------------");
         System.out.println(reservations);
 
+=======
+>>>>>>> e185fb61fe681015b98320633a62517e8a9e68a7
         return reservationMapper.toDto(reservations);
     }
 
@@ -246,7 +232,7 @@ public class ReservationService {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
-            throw new NoReservationsException("La reserva no fue encontrada");
+            throw new ReservationNotFoundException("La reserva no fue encontrada");
         }
 
         Reservation reservation = reservationOpt.get();
@@ -260,7 +246,7 @@ public class ReservationService {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
-            throw new NoReservationsException("La reserva no fue encontrada");
+            throw new ReservationNotFoundException("La reserva no fue encontrada");
         }
 
         Reservation reservation = reservationOpt.get();

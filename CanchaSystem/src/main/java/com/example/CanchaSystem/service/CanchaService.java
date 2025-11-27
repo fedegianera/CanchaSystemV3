@@ -60,22 +60,14 @@ public class CanchaService {
         return mapper.toDto(cancha);
     }
 
-    public List<CanchaResponseDTO> getAllCanchas() throws NoCanchasException {
+    public List<CanchaResponseDTO> getAllCanchas() {
         List<Cancha> canchas =  canchaRepository.findAll();
-        if(canchas.isEmpty()){
-            throw new NoCanchasException("Todavia no hay Canchas registradas");
-        }
-
         return mapper.toDto(canchas);
     }
 
 
-    public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) throws NoCanchasException {
+    public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) {
         List<Cancha> canchas = canchaRepository.findByEstablishmentId(id);
-
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("El establecimiento no tiene canchas");
-        }
         return mapper.toDto(canchas);
     }
 
@@ -132,33 +124,18 @@ public class CanchaService {
         return mapper.toDto(cancha);
     }
 
-    public List<CanchaResponseDTO> getAllActiveCanchas() throws NoCanchasException {
+    public List<CanchaResponseDTO> getAllActiveCanchas() {
         List<Cancha> canchas =  canchaRepository.findByActiveAndWorking(true, true);
-
-        if(canchas.isEmpty()){
-            throw new NoCanchasException("Todavia no hay Canchas activas");
-        }
-
         return mapper.toDto(canchas);
     }
 
-    public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) throws NoCanchasException {
+    public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) {
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
-
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("La marca no tiene canchas activas");
-        }
-
         return mapper.toDto(canchas);
     }
 
     public List<CanchaResponseDTO> getCanchasByOwnerId(UUID id) {
         List<Cancha> canchas = canchaRepository.findByEstablishment_Brand_Owner_IdAndActive(id, true);
-
-        if (canchas.isEmpty()) {
-            throw new NoCanchasException("El dueño aun no tiene canchas");
-        }
-
         return mapper.toDto(canchas);
     }
 

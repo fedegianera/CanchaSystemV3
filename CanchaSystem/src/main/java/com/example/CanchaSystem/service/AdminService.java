@@ -2,7 +2,6 @@ package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
 import com.example.CanchaSystem.exception.admin.AdminNotFoundException;
-import com.example.CanchaSystem.exception.admin.NoAdminsException;
 import com.example.CanchaSystem.model.Admin;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.AdminRepository;
@@ -29,15 +28,12 @@ public class AdminService {
         if (!adminRepository.existsByUsername(admin.getUsername())) {
             admin.setRole(adminRole);
             return adminRepository.save(admin);
-        }
-        else throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
+        } else
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+    }
 
-    public List<Admin> getAllAdmins() throws NoAdminsException {
-        List<Admin> admins = adminRepository.findAll();
-        if(admins.isEmpty())
-            throw new NoAdminsException("Todavia no hay administradores registrados");
-        return admins;
+    public List<Admin> getAllAdmins() {
+        return adminRepository.findAll();
     }
 
     public Admin updateAdmin(Admin admin) throws AdminNotFoundException {
