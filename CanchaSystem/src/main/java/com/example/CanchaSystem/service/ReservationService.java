@@ -18,6 +18,7 @@ import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -53,7 +54,7 @@ public class ReservationService {
     private ReservationMapper reservationMapper;
 
 
-    public Reservation insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
+    public ReservationResponseDTO insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
 
         String username = auth.getName();
@@ -93,17 +94,25 @@ public class ReservationService {
                 .status(ReservationStatus.PENDING)
                 .build();
 
-        return reservationRepository.save(reservation);
+        reservationRepository.save(reservation);
+
+        return reservationMapper.toDto(reservation);
     }
 
 
 
     public List<ReservationResponseDTO> getAllReservations() throws NoReservationsException {
         List<Reservation> reservations = reservationRepository.findAll();
+
+        if (reservations.isEmpty()) {
+            throw new NoReservationsException("Aun no hay reservas hechas");
+        }
+
+
         return reservationMapper.toDto(reservations);
     }
 
-    public Reservation updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) throws ReservationNotFoundException {
+    public ReservationResponseDTO updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) throws ReservationNotFoundException {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
@@ -115,11 +124,15 @@ public class ReservationService {
         reservation.setStatus(reservationRequestDTO.status());
         reservation.setMatchDate(reservationRequestDTO.matchDate());
 
-        return reservationRepository.save(reservation);
+        reservationRepository.save(reservation);
+
+        return reservationMapper.toDto(reservation);
     }
 
-    public Reservation findReservationById(Long id) throws ReservationNotFoundException {
-        return reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+    public ReservationResponseDTO findReservationById(Long id) throws ReservationNotFoundException {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+
+        return reservationMapper.toDto(reservation);
     }
 
     public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) throws NoReservationsException {
@@ -138,22 +151,33 @@ public class ReservationService {
             throw new RuntimeException("El repository devolvió null");
         }
 
-        Reservation first = reservations.get(0);
-        System.out.println("🧩 Primera reserva:");
-        System.out.println("   ID: " + first.getId());
-        System.out.println("   Cliente: " + (first.getClient() != null ? first.getClient().getId() : "NULL"));
-        System.out.println("   Cancha: " + (first.getCancha() != null ? first.getCancha().getId() : "NULL"));
+        if (reservations.isEmpty()) {
+            System.out.println("ℹ️ No hay reservas para este cliente.");
+            throw new NoReservationsException("El cliente aún no ha hecho reservas");
+        }
 
-        List<ReservationResponseDTO> response = reservationMapper.toDto(reservations);
 
-        System.out.println("✅ Conversion exitosa. Total DTOs: " + response.size());
-
-        return response;
+        return reservationMapper.toDto(reservations);
     }
 
 
     public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
         List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
+
+        if (reservations.isEmpty()) {
+            throw new NoReservationsException("No existen reservas para esa cancha");
+        }
+
+        return reservationMapper.toDto(reservations);
+    }
+
+    public List<ReservationResponseDTO> findReservationsByEstablishmentId(Long establishmentId){
+        List<Reservation> reservations = reservationRepository.findByCanchaEstablishmentId(establishmentId);
+
+        if (reservations.isEmpty()) {
+            throw new NoReservationsException("No existen reservas para esa cancha");
+        }
+
         return reservationMapper.toDto(reservations);
     }
 
@@ -241,6 +265,17 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.CANCELED);
 
         return reservationRepository.save(reservation);
+    }
+
+    @Scheduled(cron = "0 0 * * * ?")
+    public void completePastReservations() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Reservation> toComplete =
+                reservationRepository.findByMatchDateBeforeAndStatus(now, ReservationStatus.PENDING);
+
+        toComplete.forEach(r -> r.setStatus(ReservationStatus.COMPLETED));
+
+        reservationRepository.saveAll(toComplete); // AHORA COMITEA SIN VALIDATION FAILURE
     }
 
 

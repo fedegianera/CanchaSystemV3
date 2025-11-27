@@ -41,7 +41,6 @@ public class Reservation {
     private Cancha cancha;
 
     @Column(nullable = false)
-    @FutureOrPresent
     private LocalDateTime reservationDate;
 
     @Column(nullable = false)

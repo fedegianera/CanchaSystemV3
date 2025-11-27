@@ -13,6 +13,7 @@ import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundExcepti
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.Cancha;
+import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
@@ -57,21 +58,20 @@ public class EstablishmentService {
         ;
         //return mapper.toDto(establishment);
 
-        System.out.println("BRAND: " + establishment.getBrand());
+        Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
 
-//        return new EstablishmentResponseDTO(
-//                id,
-//                establishment.getName(),
-//                establishment.getAddress(),
-//                establishment.getOpeningHour(),
-//                establishment.getClosingHour(),
-//                establishment.isCanShower(),
-//                establishment.getBrand().getId(),
-//                establishment.isActive(),
-//                avgRating
-//        );
-
-        return mapper.toDto(establishment);
+        return new EstablishmentResponseDTO(
+                id,
+                establishment.getName(),
+                establishment.getAddress(),
+                establishment.getOpeningHour(),
+                establishment.getClosingHour(),
+                establishment.isCanShower(),
+                establishment.getBrand().getId(),
+                establishment.isActive(),
+                avgRating,
+                canchaTypes.getOrDefault(establishment.getId(),List.of())
+        );
     }
 
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
@@ -102,6 +102,8 @@ public class EstablishmentService {
         Map<Long, Double> avgRatingList = reviewService.getAllEstablishmentAverageRatings().stream()
                 .collect(Collectors.toMap(EstablishmentRatingDTO::getEstablishmentId, EstablishmentRatingDTO::getAverageRating));
 
+        Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
+
         return establishments.stream()
                 .map(est -> new EstablishmentResponseDTO(
                         est.getId(),
@@ -112,7 +114,8 @@ public class EstablishmentService {
                         est.isCanShower(),
                         est.getBrand().getId(),
                         est.isActive(),
-                        avgRatingList.getOrDefault(est.getId(),0.0)
+                        avgRatingList.getOrDefault(est.getId(),0.0),
+                        canchaTypes.getOrDefault(est.getId(),List.of())
                 ))
                 .toList();
 
