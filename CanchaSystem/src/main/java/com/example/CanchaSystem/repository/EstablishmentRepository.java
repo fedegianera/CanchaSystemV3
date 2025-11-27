@@ -4,8 +4,10 @@ import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.model.Establishment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,4 +22,9 @@ public interface EstablishmentRepository  extends JpaRepository<Establishment, L
 
     List<Establishment> findByBrand_Owner_IdAndActive(UUID ownerId, boolean active);
 
+    @Query("""
+            SELECT e.id, e.name
+            FROM Establishment e
+            """)
+    List<Object[]> getAllEstablishmentsNames();
 }

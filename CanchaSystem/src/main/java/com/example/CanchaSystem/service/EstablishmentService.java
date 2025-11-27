@@ -2,6 +2,7 @@ package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.Mapper.EstablishmentMapper;
 import com.example.CanchaSystem.Mapper.ReservationMapper;
+import com.example.CanchaSystem.dto.EstablishmentNamesDTO;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
@@ -203,6 +204,22 @@ public class EstablishmentService {
                 .collect(Collectors.toMap(
                         EstablishmentRatingDTO::getEstablishmentId,
                         EstablishmentRatingDTO::getAverageRating
+                ));
+    }
+
+    public Map<Long, String> getEstablishmentsNames(Long[] ids){
+        List<EstablishmentNamesDTO> allNames = establishmentRepository.getAllEstablishmentsNames().stream().map(
+                n -> new EstablishmentNamesDTO(
+                        (Long) n[0],
+                        (String) n[1]
+                )
+        ).toList();
+
+        return allNames.stream().filter(n -> Arrays.stream(ids)
+                .anyMatch(id -> id == n.getEstablishmentId()))
+                .collect(Collectors.toMap(
+                        EstablishmentNamesDTO::getEstablishmentId,
+                        EstablishmentNamesDTO::getName
                 ));
     }
 }

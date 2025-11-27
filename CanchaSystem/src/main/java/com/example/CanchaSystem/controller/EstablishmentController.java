@@ -65,4 +65,10 @@ public class EstablishmentController {
     ResponseEntity<?> getEstablishmentsByOwnerId(@PathVariable UUID id) {
         return ResponseEntity.ok(establishmentService.getEstablishmentsByOwnerId(id));
     }
+
+    @GetMapping("/getEstablishmentsNamesById")
+    ResponseEntity<?> getEstablishmentsNamesById(@RequestParam("ids") Long[] ids){
+        System.out.println(establishmentService.getEstablishmentsNames(ids));
+        return ResponseEntity.ok(establishmentService.getEstablishmentsNames(ids));
+    }
 }
