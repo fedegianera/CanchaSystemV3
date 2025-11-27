@@ -60,13 +60,13 @@ public class CanchaService {
         return mapper.toDto(cancha);
     }
 
-    public List<CanchaResponseDTO> getAllCanchas() throws NoCanchasException {
+    public List<CanchaResponseDTO> getAllCanchas() {
         List<Cancha> canchas =  canchaRepository.findAll();
         return mapper.toDto(canchas);
     }
 
 
-    public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) throws NoCanchasException {
+    public List<CanchaResponseDTO> getCanchasByEstablishmentId(Long id) {
         List<Cancha> canchas = canchaRepository.findByEstablishmentId(id);
         return mapper.toDto(canchas);
     }
@@ -124,12 +124,12 @@ public class CanchaService {
         return mapper.toDto(cancha);
     }
 
-    public List<CanchaResponseDTO> getAllActiveCanchas() throws NoCanchasException {
+    public List<CanchaResponseDTO> getAllActiveCanchas() {
         List<Cancha> canchas =  canchaRepository.findByActiveAndWorking(true, true);
         return mapper.toDto(canchas);
     }
 
-    public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) throws NoCanchasException {
+    public List<CanchaResponseDTO> getActiveCanchasByEstablishmentId(Long establishmentId) {
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId,true, true);
         return mapper.toDto(canchas);
     }
