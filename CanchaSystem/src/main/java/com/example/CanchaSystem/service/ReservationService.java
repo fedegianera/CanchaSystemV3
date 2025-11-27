@@ -156,7 +156,6 @@ public class ReservationService {
 
     public List<ReservationResponseDTO> findReservationsByEstablishmentId(Long establishmentId){
         List<Reservation> reservations = reservationRepository.findByCanchaEstablishmentId(establishmentId);
-<<<<<<< HEAD
 
         if (reservations.isEmpty()) {
             throw new NoReservationsException("No existen reservas para esa cancha");
@@ -165,8 +164,6 @@ public class ReservationService {
         System.out.println("-----------------------------------------------");
         System.out.println(reservations);
 
-=======
->>>>>>> e185fb61fe681015b98320633a62517e8a9e68a7
         return reservationMapper.toDto(reservations);
     }
 
