@@ -85,10 +85,6 @@ public class ClientService {
 
     public List<ClientResponseDTO> getAllClients() throws NoClientsException {
         List<Client> clients = clientRepository.findAllByActive(true);
-
-        if (clients.isEmpty())
-            throw new NoClientsException("Todavia no hay clientes registrados");
-
         return clientMapper.toDto(clients);
     }
 

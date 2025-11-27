@@ -63,13 +63,13 @@ public class AuthController {
         // id dependiendo del rol
         switch (role) {
             case "ROLE_OWNER":
-                id = ownerRepository.findByUsername(userDetails.getUsername())
+                id = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
                         .map(Owner::getId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Owner not found"));
                 break;
 
             case "ROLE_CLIENT":
-                id = clientRepository.findByUsername(userDetails.getUsername())
+                id = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
                         .map(Client::getId)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
                 break;

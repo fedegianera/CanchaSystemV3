@@ -72,11 +72,6 @@ public class ReviewService {
     }
     public List<ReviewResponseDTO> getAllReviews() throws NoReviewsException {
         List<Review> reviews = reviewRepository.findAll();
-
-        if(reviews.isEmpty()){
-            throw new NoReviewsException("Todavia no hay reseñas hechas");
-        }
-
         return reviewMapper.toDto(reviews);
     }
 
@@ -124,12 +119,6 @@ public class ReviewService {
 
     public List<ReviewResponseDTO> getAllReviewsByEstablishmentId(Long establishmentId) throws NoReviewsException {
         List<Review> reviews = reviewRepository.findByEstablishmentIdAndActive(establishmentId, true);
-
-        if (reviews.isEmpty()) {
-            throw new NoReviewsException("La cancha aun no tiene reviews");
-
-        }
-
         System.out.println("REVIEWS ---------------------------------------------");
         System.out.println(reviewMapper.toDto(reviews));
 
@@ -138,16 +127,10 @@ public class ReviewService {
 
     public List<ReviewResponseDTO> getAllReviewsByCanchaIdAdmin(Long canchaId) throws NoReviewsException {
         List<Review> reviews = reviewRepository.findByEstablishmentId(canchaId);
-
-        if (reviews.isEmpty()) {
-            throw new NoReviewsException("La cancha aun no tiene reviews");
-
-        }
-
         return reviewMapper.toDto(reviews);
     }
 
-    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws NoReviewsException, ClientNotFoundException {
+    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws ClientNotFoundException {
         Optional<Client> clientOpt = clientRepository.findByIdAndActive(id, true);
 
         if (clientOpt.isEmpty()) {
@@ -155,11 +138,6 @@ public class ReviewService {
         }
 
         List<Review> reviews = reviewRepository.findByClientIdAndActive(id, true);
-
-        if (reviews.isEmpty()){
-            throw new NoReviewsException("Todavia no hay reseñas hechas por el cliente");
-        }
-
         return reviewMapper.toDto(reviews);
     }
 
