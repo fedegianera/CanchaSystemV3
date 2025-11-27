@@ -115,6 +115,7 @@ public class EstablishmentService {
         Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
 
         return establishments.stream()
+                .filter(est -> !canchaTypes.getOrDefault(est.getId(), List.of()).isEmpty())
                 .map(est -> new EstablishmentResponseDTO(
                         est.getId(),
                         est.getName(),

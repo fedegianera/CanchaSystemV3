@@ -178,6 +178,9 @@ public class ReservationService {
             throw new NoReservationsException("No existen reservas para esa cancha");
         }
 
+        System.out.println("-----------------------------------------------");
+        System.out.println(reservations);
+
         return reservationMapper.toDto(reservations);
     }
 
