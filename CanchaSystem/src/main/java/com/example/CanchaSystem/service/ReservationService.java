@@ -66,6 +66,11 @@ public class ReservationService {
                 .withOffsetSameInstant(ZoneOffset.of("-03:00"))
                 .toLocalDateTime();
 
+        LocalDateTime correctedReservationDate = reservationDTO.reservationDate()
+                .atOffset(ZoneOffset.UTC)
+                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
+                .toLocalDateTime();
+
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndCanchaType(
                 reservationDTO.establishmentId(),
                 reservationDTO.canchaType()
@@ -89,7 +94,7 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .client(client)
                 .cancha(canchaDisponible)
-                .reservationDate(reservationDTO.reservationDate())
+                .reservationDate(correctedReservationDate)
                 .matchDate(correctedMatchDate)
                 .status(ReservationStatus.PENDING)
                 .build();
@@ -115,8 +120,13 @@ public class ReservationService {
 
         Reservation reservation = reservationOpt.get();
 
+        LocalDateTime correctedMatchDate = reservationRequestDTO.matchDate()
+                .atOffset(ZoneOffset.UTC)
+                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
+                .toLocalDateTime();
+
         reservation.setStatus(reservationRequestDTO.status());
-        reservation.setMatchDate(reservationRequestDTO.matchDate());
+        reservation.setMatchDate(correctedMatchDate);
 
         reservationRepository.save(reservation);
 

@@ -67,7 +67,7 @@ public class EstablishmentController {
     }
 
     @GetMapping("/getEstablishmentsNamesById")
-    ResponseEntity<?> getEstablishmentsNamesById(@RequestParam("ids") Long[] ids){
+    public ResponseEntity<?> getEstablishmentsNamesById(@RequestParam("ids") Long[] ids){
         System.out.println(establishmentService.getEstablishmentsNames(ids));
         return ResponseEntity.ok(establishmentService.getEstablishmentsNames(ids));
     }
