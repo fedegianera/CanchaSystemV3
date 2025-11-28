@@ -3,6 +3,8 @@ package com.example.CanchaSystem.repository;
 import com.example.CanchaSystem.model.Reservation;
 import com.example.CanchaSystem.model.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -27,6 +29,25 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
 
     List<Reservation> findByCanchaEstablishmentId(Long establishmentId);
 
+    List<Reservation> findByCanchaIdInAndMatchDateBetweenAndStatus(
+            List<Long> canchaIds,
+            LocalDateTime from,
+            LocalDateTime until,
+            ReservationStatus status
+    );
 
+    @Query("""
+    SELECT r.matchDate
+    FROM Reservation r
+    WHERE r.cancha.id IN :canchaIds
+    AND r.matchDate BETWEEN :from AND :until
+    AND r.status = :status
+    """)
+    List<LocalDateTime> findMatchDatesByCanchaIdsAndDateRange(
+            @Param("canchaIds") List<Long> canchaIds,
+            @Param("from") LocalDateTime from,
+            @Param("until") LocalDateTime until,
+            @Param("status") ReservationStatus status
+    );
 
 }

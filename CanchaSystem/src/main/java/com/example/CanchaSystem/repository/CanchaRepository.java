@@ -32,4 +32,11 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     WHERE c.active = true AND c.working = true
     """)
     List<Object[]> findAllEstablishmentCanchaTypes();
+
+    List<Cancha> findByEstablishmentIdAndActiveAndWorkingAndCanchaType(
+            Long establishmentId,
+            Boolean active,
+            Boolean working,
+            CanchaType canchaType
+    );
 }

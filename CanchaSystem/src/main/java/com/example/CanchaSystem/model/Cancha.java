@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -34,9 +35,10 @@ public class Cancha {
     @Column(nullable = false)
     private boolean hasRoof;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "establishment_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Establishment establishment;
 
     @Column(nullable = false)

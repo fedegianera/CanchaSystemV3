@@ -170,58 +170,90 @@ public class ReservationService {
     public List<LocalTime> getAvailableHoursByType(Long establishmentId, LocalDate day, String canchaType)
             throws CanchaNotFoundException {
 
+        System.out.println("🔍 Step 1: Fetching establishment...");
         Establishment establishment = establishmentRepository.findByIdAndActive(establishmentId, true)
                 .orElseThrow(() -> new CanchaNotFoundException("Establecimiento no encontrado"));
 
-        List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorking(establishmentId, true, true)
-                .stream()
-                .filter(c -> c.getCanchaType().name().equals(canchaType))
-                .toList();
+        System.out.println("🔍 Step 2: Fetching canchas...");
+        List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorkingAndCanchaType(
+                establishmentId, true, true, CanchaType.valueOf(canchaType)
+        );
 
         if (canchas.isEmpty()) {
             throw new CanchaNotFoundException("No existen canchas de este tipo");
         }
 
+        System.out.println("✅ Found " + canchas.size() + " canchas");
+
+        // Normalizar las horas a minutos y segundos en 0
+        LocalTime openingHour = establishment.getOpeningHour()
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        LocalTime closingHour = establishment.getClosingHour()
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        System.out.println("🕐 Opening: " + openingHour + " | Closing: " + closingHour);
+
+        // Validación: evitar bucle infinito
+        if (!openingHour.isBefore(closingHour)) {
+            throw new IllegalStateException(
+                    "Horario de apertura (" + openingHour + ") debe ser antes del horario de cierre (" + closingHour + ")"
+            );
+        }
+
+        // Generar todas las horas posibles
         List<LocalTime> allHours = new ArrayList<>();
-        LocalTime currentHour = establishment.getOpeningHour();
-        while (currentHour.isBefore(establishment.getClosingHour())) {
+        LocalTime currentHour = openingHour;
+
+        while (currentHour.isBefore(closingHour)) {
             allHours.add(currentHour);
             currentHour = currentHour.plusHours(1);
         }
 
-        LocalDateTime from = day.atTime(establishment.getOpeningHour());
-        LocalDateTime until = day.atTime(establishment.getClosingHour());
+        System.out.println("✅ Generated " + allHours.size() + " available hours");
 
-        List<Reservation> reservations = new ArrayList<>();
-        for (Cancha cancha : canchas) {
-            reservations.addAll(
-                    reservationRepository.findByCanchaIdAndMatchDateBetweenAndStatus(
-                            cancha.getId(), from, until, ReservationStatus.PENDING
-                    )
-            );
-        }
+        // Obtener IDs de canchas
+        List<Long> canchaIds = canchas.stream()
+                .map(Cancha::getId)
+                .toList();
 
-        System.out.println(reservations);
+        LocalDateTime from = day.atTime(openingHour);
+        LocalDateTime until = day.atTime(closingHour);
 
-        Map<LocalTime, Long> reservationsCount = reservations.stream()
+        System.out.println("🔍 Step 3: Fetching reservations...");
+
+        // Obtener SOLO las fechas de las reservas (no entidades completas)
+        List<LocalDateTime> matchDates = reservationRepository.findMatchDatesByCanchaIdsAndDateRange(
+                canchaIds, from, until, ReservationStatus.PENDING
+        );
+
+        System.out.println("✅ Found " + matchDates.size() + " reservations");
+
+        // Contar reservas por hora
+        Map<LocalTime, Long> reservationsCount = matchDates.stream()
                 .collect(Collectors.groupingBy(
-                        r -> r.getMatchDate().toLocalTime()
-                                .withMinute(0).withSecond(0).withNano(0),
+                        dateTime -> dateTime.toLocalTime()
+                                .withMinute(0)
+                                .withSecond(0)
+                                .withNano(0),
                         Collectors.counting()
                 ));
 
-
         int totalCanchas = canchas.size();
+        System.out.println("CANTIDAD DE CANCHAS: " + totalCanchas);
 
-        System.out.println("CANTIDAD DE CANCHAS" + " " + totalCanchas);
-
-        System.out.println(allHours.stream()
-                .filter(hour -> reservationsCount.getOrDefault(hour, 0L) < totalCanchas)
-                .toList());
-
-        return allHours.stream()
+        // Filtrar horas disponibles
+        List<LocalTime> availableHours = allHours.stream()
                 .filter(hour -> reservationsCount.getOrDefault(hour, 0L) < totalCanchas)
                 .toList();
+
+        System.out.println("✅ Available hours: " + availableHours);
+
+        return availableHours;
     }
 
 
