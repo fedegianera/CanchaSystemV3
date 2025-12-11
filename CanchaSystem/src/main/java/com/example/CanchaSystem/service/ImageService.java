@@ -59,6 +59,34 @@ public class ImageService {
         return repository.save(data);
     }
 
+    // La imagen vieja (Resource) sigue en el sistema: se añade una nueva y se relocaliza su ImageData correspondiente.
+    public ImageData updateImage(UUID imageDataId, MultipartFile file) {
+        validate(file);
+
+        String storagePath = "";
+        try(InputStream in = file.getInputStream()) {
+            storagePath = storeFile(in, file.getOriginalFilename());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ImageData data = getImageData(imageDataId);
+        data.setFileName(file.getOriginalFilename());
+        data.setStoredPath(storagePath);
+        data.setMimeType(file.getContentType());
+        data.setSize(file.getSize());
+
+        return repository.save(data);
+    }
+
+    public ImageData deleteImage(UUID imageDataId) {
+        ImageData data = getImageData(imageDataId);
+
+        data.setActive(false);
+
+        return repository.save(data);
+    }
+
     private void validate(MultipartFile file) {
         if (file.isEmpty())
             throw new IllegalArgumentException("La imagen no debe estar vacía");
