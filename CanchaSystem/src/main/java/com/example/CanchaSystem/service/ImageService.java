@@ -2,6 +2,7 @@ package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.exception.image.ImageNotFoundException;
 import com.example.CanchaSystem.model.ImageData;
+import com.example.CanchaSystem.model.ImageType;
 import com.example.CanchaSystem.repository.ImageDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -36,7 +37,7 @@ public class ImageService {
             "image/gif"
     );
 
-    public ImageData uploadImage(MultipartFile file, String uploaderUsername) {
+    public ImageData uploadImage(MultipartFile file, String uploaderUsername, ImageType type) {
         validate(file);
 
         String storagePath = "";
@@ -48,6 +49,7 @@ public class ImageService {
 
         ImageData data = new ImageData(
                 UUID.randomUUID(),
+                type,
                 file.getOriginalFilename(),
                 storagePath,
                 file.getContentType(),

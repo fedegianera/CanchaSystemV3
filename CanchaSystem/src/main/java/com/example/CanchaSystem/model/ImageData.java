@@ -18,6 +18,10 @@ public class ImageData {
     private UUID id;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ImageType canchaType;
+
+    @Column(nullable = false)
     private String fileName;
 
     @Column(nullable = false)
