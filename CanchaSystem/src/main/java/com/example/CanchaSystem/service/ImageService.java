@@ -2,7 +2,7 @@ package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.exception.image.ImageNotFoundException;
 import com.example.CanchaSystem.model.ImageData;
-import com.example.CanchaSystem.model.ImageType;
+import com.example.CanchaSystem.model.ImageProviderType;
 import com.example.CanchaSystem.repository.ImageDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,10 +35,12 @@ public class ImageService {
             "image/png",
             "image/jpeg",
             "image/webp",
-            "image/gif"
+            "image/gif",
+            "video/mp4",
+            "video/mpeg"
     );
 
-    public ImageData uploadImage(MultipartFile file, String uploaderUsername, ImageType type) {
+    public ImageData uploadImage(MultipartFile file, ImageProviderType type, String uploadData) {
         validate(file);
 
         String storagePath = "";
@@ -54,7 +57,7 @@ public class ImageService {
                 storagePath,
                 file.getContentType(),
                 file.getSize(),
-                uploaderUsername,
+                uploadData,
                 true
         );
 
@@ -87,6 +90,24 @@ public class ImageService {
         data.setActive(false);
 
         return repository.save(data);
+    }
+
+    public ImageData getProfilePictureByUsername(String username) {
+        return repository.findByUsernameAndTypeAndActive(username, ImageProviderType.PROFILE_PICTURE, true)
+                .stream().findFirst()
+                .orElseThrow(() -> new ImageNotFoundException("Imagen no encontrada"));
+    }
+
+    public ImageData updateProfilePictureByUsername(String username, MultipartFile file) {
+        return updateImage(getProfilePictureByUsername(username).getId(), file);
+    }
+
+    public ImageData deleteProfilePictureByUsername(String username) {
+        return deleteImage(getProfilePictureByUsername(username).getId());
+    }
+
+    public List<ImageData> getCanchaImagesByCanchaId(Long canchaId) {
+        return repository.findByUsernameAndTypeAndActive(canchaId.toString(), ImageProviderType.CANCHA, true);
     }
 
     private void validate(MultipartFile file) {

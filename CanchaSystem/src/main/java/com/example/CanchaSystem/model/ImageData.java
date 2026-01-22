@@ -19,7 +19,7 @@ public class ImageData {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ImageType canchaType;
+    private ImageProviderType imageProviderType;
 
     @Column(nullable = false)
     private String fileName;
@@ -33,8 +33,9 @@ public class ImageData {
     @Column(nullable = false)
     private Long size;
 
+    // uploadData is the user's username if ImageType is PROFILE_PICTURE, and a stringified CanchaId if it's CANCHA
     @Column(nullable = false)
-    private String uploaderUsername;
+    private String uploadData;
 
     @Column(nullable = false)
     private boolean active = true;

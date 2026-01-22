@@ -1,6 +1,6 @@
 package com.example.CanchaSystem.model;
 
-public enum ImageType {
+public enum ImageProviderType {
     CANCHA,
-    USER;
+    PROFILE_PICTURE
 }

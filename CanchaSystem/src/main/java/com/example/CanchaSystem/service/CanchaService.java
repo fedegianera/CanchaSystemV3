@@ -40,6 +40,9 @@ public class CanchaService {
     private ReservationService reservationService;
 
     @Autowired
+    private ImageService imageService;
+
+    @Autowired
     private CanchaMapper mapper;
 
     public CanchaResponseDTO insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
@@ -92,19 +95,14 @@ public class CanchaService {
                 .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
 
         if (!cancha.isActive())
-            throw new UnableToDropException("La cancha ya esta inactivo");
+            throw new UnableToDropException("La cancha ya está inactiva");
 
-        List<Review> reviews = reviewRepository.findByEstablishmentIdAndActive(cancha.getEstablishment().getId(), true);
-
-        for (Review review : reviews) {
-            reviewService.deleteReview(review.getId());
-        }
-
-        List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
-
-        for (Reservation reservation : reservations) {
-            reservationService.cancelReservation(reservation.getId());
-        }
+        reviewRepository.findByEstablishmentIdAndActive(cancha.getEstablishment().getId(), true)
+                .forEach(r -> reviewService.deleteReview(r.getId()));
+        reservationRepository.findByCanchaId(canchaId)
+                .forEach(r -> reservationService.cancelReservation(r.getId()));
+        imageService.getCanchaImagesByCanchaId(canchaId)
+                .forEach(i -> imageService.deleteImage(i.getId()));
 
         cancha.setActive(false);
         cancha.setWorking(false);
