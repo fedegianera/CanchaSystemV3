@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -40,6 +41,7 @@ public class ImageService {
             "video/mpeg"
     );
 
+    private static final Random random = new Random();
     public ImageData uploadImage(MultipartFile file, ImageProviderType type, String uploadData) {
         validate(file);
 
@@ -51,7 +53,7 @@ public class ImageService {
         }
 
         ImageData data = new ImageData(
-                UUID.randomUUID(),
+                random.nextLong(),
                 type,
                 file.getOriginalFilename(),
                 storagePath,
@@ -64,8 +66,8 @@ public class ImageService {
         return repository.save(data);
     }
 
-    // La imagen vieja (Resource) sigue en el sistema: se añade una nueva y se relocaliza su ImageData correspondiente.
-    public ImageData updateImage(UUID imageDataId, MultipartFile file) {
+    // La imagen vieja (Resource) sigue en el sistema: se añade una nueva y se relocaliza su ImageData correspondiente
+    public ImageData updateImage(long imageDataId, MultipartFile file) {
         validate(file);
 
         String storagePath = "";
@@ -84,7 +86,7 @@ public class ImageService {
         return repository.save(data);
     }
 
-    public ImageData deleteImage(UUID imageDataId) {
+    public ImageData deleteImage(long imageDataId) {
         ImageData data = getImageData(imageDataId);
 
         data.setActive(false);
@@ -93,7 +95,7 @@ public class ImageService {
     }
 
     public ImageData getProfilePictureByUsername(String username) {
-        return repository.findByUsernameAndTypeAndActive(username, ImageProviderType.PROFILE_PICTURE, true)
+        return repository.findByUploadDataAndImageProviderTypeAndActive(username, ImageProviderType.PROFILE_PICTURE, true)
                 .stream().findFirst()
                 .orElseThrow(() -> new ImageNotFoundException("Imagen no encontrada"));
     }
@@ -106,8 +108,8 @@ public class ImageService {
         return deleteImage(getProfilePictureByUsername(username).getId());
     }
 
-    public List<ImageData> getCanchaImagesByCanchaId(Long canchaId) {
-        return repository.findByUsernameAndTypeAndActive(canchaId.toString(), ImageProviderType.CANCHA, true);
+    public List<ImageData> getEstablishmentImagesByEstablishmentId(Long establishmentId) {
+        return repository.findByUploadDataAndImageProviderTypeAndActive(establishmentId.toString(), ImageProviderType.CANCHA, true);
     }
 
     private void validate(MultipartFile file) {
@@ -146,19 +148,20 @@ public class ImageService {
         return imagePath.relativize(filePath).toString();
     }
 
-    public ImageData getImageData(UUID imageDataId) {
+    public ImageData getImageData(long imageDataId) {
         return repository.findByIdAndActive(imageDataId, true).orElseThrow(
                 () -> new ImageNotFoundException("Imagen no encontrada")
         );
     }
 
-    public Resource getImageResource(UUID imageDataId) {
+    public Resource getImageResource(long imageDataId) {
         return getResource(getImageData(imageDataId).getStoredPath());
     }
 
     private Resource getResource(String storedPath) {
         Path filePath = imagePath.resolve(storedPath).normalize();
         Path normalizedRoot = imagePath.normalize().toAbsolutePath();
+        filePath = normalizedRoot.getParent().resolve(filePath);
 
         if (!filePath.startsWith(normalizedRoot) || !Files.exists(filePath)) {
             throw new ImageNotFoundException("Imagen no encontrada");

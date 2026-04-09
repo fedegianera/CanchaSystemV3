@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public interface ImageDataRepository extends JpaRepository<ImageData, UUID> {
     List<ImageData> findAllByActive(boolean active);
-    boolean existsByIdAndActive(UUID id, boolean active);
-    Optional<ImageData> findByIdAndActive(UUID id, boolean active);
-    List<ImageData> findByUsernameAndActive(String username, boolean active);
-    List<ImageData> findByUsernameAndTypeAndActive(String username, ImageProviderType type, boolean active);
+    boolean existsByIdAndActive(long id, boolean active);
+    Optional<ImageData> findByIdAndActive(long id, boolean active);
+    List<ImageData> findByUploadDataAndActive(String uploadData, boolean active);
+    List<ImageData> findByUploadDataAndImageProviderTypeAndActive(String uploadData, ImageProviderType imageProviderType, boolean active);
 }

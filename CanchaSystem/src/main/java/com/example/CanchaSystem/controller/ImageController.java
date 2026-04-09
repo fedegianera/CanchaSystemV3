@@ -11,10 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/image")
@@ -22,14 +20,14 @@ public class ImageController {
     @Autowired
     private ImageService service;
 
-    @PostMapping("/insert/{username}")
-    public ResponseEntity<?> insertImage(@PathVariable String uploadData, @RequestParam("type") ImageProviderType type, @RequestParam("file") MultipartFile file) {
-        ImageData data = service.uploadImage(file, type, uploadData);
-        return ResponseEntity.ok(Map.of("message", "Imagen insertada con éxito: " + data.getId()));
+    @PostMapping("/insert/{uploadData}")
+    public ResponseEntity<?> insertImages(@PathVariable String uploadData, @RequestParam("type") ImageProviderType type, @RequestParam("files") List<MultipartFile> files) {
+        files.forEach((file) -> service.uploadImage(file, type, uploadData));
+        return ResponseEntity.ok(Map.of("message", "Imágenes insertadas con éxito"));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> downloadImage(@PathVariable UUID id) {
+    public ResponseEntity<Resource> getImage(@PathVariable long id) {
         ImageData data = service.getImageData(id);
         Resource resource = service.getImageResource(id);
 
@@ -44,20 +42,20 @@ public class ImageController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateImage(@PathVariable("id") UUID id, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> updateImage(@PathVariable long id, @RequestParam("file") MultipartFile file) {
         service.updateImage(id, file);
 
         return ResponseEntity.ok(Map.of("message", "Imagen actualizada"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteImage(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteImage(@PathVariable long id) {
         service.deleteImage(id);
         return ResponseEntity.ok(Map.of("message","Imagen eliminada"));
     }
 
     @GetMapping("/user/{username}")
-    public ResponseEntity<?> getUserProfilePicture(@PathVariable("username") String username) {
+    public ResponseEntity<?> getUserProfilePicture(@PathVariable String username) {
         ImageData data = service.getProfilePictureByUsername(username);
         Resource resource = service.getImageResource(data.getId());
 
@@ -72,32 +70,17 @@ public class ImageController {
     }
 
     @PutMapping("/user/{username}")
-    public ResponseEntity<?> updateUserProfilePicture(@PathVariable("username") String username, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> updateUserProfilePicture(@PathVariable String username, @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(service.updateProfilePictureByUsername(username, file));
     }
 
     @DeleteMapping("/user/{username}")
-    public ResponseEntity<?> deleteUserProfilePicture(@PathVariable("username") String username) {
+    public ResponseEntity<?> deleteUserProfilePicture(@PathVariable String username) {
         return ResponseEntity.ok(service.deleteProfilePictureByUsername(username));
     }
 
-    @GetMapping("/cancha/{id}")
-    public ResponseEntity<?> getCanchaImages(@PathVariable Long canchaId) {
-        List<ImageData> images = service.getCanchaImagesByCanchaId(canchaId);
-        List<Resource> resources = new ArrayList<>();
-        for (ImageData data : images) {
-            resources.add(service.getImageResource(data.getId()));
-        }
-
-        return ResponseEntity.ok(resources);
-
-        /*return ResponseEntity.ok()
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + images.getFileName() + '"'
-                )
-                .contentType(MediaType.parseMediaType(images.getMimeType()))
-                .contentLength(images.getSize())
-                .body(resource);*/
+    @GetMapping("/establishment/{establishmentId}")
+    public ResponseEntity<?> getEstablishmentImages(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(service.getEstablishmentImagesByEstablishmentId(establishmentId));
     }
 }

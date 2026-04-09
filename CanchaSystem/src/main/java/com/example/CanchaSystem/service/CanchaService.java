@@ -2,11 +2,9 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.CanchaMapper;
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
-import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
-import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.*;
@@ -101,7 +99,7 @@ public class CanchaService {
                 .forEach(r -> reviewService.deleteReview(r.getId()));
         reservationRepository.findByCanchaId(canchaId)
                 .forEach(r -> reservationService.cancelReservation(r.getId()));
-        imageService.getCanchaImagesByCanchaId(canchaId)
+        imageService.getEstablishmentImagesByEstablishmentId(canchaId)
                 .forEach(i -> imageService.deleteImage(i.getId()));
 
         cancha.setActive(false);
