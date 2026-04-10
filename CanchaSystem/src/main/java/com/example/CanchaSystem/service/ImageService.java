@@ -36,8 +36,6 @@ public class ImageService {
             "image/png",
             "image/jpeg",
             "image/webp",
-            "image/gif",
-            "video/mp4",
             "video/mpeg"
     );
 
