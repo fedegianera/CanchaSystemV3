@@ -35,8 +35,7 @@ public class ImageService {
     private static final Set<String> validMimeTypes = Set.of(
             "image/png",
             "image/jpeg",
-            "image/webp",
-            "video/mpeg"
+            "image/webp"
     );
 
     private static final Random random = new Random();

@@ -54,6 +54,14 @@ public class ImageController {
         return ResponseEntity.ok(Map.of("message","Imagen eliminada"));
     }
 
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteImages(@RequestBody long[] ids) {
+        for (long id : ids) {
+            service.deleteImage(id);
+        }
+        return ResponseEntity.ok(Map.of("message","Imágenes eliminadas"));
+    }
+
     @GetMapping("/user/{username}")
     public ResponseEntity<?> getUserProfilePicture(@PathVariable String username) {
         ImageData data = service.getProfilePictureByUsername(username);
