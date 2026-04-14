@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.exception.image.ImageNotFoundException;
 import com.example.CanchaSystem.model.ImageData;
 import com.example.CanchaSystem.model.ImageProviderType;
 import com.example.CanchaSystem.service.ImageService;
@@ -79,7 +80,11 @@ public class ImageController {
 
     @PutMapping("/user/{username}")
     public ResponseEntity<?> updateUserProfilePicture(@PathVariable String username, @RequestParam("file") MultipartFile file) {
-        return ResponseEntity.ok(service.updateProfilePictureByUsername(username, file));
+        try {
+            return ResponseEntity.ok(service.updateProfilePictureByUsername(username, file));
+        } catch (ImageNotFoundException e) {
+            return ResponseEntity.ok(service.uploadImage(file, ImageProviderType.PROFILE_PICTURE, username));
+        }
     }
 
     @DeleteMapping("/user/{username}")
