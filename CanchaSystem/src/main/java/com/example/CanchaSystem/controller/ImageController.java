@@ -65,17 +65,7 @@ public class ImageController {
 
     @GetMapping("/user/{username}")
     public ResponseEntity<?> getUserProfilePicture(@PathVariable String username) {
-        ImageData data = service.getProfilePictureByUsername(username);
-        Resource resource = service.getImageResource(data.getId());
-
-        return ResponseEntity.ok()
-                .header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + data.getFileName() + '"'
-                )
-                .contentType(MediaType.parseMediaType(data.getMimeType()))
-                .contentLength(data.getSize())
-                .body(resource);
+        return ResponseEntity.ok(service.getProfilePictureByUsername(username));
     }
 
     @PutMapping("/user/{username}")
