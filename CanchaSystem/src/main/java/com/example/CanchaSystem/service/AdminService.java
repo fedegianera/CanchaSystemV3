@@ -7,6 +7,7 @@ import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.AdminRepository;
 import com.example.CanchaSystem.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,12 +22,16 @@ public class AdminService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public Admin insertAdmin(Admin admin) throws UsernameAlreadyExistsException {
         Role adminRole = roleRepository.findByName("ADMIN")
                 .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
 
         if (!adminRepository.existsByUsername(admin.getUsername())) {
             admin.setRole(adminRole);
+            admin.setPassword(passwordEncoder.encode(admin.getPassword()));
             return adminRepository.save(admin);
         } else
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
