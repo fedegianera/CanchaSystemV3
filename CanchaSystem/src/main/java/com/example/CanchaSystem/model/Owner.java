@@ -2,13 +2,8 @@ package com.example.CanchaSystem.model;
 
 import com.example.CanchaSystem.interfaces.IUser;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,7 +30,7 @@ public class Owner implements IUser {
 //    )
     private String lastName;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
 //    @Size(
 //            min = 4,
 //            message = "The Username must have 4 caracters"
@@ -49,11 +44,11 @@ public class Owner implements IUser {
 //    )
     private String password;
 
-    @Column(nullable = true,unique = true)
+    @Column(unique = true)
 //    @Email(message = "The email is not valid")
     private String mail;
 
-    @Column(nullable = true,unique = true)
+    @Column(unique = true)
 //    @Size(
 //            min = 8,
 //            max = 14,
@@ -61,15 +56,11 @@ public class Owner implements IUser {
 //    )
     private String cellNumber;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
-    private Role role;
-
     @Column(nullable = false)
     private boolean active = true;
 
     @Override
     public String getRoleName() {
-        return role.getName();
+        return Role.OWNER.toString();
     }
 }
