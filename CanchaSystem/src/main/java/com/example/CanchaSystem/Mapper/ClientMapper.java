@@ -16,7 +16,7 @@ public interface ClientMapper {
     List<ClientResponseDTO> toDto(List<Client> entities);
 
     default String map(Role role) {
-        return role != null ? role.getName() : null;
+        return role != null ? role.toString() : null;
     }
 
 }

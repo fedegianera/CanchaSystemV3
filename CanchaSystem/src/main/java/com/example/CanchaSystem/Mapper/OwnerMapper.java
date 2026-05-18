@@ -16,6 +16,6 @@ public interface OwnerMapper {
     List<OwnerResponseDTO> toDto(List<Owner> entities);
 
     default String map(Role role) {
-        return role != null ? role.getName() : null;
+        return role != null ? role.toString() : null;
     }
 }

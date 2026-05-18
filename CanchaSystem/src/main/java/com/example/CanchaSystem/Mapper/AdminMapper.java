@@ -12,6 +12,6 @@ public interface AdminMapper {
     AdminResponseDTO toDto(Admin entity);
 
     default String map(Role role) {
-        return role != null ? role.getName() : null;
+        return role != null ? role.toString() : null;
     }
 }
