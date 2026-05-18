@@ -1,28 +1,12 @@
 package com.example.CanchaSystem.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public enum Role {
+    ADMIN,
+    CLIENT,
+    OWNER;
 
-import java.util.UUID;
-
-@Entity
-@Getter
-@Setter
-public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
-    private String name;
-
-    public Role() {}
-
-    public Role(String name) {
-        this.name = name;
+    @Override
+    public String toString() {
+        return "ROLE_" + this.name();
     }
-
 }
