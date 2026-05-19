@@ -9,8 +9,6 @@ import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NoClientsException;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Reservation;
-import com.example.CanchaSystem.model.Review;
-import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,9 +32,6 @@ public class ClientService {
 
     @Autowired
     private ReservationRepository reservationRepository;
-
-    @Autowired
-    private RoleRepository roleRepo;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -64,9 +59,6 @@ public class ClientService {
             throw new CellNumberAlreadyAddedException("El numero ya esta añadido");
         }
 
-        Role clientRole = roleRepo.findByName("CLIENT")
-                .orElseGet(() -> roleRepo.save(new Role("CLIENT")));
-
         Client client = Client.builder()
                 .name(clientDTO.name())
                 .lastName(clientDTO.lastName())
@@ -75,7 +67,6 @@ public class ClientService {
                 .mail(clientDTO.mail())
                 .cellNumber(clientDTO.cellNumber())
                 .active(true)
-                .role(clientRole)
                 .build();
 
         clientRepository.save(client);

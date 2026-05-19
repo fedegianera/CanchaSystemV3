@@ -22,9 +22,6 @@ public class OwnerService {
     private OwnerRepository ownerRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -55,9 +52,6 @@ public class OwnerService {
             throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
         }
 
-        Role role = roleRepository.findByName("OWNER")
-                .orElseGet(() -> roleRepository.save(new Role("OWNER")));
-
         Owner owner = Owner.builder()
                 .name(ownerDto.name())
                 .lastName(ownerDto.lastName())
@@ -66,7 +60,6 @@ public class OwnerService {
                 .mail(ownerDto.mail())
                 .cellNumber(ownerDto.cellNumber())
                 .active(true)
-                .role(role)
                 .build();
 
         ownerRepository.save(owner);

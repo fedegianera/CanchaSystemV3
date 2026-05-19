@@ -3,9 +3,7 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
 import com.example.CanchaSystem.exception.admin.AdminNotFoundException;
 import com.example.CanchaSystem.model.Admin;
-import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.AdminRepository;
-import com.example.CanchaSystem.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,17 +18,10 @@ public class AdminService {
     private AdminRepository adminRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Admin insertAdmin(Admin admin) throws UsernameAlreadyExistsException {
-        Role adminRole = roleRepository.findByName("ADMIN")
-                .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
-
         if (!adminRepository.existsByUsername(admin.getUsername())) {
-            admin.setRole(adminRole);
             admin.setPassword(passwordEncoder.encode(admin.getPassword()));
             return adminRepository.save(admin);
         } else
