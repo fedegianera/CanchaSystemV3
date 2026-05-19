@@ -1,9 +1,6 @@
 package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.interfaces.IUser;
-import com.example.CanchaSystem.model.Admin;
-import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.repository.AdminRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.OwnerRepository;
@@ -11,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuthService implements UserDetailsService {
@@ -35,18 +29,17 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return clientRepository.findByUsernameAndActive(username,true)
-                .map(this::createUser)
-                .or(() -> ownerRepository.findByUsernameAndActive(username,true).map(this::createUser))
-                .or(() -> adminRepository.findByUsername(username).map(this::createUser))
+        return clientRepository.findByUsernameAndActive(username,true).map(this::createUserInstance)
+                .or(() -> ownerRepository.findByUsernameAndActive(username,true).map(this::createUserInstance))
+                .or(() -> adminRepository.findByUsername(username).map(this::createUserInstance))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario "+ username +" no encontrado"));
     }
 
-    private UserDetails createUser(IUser user){
+    private UserDetails createUserInstance(IUser user){
         return User.builder()
                 .username(user.getUsername())
                 .password(user.getPassword())
-                .authorities(new SimpleGrantedAuthority("ROLE_" + user.getRoleName()))
+                .authorities(new SimpleGrantedAuthority(user.getRoleName()))
                 .build();
     }
 }
