@@ -1,7 +1,9 @@
 package com.example.CanchaSystem.exception.image;
 
-public class ImageNotFoundException extends RuntimeException {
-    public ImageNotFoundException(String message) {
-        super(message);
+import com.example.CanchaSystem.exception.ResourceNotFoundException;
+
+public class ImageNotFoundException extends ResourceNotFoundException {
+    public ImageNotFoundException(Long imageId) {
+        super("Imagen no encontrada. id= " + imageId);
     }
 }

@@ -12,7 +12,7 @@ public class UserNotFoundException extends ResourceNotFoundException {
     private final Role role;
 
     public UserNotFoundException(String userId, Role role) {
-        super(getStringRole(role) + " no encontrado. ID: " + userId);
+        super(getStringRole(role) + " no encontrado. id= " + userId);
 
         this.userId = userId;
         this.role = role;

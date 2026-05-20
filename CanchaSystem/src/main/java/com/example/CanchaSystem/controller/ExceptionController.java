@@ -7,7 +7,7 @@ import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
 import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
-import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
+import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
 import com.example.CanchaSystem.exception.client.*;
 import com.example.CanchaSystem.exception.misc.*;
@@ -72,8 +72,8 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(CanchaBrandNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleCanchaBrandNotFound(CanchaBrandNotFoundException ex) {
+    @ExceptionHandler(BrandNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCanchaBrandNotFound(BrandNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }

@@ -1,7 +1,9 @@
 package com.example.CanchaSystem.exception.reservation;
 
-public class ReservationNotFoundException extends RuntimeException {
-    public ReservationNotFoundException(String message) {
-        super(message);
+import com.example.CanchaSystem.exception.ResourceNotFoundException;
+
+public class ReservationNotFoundException extends ResourceNotFoundException {
+    public ReservationNotFoundException(Long reservationId) {
+        super("Reserva no encontrada. id= " + reservationId);
     }
 }

@@ -1,16 +1,13 @@
 package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.Mapper.EstablishmentMapper;
-import com.example.CanchaSystem.Mapper.ReservationMapper;
 import com.example.CanchaSystem.dto.EstablishmentNamesDTO;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
-import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
-import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
-import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNotFoundException;
+import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.Cancha;
@@ -77,7 +74,7 @@ public class EstablishmentService {
 
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = brandRepository.findById(establishmentDto.brandId())
-                .orElseThrow(() -> new CanchaBrandNotFoundException("Marca no encontrada"));
+                .orElseThrow(() -> new BrandNotFoundException("Marca no encontrada"));
 
         if (establishmentRepository.existsByNameAndActive(establishmentDto.name(), true)) {
             throw new CanchaBrandNameAlreadyExistsException("El nombre del establecimiento ya existe");
@@ -126,7 +123,7 @@ public class EstablishmentService {
 
     public void deleteEstablishment(Long establishmentId) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
-                .orElseThrow(() -> new CanchaBrandNotFoundException("Establecimiento no encontrado"));
+                .orElseThrow(() -> new BrandNotFoundException("Establecimiento no encontrado"));
 
         if (!establishment.isActive()) {
             throw new UnableToDropException("El establecimiento ya esta inactivo");
