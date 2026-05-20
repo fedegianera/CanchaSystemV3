@@ -2,19 +2,11 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.Review;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

@@ -5,10 +5,11 @@ import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.dto.response.ClientResponseDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.client.NoClientsException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Reservation;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,9 +80,9 @@ public class ClientService {
         return clientMapper.toDto(clients);
     }
 
-    public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {
+    public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
         Client client = clientRepository.findByIdAndActive(id, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
 
         if ((clientRepository.existsByUsernameAndActive(clientDto.username(), true) ||
                 adminRepository.existsByUsername(clientDto.username()) ||
@@ -113,9 +114,9 @@ public class ClientService {
         return clientMapper.toDto(client);
     }
 
-    public Client updateClientAdmin(UUID id, ClientRequestDTO clientDto) throws ClientNotFoundException {
+    public Client updateClientAdmin(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
         Client client = clientRepository.findByIdAndActive(id, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
 
         if ((clientRepository.existsByUsernameAndActive(clientDto.username(), true) ||
                 adminRepository.existsByUsername(clientDto.username()) ||
@@ -155,7 +156,7 @@ public class ClientService {
     public Client deleteClient(UUID clientId) {
 
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(clientId, Role.CLIENT));
 
         if (!client.isActive())
             throw new UnableToDropException("El cliente ya esta inactivo");
@@ -176,11 +177,11 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public ClientResponseDTO findClientById(UUID id) throws ClientNotFoundException {
+    public ClientResponseDTO findClientById(UUID id) throws UserNotFoundException {
         Optional<Client> clientOpt = clientRepository.findByIdAndActive(id, true);
 
         if (clientOpt.isEmpty()) {
-            throw new ClientNotFoundException("Cliente no encontrado");
+            throw new UserNotFoundException(id, Role.CLIENT);
         }
 
         Client client = clientOpt.get();

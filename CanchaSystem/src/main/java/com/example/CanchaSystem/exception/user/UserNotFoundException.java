@@ -11,18 +11,19 @@ public class UserNotFoundException extends ResourceNotFoundException {
     private final String userId;
     private final Role role;
 
-    public UserNotFoundException(String userId, Role role) {
-        super(getStringRole(role) + " no encontrado. id= " + userId);
+    public UserNotFoundException(String userId, Role role, String username) {
+        super(getStringRole(role) + " no encontrado. id= " + userId + ", username:" + username);
 
         this.userId = userId;
         this.role = role;
     }
 
-    public UserNotFoundException(Long userId, Role role) {
-        this(userId.toString(), role);
-    }
     public UserNotFoundException(UUID userId, Role role) {
-        this(userId.toString(), role);
+        this(userId.toString(), role, "?");
+    }
+
+    public UserNotFoundException(String username, Role role) {
+        this("?", role, username);
     }
 
     private static String getStringRole(Role role) {

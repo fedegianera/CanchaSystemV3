@@ -5,7 +5,7 @@ import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
 import com.example.CanchaSystem.dto.response.OwnerResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.owner.NoOwnersException;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,12 +72,12 @@ public class OwnerService {
         return ownerMapper.toDto(owners);
     }
 
-    public OwnerResponseDTO updateOwner(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
+    public OwnerResponseDTO updateOwner(UUID id, OwnerRequestDTO ownerRequestDTO) throws UserNotFoundException {
         Optional<Owner> ownerOpt = ownerRepository.findByIdAndActive(id, true);
 
 
         if (ownerOpt.isEmpty()) {
-            throw new OwnerNotFoundException("No se encontro el dueño");
+            throw new UserNotFoundException(id, Role.OWNER);
         }
 
         Owner owner = ownerOpt.get();
@@ -111,9 +111,9 @@ public class OwnerService {
         return ownerMapper.toDto(owner);
     }
 
-    public OwnerResponseDTO updateOwnerAdmin(UUID id, OwnerRequestDTO ownerRequestDTO) throws OwnerNotFoundException {
+    public OwnerResponseDTO updateOwnerAdmin(UUID id, OwnerRequestDTO ownerRequestDTO) throws UserNotFoundException {
         Owner owner = ownerRepository.findByIdAndActive(id, true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(id, Role.OWNER));
 
         if ((clientRepository.existsByUsernameAndActive(ownerRequestDTO.username(), true) ||
                 adminRepository.existsByUsername(ownerRequestDTO.username()) ||
@@ -152,10 +152,10 @@ public class OwnerService {
         return ownerMapper.toDto(owner);
     }
 
-    public void deleteOwner(UUID ownerId){
+    public void deleteOwner(UUID ownerId) throws UserNotFoundException {
 
         Owner owner = ownerRepository.findById(ownerId)
-                .orElseThrow(() -> new OwnerNotFoundException("Owner no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(ownerId, Role.OWNER));
 
         if (!owner.isActive())
             throw new UnableToDropException("El dueño ya esta inactiva");
@@ -171,11 +171,11 @@ public class OwnerService {
 
     }
 
-    public OwnerResponseDTO findOwnerById(UUID id) throws OwnerNotFoundException {
+    public OwnerResponseDTO findOwnerById(UUID id) throws UserNotFoundException {
         Optional<Owner> ownerOpt = ownerRepository.findByIdAndActive(id, true);
 
         if (ownerOpt.isEmpty()) {
-            throw new OwnerNotFoundException("Dueño no encontrado");
+            throw new UserNotFoundException(id, Role.OWNER);
         }
 
         Owner owner = ownerOpt.get();

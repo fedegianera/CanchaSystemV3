@@ -1,9 +1,9 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
-import com.example.CanchaSystem.dto.response.ClientResponseDTO;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Client;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ClientService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -34,14 +33,14 @@ public class ClientController {
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
         Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userDetails.getUsername(), Role.CLIENT));
         return ResponseEntity.ok(Map.of("id", client.getId()));
     }
 
     @GetMapping("/name")
     public ResponseEntity<?> getClientName(@AuthenticationPrincipal UserDetails userDetails) {
         Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userDetails.getUsername(), Role.CLIENT));
         return ResponseEntity.ok(Map.of("name",client.getName()));
     }
 

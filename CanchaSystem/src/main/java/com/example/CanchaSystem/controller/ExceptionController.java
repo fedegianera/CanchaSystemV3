@@ -1,6 +1,5 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.exception.admin.AdminNotFoundException;
 import com.example.CanchaSystem.exception.admin.NoAdminsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
@@ -9,16 +8,19 @@ import com.example.CanchaSystem.exception.cancha.NoCanchasException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
-import com.example.CanchaSystem.exception.client.*;
+import com.example.CanchaSystem.exception.client.ClientAlreadyRequestedException;
+import com.example.CanchaSystem.exception.client.NoClientsException;
+import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
+import com.example.CanchaSystem.exception.client.UnactiveClientException;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.owner.NoOwnersException;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.exception.owner.UnactiveOwnerException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
 import com.example.CanchaSystem.exception.review.NoReviewsException;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,8 +32,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class ExceptionController {
 
-    @ExceptionHandler(AdminNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleAdminNotFound(AdminNotFoundException ex) {
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
@@ -84,12 +86,6 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(ClientNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleClientNotFound(ClientNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
-
     @ExceptionHandler(NoClientsException.class)
     public ResponseEntity<Map<String, Object>> handleNoClients(NoClientsException ex) {
         //System.out.println("Entro al handler");
@@ -114,7 +110,6 @@ public class ExceptionController {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
-
 
     @ExceptionHandler(BankAlreadyLinkedException.class)
     public ResponseEntity<Map<String, Object>> handleBankAlreadyLinked(BankAlreadyLinkedException ex) {
@@ -149,12 +144,6 @@ public class ExceptionController {
     @ExceptionHandler(NoOwnersException.class)
     public ResponseEntity<Map<String, Object>> handleNoOwners(NoOwnersException ex) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
-                .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
-
-    @ExceptionHandler(OwnerNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleOwnerNotFound(OwnerNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
@@ -203,6 +192,6 @@ public class ExceptionController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericExceptions(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Unexpected error", "timestamp", LocalDateTime.now()));
+                .body(Map.of("error", "Unexpected error: " + ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 }

@@ -3,22 +3,21 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.ReviewMapper;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
-import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.exception.review.NoReviewsException;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Establishment;
 import com.example.CanchaSystem.model.Review;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -130,11 +129,11 @@ public class ReviewService {
         return reviewMapper.toDto(reviews);
     }
 
-    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws ClientNotFoundException {
+    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws UserNotFoundException {
         Optional<Client> clientOpt = clientRepository.findByIdAndActive(id, true);
 
         if (clientOpt.isEmpty()) {
-            throw new ClientNotFoundException("Cliente no encontrado");
+            throw new UserNotFoundException(id, Role.CLIENT);
         }
 
         List<Review> reviews = reviewRepository.findByClientIdAndActive(id, true);

@@ -1,8 +1,9 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Owner;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.OwnerService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +33,7 @@ public class OwnerController {
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userDetails.getUsername(), Role.OWNER));
         return ResponseEntity.ok(owner.getId());
     }
 
@@ -75,7 +76,7 @@ public class OwnerController {
     @GetMapping("/name")
     public ResponseEntity<?> getOwnerName(@AuthenticationPrincipal UserDetails userDetails) {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userDetails.getUsername(), Role.OWNER));
         return ResponseEntity.ok(Map.of(
                 "name", owner.getName()
         ));

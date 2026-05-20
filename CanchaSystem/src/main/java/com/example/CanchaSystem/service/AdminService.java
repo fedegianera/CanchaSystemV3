@@ -1,8 +1,9 @@
 package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
-import com.example.CanchaSystem.exception.admin.AdminNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Admin;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,22 +33,22 @@ public class AdminService {
         return adminRepository.findAll();
     }
 
-    public Admin updateAdmin(Admin admin) throws AdminNotFoundException {
+    public Admin updateAdmin(Admin admin) throws UserNotFoundException {
         if(adminRepository.existsById(admin.getId())){
             return adminRepository.save(admin);
         }else
-            throw new AdminNotFoundException("Administrador no encontrado");
+            throw new UserNotFoundException(admin.getId(), Role.ADMIN);
     }
 
-    public void deleteAdmin(UUID id) throws AdminNotFoundException{
+    public void deleteAdmin(UUID id) throws UserNotFoundException{
         if (adminRepository.existsById(id)) {
             adminRepository.deleteById(id);
         }else
-            throw new AdminNotFoundException("Administrador no encontrado");
+            throw new UserNotFoundException(id, Role.ADMIN);
 
     }
 
-    public Admin findAdminById(UUID id) throws AdminNotFoundException {
-        return adminRepository.findById(id).orElseThrow(()-> new AdminNotFoundException("Administrador no encontrado"));
+    public Admin findAdminById(UUID id) throws UserNotFoundException {
+        return adminRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id, Role.ADMIN));
     }
 }

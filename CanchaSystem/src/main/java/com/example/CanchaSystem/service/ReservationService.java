@@ -7,11 +7,11 @@ import com.example.CanchaSystem.Mapper.ReservationMapper;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
@@ -60,7 +60,7 @@ public class ReservationService {
 
         String username = auth.getName();
         Client client = clientRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(username, Role.CLIENT));;
 
         LocalDateTime correctedMatchDate = reservationDTO.matchDate()
                 .atOffset(ZoneOffset.UTC)
@@ -142,7 +142,7 @@ public class ReservationService {
 
     public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) {
         if (!clientRepository.existsByIdAndActive(clientId, true)) {
-            throw new ClientNotFoundException("Cliente no encontrado");
+            throw new UserNotFoundException(clientId, Role.CLIENT);
         }
 
         System.out.println("🔍 Buscando reservas para clientId: " + clientId);

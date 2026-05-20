@@ -9,11 +9,8 @@ import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExis
 import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.NoCanchaBrandsException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
-import com.example.CanchaSystem.model.Cancha;
-import com.example.CanchaSystem.model.Brand;
-import com.example.CanchaSystem.model.Establishment;
-import com.example.CanchaSystem.model.Owner;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
+import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
@@ -60,7 +57,7 @@ public class CanchaBrandService {
         }
 
         Owner owner = ownerRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new OwnerNotFoundException("El dueño no existe"));
+                .orElseThrow(() -> new UserNotFoundException(username, Role.OWNER));
 
         Brand brand = brandMapper.toEntity(brandDto);
         brand.setOwner(owner);
@@ -128,11 +125,11 @@ public class CanchaBrandService {
         return brandMapper.toDto(brand);
     }
 
-    public List<BrandResponseDTO> getBrandsByOwnerId(UUID id) throws OwnerNotFoundException {
+    public List<BrandResponseDTO> getBrandsByOwnerId(UUID id) throws UserNotFoundException {
         Optional<Owner> optOwner = ownerRepository.findByIdAndActive(id, true);
 
         if (optOwner.isEmpty())
-            throw new OwnerNotFoundException("Dueño no encontrado");
+            throw new UserNotFoundException(id, Role.OWNER);
 
         Owner owner = optOwner.get();
         List<Brand> brands = canchaBrandRepository.findByOwnerIdAndActive(id, true);

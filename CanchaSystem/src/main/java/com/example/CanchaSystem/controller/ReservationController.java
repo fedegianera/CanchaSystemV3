@@ -1,12 +1,7 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
-import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
@@ -17,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
