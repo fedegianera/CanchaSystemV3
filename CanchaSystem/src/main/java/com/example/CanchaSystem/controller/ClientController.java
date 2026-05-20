@@ -82,12 +82,8 @@ public class ClientController {
             return ResponseEntity.ok(clientService.findClientById(id));
     }
 
-
-    @GetMapping("/verifyUsername")
+    @GetMapping("/verifyUsername/{username}")
     public boolean verifyUsername(@PathVariable String username) {
         return clientService.verifyUsername(username);
     }
-
-
-
 }
