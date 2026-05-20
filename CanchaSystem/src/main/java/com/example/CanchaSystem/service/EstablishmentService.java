@@ -8,6 +8,7 @@ import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
+import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.Cancha;
@@ -49,7 +50,7 @@ public class EstablishmentService {
 
     public EstablishmentResponseDTO getEstablishment(Long id){
         Establishment establishment = establishmentRepository.findByIdAndActive(id, true).orElseThrow(
-                () -> new CanchaNotFoundException("Hubo problemas al buscar el establecimiento"));
+                () -> new EstablishmentNotFoundException(id));
 
         Double avgRating = reviewService.getEstablishmentAverageRating(id);
         if (avgRating == null) avgRating = 0.0;
@@ -74,7 +75,7 @@ public class EstablishmentService {
 
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = brandRepository.findById(establishmentDto.brandId())
-                .orElseThrow(() -> new BrandNotFoundException("Marca no encontrada"));
+                .orElseThrow(() -> new BrandNotFoundException(establishmentDto.brandId()));
 
         if (establishmentRepository.existsByNameAndActive(establishmentDto.name(), true)) {
             throw new CanchaBrandNameAlreadyExistsException("El nombre del establecimiento ya existe");
@@ -123,7 +124,7 @@ public class EstablishmentService {
 
     public void deleteEstablishment(Long establishmentId) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
-                .orElseThrow(() -> new BrandNotFoundException("Establecimiento no encontrado"));
+                .orElseThrow(() -> new EstablishmentNotFoundException(establishmentId));
 
         if (!establishment.isActive()) {
             throw new UnableToDropException("El establecimiento ya esta inactivo");
@@ -150,10 +151,8 @@ public class EstablishmentService {
         Optional<Establishment> establishmentOpt = establishmentRepository.findByIdAndActive(id, true);
 
         if (establishmentOpt.isEmpty()) {
-            throw new CanchaNotFoundException("No se encontro un establecimiento con ese id");
+            throw new EstablishmentNotFoundException(id);
         }
-
-
 
         Establishment establishment = establishmentOpt.get();
 
@@ -194,7 +193,7 @@ public class EstablishmentService {
         ).toList();
 
         return allNames.stream().filter(n -> Arrays.stream(ids)
-                .anyMatch(id -> id == n.getEstablishmentId()))
+                .anyMatch(id -> Objects.equals(id, n.getEstablishmentId())))
                 .collect(Collectors.toMap(
                         EstablishmentNamesDTO::getEstablishmentId,
                         EstablishmentNamesDTO::getName

@@ -79,7 +79,7 @@ public class ReviewService {
         Optional<Review> reviewOpt = reviewRepository.findByIdAndActive(id, true);
 
         if (reviewOpt.isEmpty()) {
-            throw new ReviewNotFoundException("No se encontro ninguna review con ese id");
+            throw new ReviewNotFoundException(id);
         }
 
         Review review = reviewOpt.get();
@@ -95,7 +95,7 @@ public class ReviewService {
     public void deleteReview(Long reviewId){
 
         Review review = reviewRepository.findByIdAndActive(reviewId, true)
-                .orElseThrow(() -> new ReviewNotFoundException("Review no encontrado"));
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
 
         if (!review.isActive())
             throw new UnableToDropException("La review ya esta inactiva");
@@ -109,7 +109,7 @@ public class ReviewService {
         Optional<Review> reviewOpt = reviewRepository.findByIdAndActive(id, true);
 
         if (reviewOpt.isEmpty()) {
-            throw new ReviewNotFoundException("No se encontro ninguna review con ese id");
+            throw new ReviewNotFoundException(id);
         }
 
         Review review = reviewOpt.get();

@@ -83,7 +83,7 @@ public class CanchaBrandService {
 
     public BrandResponseDTO updateCanchaBrand(Long id, BrandRequestDTO brandFromRequest) throws BrandNotFoundException {
         Brand brand = canchaBrandRepository.findById(id)
-                .orElseThrow(() -> new BrandNotFoundException("Marca no encontrada"));
+                .orElseThrow(() -> new BrandNotFoundException(id));
 
         if (canchaBrandRepository.existsByBrandNameAndActive(brandFromRequest.brandName(), true)) {
             throw new CanchaBrandNameAlreadyExistsException("El nombre ya esta en uso");
@@ -99,7 +99,7 @@ public class CanchaBrandService {
 
     public void deleteCanchaBrand(Long canchaBrandId) {
         Brand brand = canchaBrandRepository.findById(canchaBrandId)
-                .orElseThrow(() -> new BrandNotFoundException("Marca no encontrada"));
+                .orElseThrow(() -> new BrandNotFoundException(canchaBrandId));
 
         if (!brand.isActive())
             throw new UnableToDropException("La marca ya está inactiva");
@@ -120,7 +120,7 @@ public class CanchaBrandService {
         Optional<Brand> brandOpt = canchaBrandRepository.findByIdAndActive(id, true);
 
         if (brandOpt.isEmpty()) {
-            throw new BrandNotFoundException("Marca no encontrada");
+            throw new BrandNotFoundException(id);
         }
 
         Brand brand = brandOpt.get();

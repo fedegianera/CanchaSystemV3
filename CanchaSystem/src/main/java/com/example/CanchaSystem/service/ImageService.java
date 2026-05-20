@@ -94,7 +94,7 @@ public class ImageService {
     public ImageData getProfilePictureByUsername(String username) {
         return repository.findByUploadDataAndImageProviderTypeAndActive(username, ImageProviderType.PROFILE_PICTURE, true)
                 .stream().findFirst()
-                .orElseThrow(() -> new ImageNotFoundException("Imagen no encontrada"));
+                .orElseThrow(ImageNotFoundException::new);
     }
 
     public ImageData updateProfilePictureByUsername(String username, MultipartFile file) {
@@ -147,7 +147,7 @@ public class ImageService {
 
     public ImageData getImageData(long imageDataId) {
         return repository.findByIdAndActive(imageDataId, true).orElseThrow(
-                () -> new ImageNotFoundException("Imagen no encontrada")
+                () -> new ImageNotFoundException(imageDataId)
         );
     }
 
@@ -161,13 +161,13 @@ public class ImageService {
         filePath = normalizedRoot.getParent().resolve(filePath);
 
         if (!filePath.startsWith(normalizedRoot) || !Files.exists(filePath)) {
-            throw new ImageNotFoundException("Imagen no encontrada");
+            throw new ImageNotFoundException(storedPath);
         }
 
         try {
             return new UrlResource(filePath.toUri());
         } catch (MalformedURLException e) {
-            throw new ImageNotFoundException("URL malformada");
+            throw new ImageNotFoundException();
         }
     }
 

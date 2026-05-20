@@ -8,6 +8,7 @@ import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.client.ClientNotFoundException;
+import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
@@ -77,7 +78,7 @@ public class ReservationService {
         );
 
         if (canchas.isEmpty()) {
-            throw new CanchaNotFoundException("No existen canchas de ese tipo en este establecimiento");
+            throw new CanchaNotFoundException();
         }
 
         Cancha canchaDisponible = canchas.stream()
@@ -115,7 +116,7 @@ public class ReservationService {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
-            throw new ReservationNotFoundException("Reserva no encontrada");
+            throw new ReservationNotFoundException(id);
         }
 
         Reservation reservation = reservationOpt.get();
@@ -134,7 +135,7 @@ public class ReservationService {
     }
 
     public ReservationResponseDTO findReservationById(Long id) throws ReservationNotFoundException {
-        Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException(id));
 
         return reservationMapper.toDto(reservation);
     }
@@ -178,11 +179,11 @@ public class ReservationService {
     }
 
     public List<LocalTime> getAvailableHoursByType(Long establishmentId, LocalDate day, String canchaType)
-            throws CanchaNotFoundException {
+            throws CanchaNotFoundException, EstablishmentNotFoundException {
 
         System.out.println("🔍 Step 1: Fetching establishment...");
         Establishment establishment = establishmentRepository.findByIdAndActive(establishmentId, true)
-                .orElseThrow(() -> new CanchaNotFoundException("Establecimiento no encontrado"));
+                .orElseThrow(() -> new EstablishmentNotFoundException(establishmentId));
 
         System.out.println("🔍 Step 2: Fetching canchas...");
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorkingAndCanchaType(
@@ -190,7 +191,7 @@ public class ReservationService {
         );
 
         if (canchas.isEmpty()) {
-            throw new CanchaNotFoundException("No existen canchas de este tipo");
+            throw new CanchaNotFoundException();
         }
 
         System.out.println("✅ Found " + canchas.size() + " canchas");
@@ -271,7 +272,7 @@ public class ReservationService {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
-            throw new ReservationNotFoundException("La reserva no fue encontrada");
+            throw new ReservationNotFoundException(id);
         }
 
         Reservation reservation = reservationOpt.get();
@@ -285,7 +286,7 @@ public class ReservationService {
         Optional<Reservation> reservationOpt = reservationRepository.findById(id);
 
         if (reservationOpt.isEmpty()) {
-            throw new ReservationNotFoundException("La reserva no fue encontrada");
+            throw new ReservationNotFoundException(id);
         }
 
         Reservation reservation = reservationOpt.get();

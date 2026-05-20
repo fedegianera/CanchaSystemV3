@@ -5,6 +5,7 @@ import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
+import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.exception.misc.UnableToDropException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.*;
@@ -45,7 +46,7 @@ public class CanchaService {
 
     public CanchaResponseDTO insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
         Establishment establishment = establishmentRepository.findById(canchaDTO.establishmentId())
-                .orElseThrow(() -> new CanchaNotFoundException("Marca no encontrada"));
+                .orElseThrow(() -> new EstablishmentNotFoundException(canchaDTO.establishmentId()));
 
         Cancha cancha = Cancha.builder()
                 .totalAmount(canchaDTO.totalAmount())
@@ -74,7 +75,7 @@ public class CanchaService {
 
     public CanchaResponseDTO updateCancha(Long id,CanchaRequestDTO canchaDto) throws CanchaNotFoundException {
         Cancha cancha = canchaRepository.findById(id)
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+                .orElseThrow(() -> new CanchaNotFoundException(id));
 
         cancha.setTotalAmount(canchaDto.totalAmount());
         cancha.setActive(true);
@@ -88,9 +89,8 @@ public class CanchaService {
     }
 
     public void deleteCancha(Long canchaId) {
-
         Cancha cancha = canchaRepository.findById(canchaId)
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
+                .orElseThrow(() -> new CanchaNotFoundException(canchaId));
 
         if (!cancha.isActive())
             throw new UnableToDropException("La cancha ya está inactiva");
@@ -108,14 +108,8 @@ public class CanchaService {
     }
 
     public CanchaResponseDTO findCanchaById(Long id) throws CanchaNotFoundException {
-        Optional<Cancha> canchaOpt = canchaRepository.findById(id);
-
-        if (canchaOpt.isEmpty()) {
-            throw new CanchaNotFoundException("Cancha no encontrada");
-        }
-
-        Cancha cancha = canchaOpt.get();
-
+        Cancha cancha = canchaRepository.findById(id)
+                .orElseThrow(() -> new CanchaNotFoundException(id));
 
         return mapper.toDto(cancha);
     }
