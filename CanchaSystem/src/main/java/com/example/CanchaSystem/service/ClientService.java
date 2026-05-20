@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,12 +23,6 @@ public class ClientService {
 
     @Autowired
     private ClientRepository clientRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
-
-    @Autowired
-    private OwnerRepository ownerRepository;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -46,19 +39,16 @@ public class ClientService {
     @Autowired
     private ClientMapper clientMapper;
 
+    @Autowired
+    private UserService userService;
+
 
     public ClientResponseDTO insertClient(ClientRequestDTO clientDTO) {
-        if (clientRepository.existsByUsernameAndActive(clientDTO.username(), true) || adminRepository.existsByUsername(clientDTO.username()) || ownerRepository.existsByUsernameAndActive(clientDTO.username(), true)) {
-            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
-
-        if (clientRepository.existsByMailAndActive(clientDTO.mail(), true)) {
-            throw new MailAlreadyRegisteredException("El correo ya esta registrado");
-        }
-
-        if (clientRepository.existsByCellNumberAndActive(clientDTO.cellNumber(), true)) {
-            throw new CellNumberAlreadyAddedException("El numero ya esta añadido");
-        }
+        userService.verifyNonExistenceOrThrow(
+                clientDTO.username(),
+                clientDTO.mail(),
+                clientDTO.cellNumber()
+        );
 
         Client client = Client.builder()
                 .name(clientDTO.name())
@@ -75,77 +65,30 @@ public class ClientService {
         return clientMapper.toDto(client);
     }
 
+    public Client findClientOrThrow(UUID id) {
+        return clientRepository.findByIdAndActive(id, true)
+                .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
+    }
+
     public List<ClientResponseDTO> getAllClients() throws NoClientsException {
         List<Client> clients = clientRepository.findAllByActive(true);
         return clientMapper.toDto(clients);
     }
 
     public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
-        Client client = clientRepository.findByIdAndActive(id, true)
-                .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
-
-        if ((clientRepository.existsByUsernameAndActive(clientDto.username(), true) ||
-                adminRepository.existsByUsername(clientDto.username()) ||
-                ownerRepository.existsByUsernameAndActive(clientDto.username(), true)) &&
-                !clientDto.username().equals(client.getUsername())) {
-            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
-
-        if ((clientRepository.existsByMailAndActive(clientDto.mail(), true) ||
-                ownerRepository.existsByMailAndActive(clientDto.mail(), true)) &&
-                !clientDto.mail().equals(client.getMail())) {
-            throw new MailAlreadyRegisteredException("El mail ya esta registrado");
-        }
-
-        if ((clientRepository.existsByCellNumberAndActive(clientDto.cellNumber(), true) ||
-                ownerRepository.existsByCellNumberAndActive(clientDto.cellNumber(), true)) &&
-                !clientDto.cellNumber().equals(client.getCellNumber())) {
-            throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
-        }
-
-        client.setName(clientDto.name());
-        client.setLastName(clientDto.lastName());
-        client.setUsername(clientDto.username());
-        client.setMail(clientDto.mail());
-        client.setCellNumber(clientDto.cellNumber());
+        Client client = findClientOrThrow(id);
+        modifyClient(client, clientDto);
 
         clientRepository.save(client);
-
         return clientMapper.toDto(client);
     }
 
     public Client updateClientAdmin(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
-        Client client = clientRepository.findByIdAndActive(id, true)
-                .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
+        Client client = findClientOrThrow(id);
+        modifyClient(client, clientDto);
 
-        if ((clientRepository.existsByUsernameAndActive(clientDto.username(), true) ||
-                adminRepository.existsByUsername(clientDto.username()) ||
-                ownerRepository.existsByUsernameAndActive(clientDto.username(), true)) &&
-                !clientDto.username().equals(client.getUsername())) {
-            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
-
-        if ((clientRepository.existsByMailAndActive(clientDto.mail(), true) ||
-                ownerRepository.existsByMailAndActive(clientDto.mail(), true)) &&
-                !clientDto.mail().equals(client.getMail())) {
-            throw new MailAlreadyRegisteredException("El mail ya esta registrado");
-        }
-
-        if ((clientRepository.existsByCellNumberAndActive(clientDto.cellNumber(), true) ||
-                ownerRepository.existsByCellNumberAndActive(clientDto.cellNumber(), true)) &&
-                !clientDto.cellNumber().equals(client.getCellNumber())) {
-            throw new CellNumberAlreadyAddedException("El numero de telefono ya esta registrado");
-        }
-
-        client.setName(clientDto.name());
-        client.setLastName(clientDto.lastName());
-        client.setUsername(clientDto.username());
-        client.setMail(clientDto.mail());
-        client.setCellNumber(clientDto.cellNumber());
         client.setActive(clientDto.active());
-
         String pass = clientDto.password();
-
         if (!pass.isEmpty()) {
             client.setPassword(passwordEncoder.encode(pass));
         }
@@ -153,10 +96,25 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public Client deleteClient(UUID clientId) {
+    private void modifyClient(Client client, ClientRequestDTO clientDto) {
+        userService.verifyNonExistenceOrThrow(
+                clientDto.username(),
+                clientDto.mail(),
+                clientDto.cellNumber(),
+                client.getUsername(),
+                client.getMail(),
+                client.getCellNumber()
+        );
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new UserNotFoundException(clientId, Role.CLIENT));
+        client.setName(clientDto.name());
+        client.setLastName(clientDto.lastName());
+        client.setUsername(clientDto.username());
+        client.setMail(clientDto.mail());
+        client.setCellNumber(clientDto.cellNumber());
+    }
+
+    public Client deleteClient(UUID clientId) {
+        Client client = findClientOrThrow(clientId);
 
         if (!client.isActive())
             throw new UnableToDropException("El cliente ya esta inactivo");
@@ -178,18 +136,12 @@ public class ClientService {
     }
 
     public ClientResponseDTO findClientById(UUID id) throws UserNotFoundException {
-        Optional<Client> clientOpt = clientRepository.findByIdAndActive(id, true);
-
-        if (clientOpt.isEmpty()) {
-            throw new UserNotFoundException(id, Role.CLIENT);
-        }
-
-        Client client = clientOpt.get();
-
-        return clientMapper.toDto(client);
+        return clientMapper.toDto(
+                findClientOrThrow(id)
+        );
     }
 
     public boolean verifyUsername(String username) {
-        return clientRepository.existsByUsernameAndActive(username, true) || adminRepository.existsByUsername(username) || ownerRepository.existsByUsernameAndActive(username, true);
+        return userService.existsByUsername(username);
     }
 }
