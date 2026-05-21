@@ -6,6 +6,7 @@ import com.example.CanchaSystem.model.Owner;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.OwnerService;
+import com.example.CanchaSystem.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class OwnerController {
 
     @Autowired
     OwnerRepository ownerRepository;
+
+    @Autowired
+    UserService userService;
 
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
@@ -82,8 +86,8 @@ public class OwnerController {
         ));
     }
 
-    @GetMapping("/verifyUsername")
+    @GetMapping("/verifyUsername/{username}")
     public boolean verifyUsername(@PathVariable String username) {
-        return ownerService.verifyUsername(username);
+        return userService.existsByUsername(username);
     }
 }
