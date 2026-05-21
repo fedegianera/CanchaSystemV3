@@ -1,18 +1,14 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.dto.request.BrandRequestDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
-import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.service.CanchaService;
 import com.example.CanchaSystem.service.EstablishmentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +26,7 @@ public class EstablishmentController {
 
     @GetMapping("/findall")
     ResponseEntity<?> getAllEstablishmentsActive() {
-        return ResponseEntity.ok(establishmentService.getAllActiveEstablishment());
+        return ResponseEntity.ok(establishmentService.getAllActiveEstablishments());
     }
 
     @GetMapping("/find/{id}")
