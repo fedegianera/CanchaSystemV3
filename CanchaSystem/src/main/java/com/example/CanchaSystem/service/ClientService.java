@@ -3,12 +3,10 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.ClientMapper;
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.dto.response.ClientResponseDTO;
-import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.client.NoClientsException;
 import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.Reservation;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +68,11 @@ public class ClientService {
                 .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
     }
 
+    public Client findClientOrThrow(String username) {
+        return clientRepository.findByUsernameAndActive(username, true)
+                .orElseThrow(() -> new UserNotFoundException(username, Role.CLIENT));
+    }
+
     public List<ClientResponseDTO> getAllClients() throws NoClientsException {
         List<Client> clients = clientRepository.findAllByActive(true);
         return clientMapper.toDto(clients);
@@ -116,20 +119,10 @@ public class ClientService {
     public Client deleteClient(UUID clientId) {
         Client client = findClientOrThrow(clientId);
 
-        if (!client.isActive())
-            throw new UnableToDropException("El cliente ya esta inactivo");
-
-        List<ReviewResponseDTO> reviews = reviewService.getAllReviewsByClientId(clientId);
-
-        for (ReviewResponseDTO review : reviews) {
-            reviewService.deleteReview(review.id());
-        }
-
-        List<Reservation> reservations = reservationRepository.findByClientId(clientId);
-
-        for (Reservation reservation : reservations) {
-            reservationService.cancelReservation(reservation.getId());
-        }
+        reviewService.getAllReviewsByClientId(clientId).forEach(review ->
+                reviewService.deleteReview(review.id()));
+        reservationRepository.findByClientId(clientId).forEach(reservation ->
+                reservationService.cancelReservation(reservation.getId()));
 
         client.setActive(false);
         return clientRepository.save(client);
@@ -139,9 +132,5 @@ public class ClientService {
         return clientMapper.toDto(
                 findClientOrThrow(id)
         );
-    }
-
-    public boolean verifyUsername(String username) {
-        return userService.existsByUsername(username);
     }
 }

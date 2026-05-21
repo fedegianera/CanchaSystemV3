@@ -6,6 +6,7 @@ import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.ClientService;
+import com.example.CanchaSystem.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ClientController {
 
     @Autowired
     private ClientRepository clientRepository;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
@@ -84,6 +88,6 @@ public class ClientController {
 
     @GetMapping("/verifyUsername/{username}")
     public boolean verifyUsername(@PathVariable String username) {
-        return clientService.verifyUsername(username);
+        return userService.existsByUsername(username);
     }
 }
