@@ -16,8 +16,6 @@ import java.util.UUID;
 @RequestMapping("/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-
-
     @Autowired
     private AdminService adminService;
 
@@ -39,9 +37,6 @@ public class AdminController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findAdminById(@PathVariable UUID id) {
-
         return ResponseEntity.ok(adminService.findAdminById(id));
-
     }
-
 }

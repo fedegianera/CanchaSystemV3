@@ -21,12 +21,16 @@ public class AdminService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserService userService;
+
     public Admin insertAdmin(Admin admin) throws UsernameAlreadyExistsException {
-        if (!adminRepository.existsByUsername(admin.getUsername())) {
-            admin.setPassword(passwordEncoder.encode(admin.getPassword()));
-            return adminRepository.save(admin);
-        } else
+        if (userService.existsByUsername(admin.getUsername()))
             throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
+
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
+
+        return admin;
     }
 
     public List<Admin> getAllAdmins() {
