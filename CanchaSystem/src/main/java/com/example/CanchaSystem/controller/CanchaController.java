@@ -1,15 +1,11 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.CanchaRequestDTO;
-import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
-import com.example.CanchaSystem.model.Cancha;
 import com.example.CanchaSystem.service.CanchaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,7 +63,7 @@ public class CanchaController {
 
     @GetMapping("/getCanchasByEstablishmentId/{id}")
     public ResponseEntity<?> getCanchasByEstablishmentId(@PathVariable Long id) {
-            return ResponseEntity.ok(canchaService.getActiveCanchasByEstablishmentId(id));
+            return ResponseEntity.ok(canchaService.getWorkingCanchasByEstablishmentId(id));
     }
 
     @GetMapping("getCanchasByOwnerId/{id}")
