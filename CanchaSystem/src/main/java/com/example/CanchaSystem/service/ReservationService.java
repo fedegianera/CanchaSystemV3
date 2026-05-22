@@ -1,8 +1,5 @@
 package com.example.CanchaSystem.service;
 
-
-import com.example.CanchaSystem.Mapper.CanchaMapper;
-import com.example.CanchaSystem.Mapper.EstablishmentMapper;
 import com.example.CanchaSystem.Mapper.ReservationMapper;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
@@ -15,7 +12,6 @@ import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,43 +39,26 @@ public class ReservationService {
     private ClientRepository clientRepository;
 
     @Autowired
-    private EstablishmentRepository establishmentRepository;
-
-    @Autowired
-    private EstablishmentMapper establishmentMapper;
-
-    @Autowired
-    private CanchaMapper canchaMapper;
-
-    @Autowired
     private ReservationMapper reservationMapper;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private EstablishmentService establishmentService;
 
 
     public ReservationResponseDTO insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
+        Client client = clientService.findClientOrThrow(auth.getName());
 
-        String username = auth.getName();
-        Client client = clientRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new UserNotFoundException(username, Role.CLIENT));;
-
-        LocalDateTime correctedMatchDate = reservationDTO.matchDate()
-                .atOffset(ZoneOffset.UTC)
-                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
-                .toLocalDateTime();
-
-        LocalDateTime correctedReservationDate = reservationDTO.reservationDate()
-                .atOffset(ZoneOffset.UTC)
-                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
-                .toLocalDateTime();
+        LocalDateTime correctedMatchDate = localizeTime(reservationDTO.matchDate());
+        LocalDateTime correctedReservationDate = localizeTime(reservationDTO.reservationDate());
 
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndCanchaType(
                 reservationDTO.establishmentId(),
                 reservationDTO.canchaType()
         );
 
-        if (canchas.isEmpty()) {
-            throw new CanchaNotFoundException();
-        }
+        if (canchas.isEmpty()) throw new CanchaNotFoundException();
 
         Cancha canchaDisponible = canchas.stream()
                 .filter(c -> !reservationRepository.existsByMatchDateAndCanchaIdAndStatus(
@@ -105,39 +84,39 @@ public class ReservationService {
         return reservationMapper.toDto(reservation);
     }
 
+    public Reservation findReservationOrThrow(Long id) {
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new ReservationNotFoundException(id));
+    }
 
+    private LocalDateTime localizeTime(LocalDateTime time) {
+        return time.atOffset(ZoneOffset.UTC)
+                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
+                .toLocalDateTime();
+    }
 
     public List<ReservationResponseDTO> getAllReservations() {
-        List<Reservation> reservations = reservationRepository.findAll();
-        return reservationMapper.toDto(reservations);
+        return reservationMapper.toDto(
+                reservationRepository.findAll()
+        );
     }
 
     public ReservationResponseDTO updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) throws ReservationNotFoundException {
-        Optional<Reservation> reservationOpt = reservationRepository.findById(id);
+        Reservation reservation = findReservationOrThrow(id);
 
-        if (reservationOpt.isEmpty()) {
-            throw new ReservationNotFoundException(id);
-        }
-
-        Reservation reservation = reservationOpt.get();
-
-        LocalDateTime correctedMatchDate = reservationRequestDTO.matchDate()
-                .atOffset(ZoneOffset.UTC)
-                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
-                .toLocalDateTime();
+        LocalDateTime correctedMatchDate = localizeTime(reservationRequestDTO.matchDate());
 
         reservation.setStatus(reservationRequestDTO.status());
         reservation.setMatchDate(correctedMatchDate);
 
         reservationRepository.save(reservation);
-
         return reservationMapper.toDto(reservation);
     }
 
     public ReservationResponseDTO findReservationById(Long id) throws ReservationNotFoundException {
-        Reservation reservation = reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException(id));
-
-        return reservationMapper.toDto(reservation);
+        return reservationMapper.toDto(
+                findReservationOrThrow(id)
+        );
     }
 
     public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) {
@@ -161,8 +140,9 @@ public class ReservationService {
 
 
     public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
-        List<Reservation> reservations = reservationRepository.findByCanchaId(canchaId);
-        return reservationMapper.toDto(reservations);
+        return reservationMapper.toDto(
+                reservationRepository.findByCanchaId(canchaId)
+        );
     }
 
     public List<ReservationResponseDTO> findReservationsByEstablishmentId(Long establishmentId){
@@ -182,17 +162,13 @@ public class ReservationService {
             throws CanchaNotFoundException, EstablishmentNotFoundException {
 
         System.out.println("🔍 Step 1: Fetching establishment...");
-        Establishment establishment = establishmentRepository.findByIdAndActive(establishmentId, true)
-                .orElseThrow(() -> new EstablishmentNotFoundException(establishmentId));
+        Establishment establishment = establishmentService.findEstablishmentOrThrow(establishmentId);
 
         System.out.println("🔍 Step 2: Fetching canchas...");
         List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorkingAndCanchaType(
                 establishmentId, true, true, CanchaType.valueOf(canchaType)
         );
-
-        if (canchas.isEmpty()) {
-            throw new CanchaNotFoundException();
-        }
+        if (canchas.isEmpty()) throw new CanchaNotFoundException();
 
         System.out.println("✅ Found " + canchas.size() + " canchas");
 
@@ -268,28 +244,16 @@ public class ReservationService {
     }
 
 
-    public Reservation completeReservation(Long id){
-        Optional<Reservation> reservationOpt = reservationRepository.findById(id);
-
-        if (reservationOpt.isEmpty()) {
-            throw new ReservationNotFoundException(id);
-        }
-
-        Reservation reservation = reservationOpt.get();
+    public Reservation completeReservation(Long id) {
+        Reservation reservation = findReservationOrThrow(id);
 
         reservation.setStatus(ReservationStatus.COMPLETED);
 
         return reservationRepository.save(reservation);
     }
 
-    public Reservation cancelReservation(Long id){
-        Optional<Reservation> reservationOpt = reservationRepository.findById(id);
-
-        if (reservationOpt.isEmpty()) {
-            throw new ReservationNotFoundException(id);
-        }
-
-        Reservation reservation = reservationOpt.get();
+    public Reservation cancelReservation(Long id) {
+        Reservation reservation = findReservationOrThrow(id);
 
         reservation.setStatus(ReservationStatus.CANCELED);
 
