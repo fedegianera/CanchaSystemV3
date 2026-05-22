@@ -2,7 +2,7 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
-import com.example.CanchaSystem.repository.ClientRepository;
+import com.example.CanchaSystem.service.ClientService;
 import com.example.CanchaSystem.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,8 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
+
     @PostMapping("/insert")
     public ResponseEntity<?> insertReview(@RequestBody @Valid ReviewRequestDTO dto) {
         ReviewResponseDTO saved = reviewService.insertReview(dto);
@@ -52,7 +53,7 @@ public class ReviewController {
 
     @GetMapping("/findReviewsByClientId/{id}")
     public ResponseEntity<?> findReviewsByClientId(@PathVariable UUID id) {
-        return ResponseEntity.ok(reviewService.getAllReviewsByClientId(id));
+        return ResponseEntity.ok(clientService.getAllReviewsByClientId(id));
     }
 
     @GetMapping("/findReviewsByEstablishmentId/{establishmentId}")
@@ -61,8 +62,8 @@ public class ReviewController {
     }
 
     @GetMapping("/findReviewsByCanchaIdAdmin/{establishmentId}")
-    public ResponseEntity<?> findReviewsByCanchaIdAdmin(@PathVariable Long canchaId){
-        return ResponseEntity.ok(reviewService.getAllReviewsByCanchaIdAdmin(canchaId));
+    public ResponseEntity<?> findReviewsByCanchaIdAdmin(@PathVariable Long establishmentId){
+        return ResponseEntity.ok(reviewService.getAllReviewsByCanchaIdAdmin(establishmentId));
     }
 
     @GetMapping("/clientReviewExists/{establishmentId}/{clientId}")
