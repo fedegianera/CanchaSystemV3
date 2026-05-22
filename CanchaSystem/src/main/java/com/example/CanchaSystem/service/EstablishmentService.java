@@ -5,12 +5,15 @@ import com.example.CanchaSystem.dto.EstablishmentNamesDTO;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
+import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.model.Establishment;
+import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
+import com.example.CanchaSystem.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +29,12 @@ public class EstablishmentService {
     private CanchaService canchaService;
 
     @Autowired
-    private ReviewService reviewService;
+    private EstablishmentMapper mapper;
 
     @Autowired
-    private EstablishmentMapper mapper;
+    private ReviewRepository reviewRepository;
     @Autowired
-    private CanchaBrandService canchaBrandService;
+    private CanchaBrandRepository canchaBrandRepository;
 
     public List<EstablishmentResponseDTO> getAllEstablishments() {
         List<Establishment> establishments = establishmentRepository.findAll();
@@ -41,7 +44,7 @@ public class EstablishmentService {
     public EstablishmentResponseDTO getEstablishment(Long id){
         Establishment establishment = findEstablishmentOrThrow(id);
 
-        Double avgRating = reviewService.getEstablishmentAverageRating(id);
+        Double avgRating = getEstablishmentAverageRating(id);
         Map<Long, List<CanchaType>> canchaTypes = canchaService.getCanchaTypesByEstablishment();
 
         return new EstablishmentResponseDTO(
@@ -59,7 +62,8 @@ public class EstablishmentService {
     }
 
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
-        Brand brand = canchaBrandService.findBrandOrThrow(establishmentDto.brandId());
+        Brand brand = canchaBrandRepository.findById(establishmentDto.brandId())
+                .orElseThrow(() -> new BrandNotFoundException(establishmentDto.brandId()));
 
         verifyEstablishmentOrThrow(establishmentDto.name());
 
@@ -154,11 +158,26 @@ public class EstablishmentService {
     }
 
     public Map<Long, Double> getAverageRatings() {
-        return reviewService.getAllEstablishmentAverageRatings().stream()
+        return getAllEstablishmentAverageRatings().stream()
                 .collect(Collectors.toMap(
                         EstablishmentRatingDTO::getEstablishmentId,
                         EstablishmentRatingDTO::getAverageRating
                 ));
+    }
+
+    public Double getEstablishmentAverageRating(Long id){
+        return reviewRepository.getAverageRatingByEstablishment(id);
+    }
+
+    public List<EstablishmentRatingDTO> getAllEstablishmentAverageRatings() {
+        List<Object[]> rows = reviewRepository.getAllEstablishmentAverages();
+
+        return rows.stream()
+                .map(r -> new EstablishmentRatingDTO(
+                        (Long) r[0],
+                        r[1] != null ? ((Double) r[1]) : 0.0
+                ))
+                .toList();
     }
 
     public Map<Long, String> getEstablishmentsNames(Long[] ids){

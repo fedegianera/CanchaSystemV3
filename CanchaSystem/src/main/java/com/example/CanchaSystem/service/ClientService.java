@@ -1,12 +1,17 @@
 package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.Mapper.ClientMapper;
+import com.example.CanchaSystem.Mapper.ReviewMapper;
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.dto.response.ClientResponseDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.client.NoClientsException;
+import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
 import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Client;
+import com.example.CanchaSystem.model.ReservationStatus;
+import com.example.CanchaSystem.model.Review;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +34,16 @@ public class ClientService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private ReviewService reviewService;
-
-    @Autowired
-    private ReservationService reservationService;
-
-    @Autowired
     private ClientMapper clientMapper;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewMapper reviewMapper;
 
 
     public ClientResponseDTO insertClient(ClientRequestDTO clientDTO) {
@@ -119,13 +124,29 @@ public class ClientService {
     public Client deleteClient(UUID clientId) {
         Client client = findClientOrThrow(clientId);
 
-        reviewService.getAllReviewsByClientId(clientId).forEach(review ->
-                reviewService.deleteReview(review.id()));
-        reservationRepository.findByClientId(clientId).forEach(reservation ->
-                reservationService.cancelReservation(reservation.getId()));
+        getAllReviewsByClientId(clientId).forEach(dto -> {
+            Review review = reviewRepository.findByIdAndActive(dto.id(), true)
+                    .orElseThrow(() -> new ReviewNotFoundException(dto.id()));
+
+            review.setActive(false);
+            reviewRepository.save(review);
+        });
+        reservationRepository.findByClientId(clientId).forEach(reservation -> {
+            reservation.setStatus(ReservationStatus.CANCELED);
+            reservationRepository.save(reservation);
+        });
 
         client.setActive(false);
         return clientRepository.save(client);
+    }
+
+    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws UserNotFoundException {
+        if (clientRepository.findByIdAndActive(id, true).isEmpty()) {
+            throw new UserNotFoundException(id, Role.CLIENT);
+        }
+
+        List<Review> reviews = reviewRepository.findByClientIdAndActive(id, true);
+        return reviewMapper.toDto(reviews);
     }
 
     public ClientResponseDTO findClientById(UUID id) throws UserNotFoundException {

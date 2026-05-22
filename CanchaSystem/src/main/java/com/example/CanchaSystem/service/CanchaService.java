@@ -5,6 +5,7 @@ import com.example.CanchaSystem.dto.response.CanchaResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
 import com.example.CanchaSystem.exception.cancha.IllegalCanchaAddressException;
+import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +27,17 @@ public class CanchaService {
     private ReviewRepository reviewRepository;
 
     @Autowired
-    private ReviewService reviewService;
-
-    @Autowired
-    private ReservationService reservationService;
-
-    @Autowired
     private ImageService imageService;
 
     @Autowired
     private CanchaMapper mapper;
 
     @Autowired
-    private EstablishmentService establishmentService;
+    private EstablishmentRepository establishmentRepository;
 
     public CanchaResponseDTO insertCancha(CanchaRequestDTO canchaDTO) throws CanchaNameAlreadyExistsException, IllegalCanchaAddressException {
-        Establishment establishment = establishmentService.findEstablishmentOrThrow(canchaDTO.establishmentId());
+        Establishment establishment = establishmentRepository.findByIdAndActive(canchaDTO.establishmentId(), true)
+                .orElseThrow(() -> new EstablishmentNotFoundException(canchaDTO.establishmentId()));
 
         Cancha cancha = Cancha.builder()
                 .totalAmount(canchaDTO.totalAmount())
@@ -93,9 +89,15 @@ public class CanchaService {
         Cancha cancha = findCanchaOrThrow(canchaId);
 
         reviewRepository.findByEstablishmentIdAndActive(cancha.getEstablishment().getId(), true)
-                .forEach(r -> reviewService.deleteReview(r.getId()));
+                .forEach(r -> {
+                    r.setActive(false);
+                    reviewRepository.save(r);
+                });
         reservationRepository.findByCanchaId(canchaId)
-                .forEach(r -> reservationService.cancelReservation(r.getId()));
+                .forEach(r -> {
+                    r.setStatus(ReservationStatus.CANCELED);
+                    reservationRepository.save(r);
+                });
         imageService.getEstablishmentImagesByEstablishmentId(canchaId)
                 .forEach(i -> imageService.deleteImage(i.getId()));
 

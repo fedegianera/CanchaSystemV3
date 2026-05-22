@@ -27,9 +27,6 @@ public class OwnerService {
     private CanchaBrandRepository brandRepository;
 
     @Autowired
-    private CanchaBrandService canchaBrandService;
-
-    @Autowired
     private OwnerMapper ownerMapper;
 
     @Autowired
@@ -114,8 +111,10 @@ public class OwnerService {
     public Owner deleteOwner(UUID ownerId) throws UserNotFoundException {
         Owner owner = findOwnerOrThrow(ownerId);
 
-        brandRepository.findByOwnerIdAndActive(ownerId, true).forEach(brand ->
-                canchaBrandService.deleteCanchaBrand(brand.getId()));
+        brandRepository.findByOwnerIdAndActive(ownerId, true).forEach(brand -> {
+            brand.setActive(false);
+            brandRepository.save(brand);
+        });
 
         owner.setActive(false);
         return ownerRepository.save(owner);
