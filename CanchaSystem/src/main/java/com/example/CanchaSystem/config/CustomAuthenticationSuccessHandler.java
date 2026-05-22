@@ -18,7 +18,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         Authentication authentication) throws IOException {
 
         for (GrantedAuthority authority : authentication.getAuthorities()) {
-            response.sendRedirect(getRoleHomeUrl(authority.getAuthority()));
+            String url = getRoleHomeUrl(authority.getAuthority());
+            if (url != null) {
+                response.sendRedirect(url);
+                return;
+            }
         }
         response.sendRedirect("/login.html?error=rol");
     }
@@ -28,7 +32,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             case "ROLE_ADMIN" -> "/home-admin.html";
             case "ROLE_CLIENT" -> "/home-client.html";
             case "ROLE_OWNER" -> "/home-owner.html";
-            default -> "/";
+            default -> null;
         };
     }
 }
