@@ -1,7 +1,6 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.BrandRequestDTO;
-import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.CanchaBrandService;
 import com.example.CanchaSystem.service.CanchaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,6 @@ public class CanchaBrandController {
 
     @Autowired
     private CanchaService canchaService;
-
-    @Autowired
-    private OwnerRepository ownerRepository;
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody BrandRequestDTO brandDto, Authentication auth) {
