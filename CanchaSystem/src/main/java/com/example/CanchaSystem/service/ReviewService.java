@@ -3,7 +3,6 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.ReviewMapper;
 import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
-import com.example.CanchaSystem.exception.review.NoReviewsException;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
 import com.example.CanchaSystem.model.Review;
 import com.example.CanchaSystem.repository.ReviewRepository;
@@ -49,7 +48,7 @@ public class ReviewService {
                 .orElseThrow(() -> new ReviewNotFoundException(id));
     }
 
-    public List<ReviewResponseDTO> getAllReviews() throws NoReviewsException {
+    public List<ReviewResponseDTO> getAllReviews() {
         return reviewMapper.toDto(
                 reviewRepository.findAll()
         );

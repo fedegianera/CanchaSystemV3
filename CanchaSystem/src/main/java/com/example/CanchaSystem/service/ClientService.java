@@ -6,7 +6,6 @@ import com.example.CanchaSystem.dto.request.ClientRequestDTO;
 import com.example.CanchaSystem.dto.response.ClientResponseDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
-import com.example.CanchaSystem.exception.client.NoClientsException;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
 import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Client;
@@ -78,7 +77,7 @@ public class ClientService {
                 .orElseThrow(() -> new UserNotFoundException(username, Role.CLIENT));
     }
 
-    public List<ClientResponseDTO> getAllClients() throws NoClientsException {
+    public List<ClientResponseDTO> getAllClients() {
         List<Client> clients = clientRepository.findAllByActive(true);
         return clientMapper.toDto(clients);
     }

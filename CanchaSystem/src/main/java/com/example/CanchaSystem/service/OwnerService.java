@@ -4,7 +4,6 @@ import com.example.CanchaSystem.Mapper.OwnerMapper;
 import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
 import com.example.CanchaSystem.dto.response.OwnerResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
-import com.example.CanchaSystem.exception.owner.NoOwnersException;
 import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.*;
@@ -64,7 +63,7 @@ public class OwnerService {
                 .orElseThrow(() -> new UserNotFoundException(username, Role.OWNER));
     }
 
-    public List<OwnerResponseDTO> getAllOwners() throws NoOwnersException {
+    public List<OwnerResponseDTO> getAllOwners() {
         List<Owner> owners = ownerRepository.findAllByActive(true);
         return ownerMapper.toDto(owners);
     }
