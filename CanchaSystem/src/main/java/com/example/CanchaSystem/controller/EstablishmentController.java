@@ -1,8 +1,6 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
-import com.example.CanchaSystem.repository.CanchaRepository;
-import com.example.CanchaSystem.service.CanchaService;
 import com.example.CanchaSystem.service.EstablishmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +15,6 @@ import java.util.UUID;
 public class EstablishmentController {
     @Autowired
     private EstablishmentService establishmentService;
-
-    @Autowired
-    private CanchaService canchaService;
-
-    @Autowired
-    private CanchaRepository canchaRepository;
 
     @GetMapping("/findall")
     ResponseEntity<?> getAllEstablishmentsActive() {

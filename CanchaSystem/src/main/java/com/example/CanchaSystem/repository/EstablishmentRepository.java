@@ -1,6 +1,5 @@
 package com.example.CanchaSystem.repository;
 
-import com.example.CanchaSystem.dto.EstablishmentNamesDTO;
 import com.example.CanchaSystem.model.Establishment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,5 +23,5 @@ public interface EstablishmentRepository  extends JpaRepository<Establishment, L
             SELECT e.id, e.name
             FROM Establishment e
             """)
-    List<EstablishmentNamesDTO> getAllEstablishmentsNames();
+    List<Object[]> getAllEstablishmentsNames();
 }

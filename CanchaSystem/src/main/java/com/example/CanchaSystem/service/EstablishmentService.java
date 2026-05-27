@@ -181,10 +181,11 @@ public class EstablishmentService {
     }
 
     public Map<Long, String> getEstablishmentsNames(Long[] ids){
-        Set<Long> idList = Set.of(ids);
+        Set<Long> idList = Set.copyOf(List.of(ids));
         return establishmentRepository.getAllEstablishmentsNames()
                 .stream()
-                .filter(name -> idList.contains(name.getEstablishmentId()))
+                .map(rows -> new EstablishmentNamesDTO((Long) rows[0], (String) rows[1]))
+                .filter(dto -> idList.contains(dto.getEstablishmentId()))
                 .collect(
                         Collectors.toMap(
                                 EstablishmentNamesDTO::getEstablishmentId,
