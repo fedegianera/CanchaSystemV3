@@ -11,6 +11,9 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ReviewMapper {
 
+    @Mapping(source = "clientId", target = "client.id")
+    @Mapping(source = "clientName", target = "client.name")
+    @Mapping(source = "establishmentId", target = "establishment.id")
     Review toEntity(ReviewRequestDTO dto);
 
     @Mapping(source = "client.id", target = "clientId")

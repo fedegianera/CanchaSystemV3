@@ -3,10 +3,6 @@ package com.example.CanchaSystem.controller;
 import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
 import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.model.*;
-import com.example.CanchaSystem.repository.CanchaRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.service.ClientService;
-import com.example.CanchaSystem.service.OwnerService;
 import com.example.CanchaSystem.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,19 +23,7 @@ import java.util.UUID;
 public class ReservationController {
 
     @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
     private ReservationService reservationService;
-
-    @Autowired
-    private ClientService clientService;
-
-    @Autowired
-    private OwnerService ownerService;
-
-    @Autowired
-    private CanchaRepository canchaRepository;
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertReservation(@RequestBody ReservationRequestDTO reservationDTO, Authentication auth) {
@@ -77,7 +61,7 @@ public class ReservationController {
     }
 
     @GetMapping("/findReservationsByClientId/{id}")
-    public ResponseEntity<?> findReservationsByClientId(@PathVariable("id") UUID id){
+    public ResponseEntity<?> findReservationsByClientId(@PathVariable UUID id){
         return ResponseEntity.ok(reservationService.findReservationsByClientId(id));
     }
 
@@ -109,8 +93,7 @@ public class ReservationController {
 
 
     @DeleteMapping("/cancelReservation/{id}")
-    public ResponseEntity<?> cancelReservationById(@PathVariable("id") Long id){
+    public ResponseEntity<?> cancelReservationById(@PathVariable Long id){
         return ResponseEntity.ok(reservationService.cancelReservation(id));
     }
-
 }
