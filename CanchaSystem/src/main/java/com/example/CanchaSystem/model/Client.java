@@ -59,6 +59,9 @@ public class Client implements IUser {
 //    )
     private String cellNumber;
 
+    @Column(nullable = false)
+    private boolean verified;
+
     @Override
     public String getRoleName() {
         return Role.CLIENT.toString();
