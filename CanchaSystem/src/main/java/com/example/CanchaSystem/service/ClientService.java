@@ -44,6 +44,12 @@ public class ClientService {
     @Autowired
     private ReviewMapper reviewMapper;
 
+    @Autowired
+    private UserVerificationService userVerificationService;
+
+    @Autowired
+    private MailService mailService;
+
 
     public ClientResponseDTO insertClient(ClientRequestDTO clientDTO) {
         userService.verifyNonExistenceOrThrow(
@@ -60,9 +66,14 @@ public class ClientService {
                 .mail(clientDTO.mail())
                 .cellNumber(clientDTO.cellNumber())
                 .active(true)
+                .verified(false)
                 .build();
 
         clientRepository.save(client);
+        mailService.sendMail(
+                client,
+                userVerificationService.createUserVerification(client).getId()
+        );
 
         return clientMapper.toDto(client);
     }
@@ -73,13 +84,14 @@ public class ClientService {
     }
 
     public Client findClientOrThrow(String username) {
-        return clientRepository.findByUsernameAndActive(username, true)
+        return clientRepository.findByUsernameAndActiveAndVerified(username, true, true)
                 .orElseThrow(() -> new UserNotFoundException(username, Role.CLIENT));
     }
 
     public List<ClientResponseDTO> getAllClients() {
-        List<Client> clients = clientRepository.findAllByActive(true);
-        return clientMapper.toDto(clients);
+        return clientMapper.toDto(
+                clientRepository.findAllByActiveAndVerified(true, true)
+        );
     }
 
     public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
