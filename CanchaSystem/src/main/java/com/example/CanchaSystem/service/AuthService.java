@@ -29,7 +29,7 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return clientRepository.findByUsernameAndActive(username,true).map(this::createUserInstance)
+        return clientRepository.findByUsernameAndActiveAndVerified(username,true, true).map(this::createUserInstance)
                 .or(() -> ownerRepository.findByUsernameAndActive(username,true).map(this::createUserInstance))
                 .or(() -> adminRepository.findByUsername(username).map(this::createUserInstance))
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario "+ username +" no encontrado"));
