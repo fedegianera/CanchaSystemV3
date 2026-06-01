@@ -2,13 +2,9 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.AuthRequestDTO;
 import com.example.CanchaSystem.dto.response.AuthResponseDTO;
-import com.example.CanchaSystem.model.Admin;
-import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.Owner;
-import com.example.CanchaSystem.repository.AdminRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.repository.OwnerRepository;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.service.JWTService;
+import com.example.CanchaSystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,13 +29,7 @@ public class AuthController {
     private JWTService jwtService;
 
     @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
-    private OwnerRepository ownerRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
+    private UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequestDTO) {
@@ -53,39 +43,20 @@ public class AuthController {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtService.generateToken(userDetails);
 
-        String role = userDetails.getAuthorities().stream()
+        String roleString = userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has no roles assigned"));
 
-        UUID id;
+        Role role = Role.getRole(roleString)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "Unknown role: " + roleString));
 
-        // id dependiendo del rol
-        switch (role) {
-            case "ROLE_OWNER":
-                id = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                        .map(Owner::getId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Owner not found"));
-                break;
-
-            case "ROLE_CLIENT":
-                id = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                        .map(Client::getId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
-                break;
-            case "ROLE_ADMIN":
-                id = adminRepository.findByUsername(userDetails.getUsername())
-                        .map(Admin::getId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Admin not found"));
-
-                break;
-            default:
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unknown role: " + role);
-        }
+        UUID id = userService.getUserIdByUsername(userDetails.getUsername(), role)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         return ResponseEntity.ok(new AuthResponseDTO(
                 token,
-                role,
+                roleString,
                 userDetails.getUsername(),
                 id
         ));
