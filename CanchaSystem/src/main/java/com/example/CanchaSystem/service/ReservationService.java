@@ -124,18 +124,9 @@ public class ReservationService {
             throw new UserNotFoundException(clientId, Role.CLIENT);
         }
 
-        System.out.println("🔍 Buscando reservas para clientId: " + clientId);
-
-        List<Reservation> reservations = reservationRepository.findByClientId(clientId);
-
-        System.out.println("📦 Resultado del repository: " + reservations);
-
-        if (reservations == null) {
-            System.out.println("⚠️ El repository devolvió null!");
-            throw new RuntimeException("El repository devolvió null");
-        }
-
-        return reservationMapper.toDto(reservations);
+        return reservationMapper.toDto(
+                reservationRepository.findByClientId(clientId)
+        );
     }
 
 

@@ -3,13 +3,20 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.exception.misc.CellNumberAlreadyAddedException;
 import com.example.CanchaSystem.exception.misc.MailAlreadyRegisteredException;
 import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
+import com.example.CanchaSystem.model.Admin;
+import com.example.CanchaSystem.model.Client;
+import com.example.CanchaSystem.model.Owner;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.AdminRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -51,5 +58,16 @@ public class UserService {
     public boolean existsByPhoneNumber(String phone) {
         return clientRepository.existsByCellNumberAndActive(phone, true)
                 || ownerRepository.existsByCellNumberAndActive(phone, true);
+    }
+
+    public Optional<UUID> getUserIdByUsername(String username, Role role) throws NoSuchElementException {
+        return switch (role) {
+            case CLIENT -> clientRepository.findByUsernameAndActiveAndVerified(username, true, true)
+                    .map(Client::getId);
+            case OWNER -> ownerRepository.findByUsernameAndActive(username, true)
+                    .map(Owner::getId);
+            case ADMIN -> adminRepository.findByUsername(username)
+                    .map(Admin::getId);
+        };
     }
 }
