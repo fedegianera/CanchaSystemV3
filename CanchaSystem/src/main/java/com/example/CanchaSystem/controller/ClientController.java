@@ -22,7 +22,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/client")
-
 public class ClientController {
 
     @Autowired
