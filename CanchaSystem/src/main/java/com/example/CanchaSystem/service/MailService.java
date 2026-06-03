@@ -28,18 +28,18 @@ public class MailService {
             String verificationUrl = "http://localhost:4200/verify/" + verificationToken;
             String body = """
                     <h1 style="margin-bottom:0.5rem;font-size:28px;line-height:32px;font-weight:700">
-                      Verifica tu correo
+                      Verifique su correo
                     </h1>
-                    <p style="font-size:2rem;line-height:24px;margin:16px 0;color:rgb(95,125,55)">
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0">
                       ¡Hola, %1$s!
                     </p>
-                    <p style="font-size:2rem;line-height:24px;margin:16px 0;color:rgb(95,125,55)">
-                      Por favor, haga click en el botón de abajo para verificar su dirección de correo (%2$s).
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0"><span>
+                      Por favor, haga click en el botón de abajo para verificar su dirección de correo (%2$s).</span>
                     </p>
-                    <p style="font-size:2rem;line-height:24px;margin:16px 0;color:rgb(95,125,55)">
-                      Si el botón no funciona, copie el link debajo del botón y péguelo en su buscador.
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0"><span>
+                      Si el botón no funciona, copie el link debajo del botón y péguelo en su buscador.</span>
                     </p>
-                    <p style="font-size:2rem;line-height:24px;margin:16px 0;color:rgb(95,125,55)">
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0">
                       Este email expira en 2 horas.
                     </p>
                     <a style="line-height:100%%;text-decoration:none;display:inline-block;max-width:100%%;color:rgb(255,255,255);border-radius:12px;background-color:rgb(95,125,55);padding: 0.75rem 1rem;font-size:14px;font-weight:700" href="%3$s" target="_blank">
