@@ -1,5 +1,6 @@
 package com.example.CanchaSystem.controller;
 
+import com.example.CanchaSystem.exception.ResourceNotFoundException;
 import com.example.CanchaSystem.exception.admin.NoAdminsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
@@ -186,6 +187,12 @@ public class ExceptionController {
     @ExceptionHandler(MissingDataException.class)
     public ResponseEntity<Map<String, Object>> handleMissingData(MissingDataException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 

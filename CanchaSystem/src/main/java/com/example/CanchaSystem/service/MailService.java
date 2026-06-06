@@ -25,7 +25,7 @@ public class MailService {
             helper.setTo(client.getMail());
             helper.setSubject("[Cancha System] Verifique su correo electrónico");
 
-            String verificationUrl = "http://localhost:4200/verify/" + verificationToken;
+            String verificationUrl = "http://localhost:4200/verificar/" + verificationToken;
             String body = """
                     <h1 style="margin-bottom:0.5rem;font-size:28px;line-height:32px;font-weight:700">
                       Verifique su correo
