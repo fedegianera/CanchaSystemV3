@@ -34,8 +34,10 @@ public class UserVerificationService {
         if (isExpired(verification)) {
             cascadeDeleteUserVerification(verification);
         } else {
-            verification.getClient().setVerified(true);
+            Client client = verification.getClient();
+            client.setVerified(true);
             deleteUserVerification(verification);
+            clientRepository.save(client);
         }
     }
 
@@ -57,7 +59,7 @@ public class UserVerificationService {
     }
 
     public boolean isExpired(UserVerification verification) {
-        return verification.getExpiryTime() > System.currentTimeMillis();
+        return verification.getExpiryTime() < System.currentTimeMillis();
     }
 
     @Scheduled(timeUnit = TimeUnit.HOURS, fixedRate = 1)
