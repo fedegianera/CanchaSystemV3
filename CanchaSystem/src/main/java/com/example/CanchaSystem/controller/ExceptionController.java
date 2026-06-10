@@ -39,11 +39,11 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(NoAdminsException.class)
+    /*@ExceptionHandler(NoAdminsException.class)
     public ResponseEntity<Map<String, Object>> handleNoAdmins(NoAdminsException ex) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
     @ExceptionHandler(CanchaNameAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleCanchaNameAlreadyExists(CanchaNameAlreadyExistsException ex) {
@@ -63,11 +63,11 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(NoCanchasException.class)
+    /*@ExceptionHandler(NoCanchasException.class)
     public ResponseEntity<Map<String, Object>> handleNoCanchas(NoCanchasException ex) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
     @ExceptionHandler(CanchaBrandNameAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleCanchaBrandNameAlreadyExists(CanchaBrandNameAlreadyExistsException ex) {
@@ -81,24 +81,24 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(NoCanchaBrandsException.class)
+    /*@ExceptionHandler(NoCanchaBrandsException.class)
     public ResponseEntity<Map<String, Object>> handleNoCanchaBrands(NoCanchaBrandsException ex) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
-    @ExceptionHandler(NoClientsException.class)
+    /*@ExceptionHandler(NoClientsException.class)
     public ResponseEntity<Map<String, Object>> handleNoClients(NoClientsException ex) {
         //System.out.println("Entro al handler");
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
-    @ExceptionHandler(UnactiveClientException.class)
+    /*@ExceptionHandler(UnactiveClientException.class)
     public ResponseEntity<Map<String, Object>> handleUnactiveClient(UnactiveClientException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
     @ExceptionHandler(ClientAlreadyRequestedException.class)
     public ResponseEntity<Map<String, Object>> handleClientAlreadyRequested(ClientAlreadyRequestedException ex) {
@@ -130,11 +130,11 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(UnableToDropException.class)
+    /*@ExceptionHandler(UnableToDropException.class)
     public ResponseEntity<Map<String, Object>> handleUnableToDrop(UnactiveClientException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex) {
@@ -142,17 +142,17 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(NoOwnersException.class)
+    /*@ExceptionHandler(NoOwnersException.class)
     public ResponseEntity<Map<String, Object>> handleNoOwners(NoOwnersException ex) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
-    @ExceptionHandler(UnactiveOwnerException.class)
+    /*@ExceptionHandler(UnactiveOwnerException.class)
     public ResponseEntity<Map<String, Object>> handleUnactiveOwner(UnactiveOwnerException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
     @ExceptionHandler(IllegalReservationDateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalReservationDate(IllegalReservationDateException ex) {
@@ -172,11 +172,11 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(NoReviewsException.class)
+    /*@ExceptionHandler(NoReviewsException.class)
     public ResponseEntity<Map<String, Object>> handleNoReviews(NoReviewsException ex) {
         return ResponseEntity.status(HttpStatus.ACCEPTED)
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+    }*/
 
     @ExceptionHandler(ReviewNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleReviewNotFound(ReviewNotFoundException ex) {

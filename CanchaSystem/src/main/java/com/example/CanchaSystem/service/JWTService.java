@@ -11,15 +11,14 @@ import java.util.Date;
 
 @Service
 public class JWTService {
-
-    private String bromokey = "RVSY%SU/&SEDGERG(/Tasefawr65ubasd?¿.-,faw5464wvxd";
+    private final String bromokey = "RVSY%SU/&SEDGERG(/Tasefawr65ubasd?¿.-,faw5464wvxd";
 
     public String generateToken(UserDetails userDetails){
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("ROLES", userDetails.getAuthorities())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1800000))
+                .setExpiration(new Date(System.currentTimeMillis() + 1_800_000))
                 .signWith(Keys.hmacShaKeyFor(bromokey.getBytes()),SignatureAlgorithm.HS256)
                 .compact();
     }
