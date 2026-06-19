@@ -2,6 +2,7 @@ package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.model.Admin;
 import com.example.CanchaSystem.service.AdminService;
+import com.example.CanchaSystem.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ import java.util.UUID;
 public class AdminController {
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private ClientService clientService;
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertAdmin(@Validated @RequestBody Admin admin) {
@@ -38,5 +41,10 @@ public class AdminController {
     @GetMapping("/{id}")
     public ResponseEntity<?> findAdminById(@PathVariable UUID id) {
         return ResponseEntity.ok(adminService.findAdminById(id));
+    }
+
+    @PostMapping("/promote/{id}")
+    public ResponseEntity<?> promoteClient(@PathVariable UUID id) {
+        return ResponseEntity.ok(clientService.turnClientToOwner(id));
     }
 }
