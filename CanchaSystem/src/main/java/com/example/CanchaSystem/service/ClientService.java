@@ -3,15 +3,14 @@ package com.example.CanchaSystem.service;
 import com.example.CanchaSystem.Mapper.ClientMapper;
 import com.example.CanchaSystem.Mapper.ReviewMapper;
 import com.example.CanchaSystem.dto.request.ClientRequestDTO;
+import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
 import com.example.CanchaSystem.dto.response.ClientResponseDTO;
+import com.example.CanchaSystem.dto.response.OwnerResponseDTO;
 import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
 import com.example.CanchaSystem.exception.user.UserNotFoundException;
-import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.ReservationStatus;
-import com.example.CanchaSystem.model.Review;
-import com.example.CanchaSystem.model.Role;
+import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,6 +48,9 @@ public class ClientService {
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private OwnerService ownerService;
 
 
     public ClientResponseDTO insertClient(ClientRequestDTO clientDTO) {
@@ -164,5 +166,20 @@ public class ClientService {
         return clientMapper.toDto(
                 findClientOrThrow(id)
         );
+    }
+
+    public OwnerResponseDTO turnClientToOwner(UUID id) throws UserNotFoundException {
+        Client client = findClientOrThrow(id);
+        OwnerRequestDTO dto = new OwnerRequestDTO(
+                client.getName(),
+                client.getLastName(),
+                client.getUsername(),
+                client.getPassword(),
+                client.getMail(),
+                client.getCellNumber(),
+                true
+        );
+        deleteClient(id);
+        return ownerService.insertOwner(dto);
     }
 }
