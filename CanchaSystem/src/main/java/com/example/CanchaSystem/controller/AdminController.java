@@ -43,7 +43,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.findAdminById(id));
     }
 
-    @PostMapping("/promote/{id}")
+    @GetMapping("/promote/{id}")
     public ResponseEntity<?> promoteClient(@PathVariable UUID id) {
         return ResponseEntity.ok(clientService.turnClientToOwner(id));
     }
