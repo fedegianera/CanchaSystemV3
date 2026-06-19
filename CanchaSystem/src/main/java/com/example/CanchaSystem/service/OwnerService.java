@@ -53,6 +53,20 @@ public class OwnerService {
         return ownerMapper.toDto(owner);
     }
 
+    public OwnerResponseDTO insertOwner(Client client) throws UsernameAlreadyExistsException {
+        return insertOwner(
+                new OwnerRequestDTO(
+                        client.getName(),
+                        client.getLastName(),
+                        client.getUsername(),
+                        client.getPassword(),
+                        client.getMail(),
+                        client.getCellNumber(),
+                        true
+                )
+        );
+    }
+
     public Owner findOwnerOrThrow(UUID id) {
         return ownerRepository.findByIdAndActive(id, true)
                 .orElseThrow(() -> new UserNotFoundException(id, Role.OWNER));
