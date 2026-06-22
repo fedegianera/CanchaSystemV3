@@ -54,17 +54,25 @@ public class OwnerService {
     }
 
     public OwnerResponseDTO insertOwner(Client client) throws UsernameAlreadyExistsException {
-        return insertOwner(
-                new OwnerRequestDTO(
-                        client.getName(),
-                        client.getLastName(),
-                        client.getUsername(),
-                        client.getPassword(),
-                        client.getMail(),
-                        client.getCellNumber(),
-                        true
-                )
+        userService.verifyNonExistenceOrThrow(
+                client.getUsername(),
+                client.getMail(),
+                client.getCellNumber()
         );
+
+        Owner owner = Owner.builder()
+                .name(client.getName())
+                .lastName(client.getLastName())
+                .username(client.getUsername())
+                .password(client.getPassword())
+                .mail(client.getMail())
+                .cellNumber(client.getCellNumber())
+                .active(true)
+                .build();
+
+        ownerRepository.save(owner);
+
+        return ownerMapper.toDto(owner);
     }
 
     public Owner findOwnerOrThrow(UUID id) {
