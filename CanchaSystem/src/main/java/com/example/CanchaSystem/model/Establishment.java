@@ -29,8 +29,10 @@ public class Establishment {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Brand brand;
 
-    @Column(nullable = false, unique = true)
-    private String address;
+    @OneToOne
+    @JoinColumn(name = "address_id", nullable = false, unique = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Address address;
 
     @Column(nullable = false)
     private LocalTime openingHour;
