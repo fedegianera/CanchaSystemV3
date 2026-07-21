@@ -1,6 +1,6 @@
 package com.example.CanchaSystem.dto.request;
 
-import com.example.CanchaSystem.model.Address;
+import com.example.CanchaSystem.dto.AddressDTO;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -12,7 +12,7 @@ public record EstablishmentRequestDTO (
         String name,
 
         @NotNull
-        Address address,
+        AddressDTO address,
 
         @NotNull
         LocalTime openingHour,
