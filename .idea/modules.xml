@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CanchaSystem/CanchaSystem.iml" filepath="$PROJECT_DIR$/CanchaSystem/CanchaSystem.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/CanchaSystemV2.iml" filepath="$PROJECT_DIR$/.idea/CanchaSystemV2.iml" />
     </modules>
   </component>
