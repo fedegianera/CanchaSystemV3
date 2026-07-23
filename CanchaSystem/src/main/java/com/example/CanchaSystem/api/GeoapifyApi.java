@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GeoapifyApi implements StreetLookupApi {
     private static final String BASE_API = "https://api.geoapify.com/v1/geocode/";
-    @Value("${app.geoapify-key}")
+    @Value("${app.geoapify-autocomplete-key}")
     private static String API_KEY;
     private static final HttpClient client = HttpClient.newHttpClient();
 
@@ -26,7 +26,7 @@ public class GeoapifyApi implements StreetLookupApi {
         Params param = Params.of(
                 "text", text,
                 "lang", "es",
-                "bias", "proximity:-38.003838,-57.556553",
+                "bias", "proximity:-38.003838,-57.556553", // Para que el test busque direcciones centradas en Mar del Plata
                 "format", "json",
                 "apiKey", API_KEY
         );
@@ -51,7 +51,6 @@ public class GeoapifyApi implements StreetLookupApi {
 
         List<AddressDTO> addresses = new ArrayList<>();
 
-
         res.forEach(element -> {
             JsonObject obj = (JsonObject) element;
 
@@ -64,7 +63,7 @@ public class GeoapifyApi implements StreetLookupApi {
             String city = obj.get("city").getAsString();
             String state = obj.get("state").getAsString();
 
-            String fullAddress = "%s %s, %s".formatted(road, houseNumber, city);
+            String fullAddress = "%s %s, %s, %s".formatted(road, houseNumber, city, state);
 
             addresses.add(new AddressDTO(fullAddress, latitude, longitude));
         });
