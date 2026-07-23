@@ -5,12 +5,15 @@ import com.example.CanchaSystem.dto.EstablishmentNamesDTO;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
+import com.example.CanchaSystem.exception.address.AddressNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
+import com.example.CanchaSystem.model.Address;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.model.Establishment;
+import com.example.CanchaSystem.repository.AddressRepository;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReviewRepository;
@@ -35,6 +38,8 @@ public class EstablishmentService {
     private ReviewRepository reviewRepository;
     @Autowired
     private CanchaBrandRepository canchaBrandRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
     public List<EstablishmentResponseDTO> getAllEstablishments() {
         List<Establishment> establishments = establishmentRepository.findAll();
@@ -50,7 +55,7 @@ public class EstablishmentService {
         return new EstablishmentResponseDTO(
                 id,
                 establishment.getName(),
-                establishment.getAddress(),
+                establishment.getAddress().getId(),
                 establishment.getOpeningHour(),
                 establishment.getClosingHour(),
                 establishment.isCanShower(),
@@ -64,13 +69,15 @@ public class EstablishmentService {
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = canchaBrandRepository.findById(establishmentDto.brandId())
                 .orElseThrow(() -> new BrandNotFoundException(establishmentDto.brandId()));
+        Address address = addressRepository.findById(establishmentDto.addressId())
+                .orElseThrow(() -> new AddressNotFoundException(establishmentDto.addressId()));
 
         verifyEstablishmentOrThrow(establishmentDto.name());
 
         Establishment establishment = Establishment.builder()
                 .brand(brand)
                 .name(establishmentDto.name())
-                .address(establishmentDto.address())
+                .address(address)
                 .canShower(establishmentDto.canShower())
                 .openingHour(establishmentDto.openingHour())
                 .closingHour(establishmentDto.closingHour())
@@ -107,7 +114,7 @@ public class EstablishmentService {
                 .map(est -> new EstablishmentResponseDTO(
                         est.getId(),
                         est.getName(),
-                        est.getAddress(),
+                        est.getAddress().getId(),
                         est.getClosingHour(),
                         est.getOpeningHour(),
                         est.isCanShower(),
@@ -140,7 +147,7 @@ public class EstablishmentService {
 
         verifyEstablishmentOrThrow(establishmentDto.name(), establishment.getName());
 
-        establishment.setAddress(establishmentDto.address());
+        //establishment.setAddress(establishmentDto.addressId());
         establishment.setName(establishmentDto.name());
         establishment.setCanShower(establishmentDto.canShower());
         establishment.setOpeningHour(establishmentDto.openingHour());

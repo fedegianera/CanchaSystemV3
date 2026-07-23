@@ -1,6 +1,5 @@
 package com.example.CanchaSystem.dto.response;
 
-import com.example.CanchaSystem.model.Address;
 import com.example.CanchaSystem.model.CanchaType;
 
 import java.time.LocalTime;
@@ -9,7 +8,7 @@ import java.util.List;
 public record EstablishmentResponseDTO (
         Long id,
         String name,
-        Address address,
+        Long addressId,
         LocalTime openingHour,
         LocalTime closingHour,
         boolean canShower,

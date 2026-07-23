@@ -71,7 +71,7 @@ public class CanchaService {
         );
     }
 
-    public CanchaResponseDTO updateCancha(Long id,CanchaRequestDTO canchaDto) throws CanchaNotFoundException {
+    public CanchaResponseDTO updateCancha(Long id, CanchaRequestDTO canchaDto) throws CanchaNotFoundException {
         Cancha cancha = findCanchaOrThrow(id);
 
         cancha.setTotalAmount(canchaDto.totalAmount());
