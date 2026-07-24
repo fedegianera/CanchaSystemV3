@@ -2,6 +2,7 @@ package com.example.CanchaSystem.repository;
 
 import com.example.CanchaSystem.model.Reservation;
 import com.example.CanchaSystem.model.ReservationStatus;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -54,5 +55,29 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     );
 
 
+
+    @Query("SELECT MIN(r.matchDate) FROM Reservation r")
+    Optional<LocalDateTime> findEarliestMatchDate();
+
+    @Query("""
+    SELECT r.cancha.establishment.id, r.cancha.establishment.name, COUNT(r)
+    FROM Reservation r
+    GROUP BY r.cancha.establishment.id, r.cancha.establishment.name
+    ORDER BY COUNT(r) DESC
+    """)
+    List<Object[]> findTopEstablishmentsByReservationCount(Pageable pageable);
+
+    @Query("""
+    SELECT r.cancha.establishment.id, r.cancha.establishment.name, COUNT(r)
+    FROM Reservation r
+    WHERE r.matchDate BETWEEN :from AND :until
+    GROUP BY r.cancha.establishment.id, r.cancha.establishment.name
+    ORDER BY COUNT(r) DESC
+    """)
+    List<Object[]> findTopEstablishmentsByReservationCountInPeriod(
+            @Param("from") LocalDateTime from,
+            @Param("until") LocalDateTime until,
+            Pageable pageable
+    );
 
 }

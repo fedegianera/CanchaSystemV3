@@ -14,6 +14,8 @@ import java.util.UUID;
 @Repository
 public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     boolean existsById(Long id);
+    long countByActive(boolean active);
+
     Optional<Cancha> findById(Long id);
     Optional<Cancha> findByIdAndActive(Long id, boolean active);
 
@@ -23,7 +25,6 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
     List<Cancha> findByActiveAndWorking(boolean active, boolean working);
     List<Cancha> findByEstablishmentIdAndCanchaType(Long establishmentId, CanchaType type);
     List<Cancha> findByEstablishment_Brand_Owner_IdAndActive(UUID ownerId, boolean active);
-
     @Query("SELECT DISTINCT c.canchaType FROM Cancha c WHERE c.active = true AND c.working = true AND c.establishment.id = :establishmentId")
     List<CanchaType> findDistinctTypesByEstablishmentId(@Param("establishmentId") Long establishmentId);
 
@@ -48,4 +49,7 @@ public interface CanchaRepository extends JpaRepository<Cancha,Long> {
             Boolean working,
             CanchaType canchaType
     );
+    @Query("SELECT c.canchaType, COUNT(c) FROM Cancha c WHERE c.active = true GROUP BY c.canchaType")
+    List<Object[]> countActiveCanchasByType();
+
 }

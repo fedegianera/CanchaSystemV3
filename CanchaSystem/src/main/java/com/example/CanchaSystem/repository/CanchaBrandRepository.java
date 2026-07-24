@@ -12,5 +12,6 @@ public interface CanchaBrandRepository extends JpaRepository<Brand, Long> {
     List<Brand> findByOwnerIdAndActive(UUID ownerId, boolean active);
     List<Brand> findAllByActive(boolean active);
     Optional<Brand> findByIdAndActive(Long id, boolean active);
+    long countByActive(boolean active);
 
 }
