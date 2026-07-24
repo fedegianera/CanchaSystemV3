@@ -1,6 +1,9 @@
 package com.example.CanchaSystem.controller;
 
 import com.example.CanchaSystem.dto.request.AuthRequestDTO;
+import com.example.CanchaSystem.dto.request.PasswordResetRequestDTO;
+import com.example.CanchaSystem.dto.request.ResetPasswordDTO;
+import com.example.CanchaSystem.dto.request.VerifyResetCodeDTO;
 import com.example.CanchaSystem.dto.response.AuthResponseDTO;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.service.JWTService;
@@ -15,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import com.example.CanchaSystem.service.PasswordResetService;
 
 import java.util.UUID;
 
@@ -60,5 +64,26 @@ public class AuthController {
                 userDetails.getUsername(),
                 id
         ));
+    }
+
+    @Autowired
+    private PasswordResetService passwordResetService;
+
+    @PostMapping("/recovery/request")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody PasswordResetRequestDTO dto) {
+        passwordResetService.requestReset(dto.username());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/recovery/verify")
+    public ResponseEntity<?> verifyResetCode(@RequestBody VerifyResetCodeDTO dto) {
+        passwordResetService.verifyCode(dto.username(), dto.code());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/recovery/reset")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
+        passwordResetService.resetPassword(dto.username(), dto.code(), dto.newPassword());
+        return ResponseEntity.ok().build();
     }
 }
