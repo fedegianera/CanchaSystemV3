@@ -17,7 +17,7 @@ public interface OwnerRepository extends JpaRepository<Owner, UUID> {
     boolean existsByUsernameAndActive(String username, boolean active);
     boolean existsByMailAndActive(String mail, boolean active);
     boolean existsByCellNumberAndActive(String cellNumber, boolean active);
-
+    long countByActive(boolean active);
     Optional<Owner> findByUsernameAndActive(String username,boolean active);
     Optional<Owner> findByUsername(String username);
 

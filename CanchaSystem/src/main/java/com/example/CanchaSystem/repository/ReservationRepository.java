@@ -17,6 +17,9 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     boolean existsById(Long id);
     boolean existsByMatchDateAndCanchaIdAndStatus(LocalDateTime date,Long canchaId, ReservationStatus status);
     Optional<Reservation> findById(Long id);
+    long countByStatus(ReservationStatus status);
+    long countByMatchDateBetween(LocalDateTime from, LocalDateTime until);
+    long countByMatchDateBetweenAndStatus(LocalDateTime from, LocalDateTime until, ReservationStatus status);
 
     List<Reservation> findByCanchaId(Long canchaId);
     List<Reservation> findByClientId(UUID clientId);
@@ -49,5 +52,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
             @Param("until") LocalDateTime until,
             @Param("status") ReservationStatus status
     );
+
+
 
 }
