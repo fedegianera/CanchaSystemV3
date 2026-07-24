@@ -80,4 +80,43 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
             Pageable pageable
     );
 
+    // --- Estadísticas para el owner ---
+
+    @Query("""
+    SELECT r.cancha.establishment.id, COUNT(r)
+    FROM Reservation r
+    WHERE r.cancha.establishment.id IN :establishmentIds
+    GROUP BY r.cancha.establishment.id
+    """)
+    List<Object[]> countReservationsByEstablishment(@Param("establishmentIds") List<Long> establishmentIds);
+
+    @Query("""
+    SELECT FUNCTION('HOUR', r.matchDate), COUNT(r)
+    FROM Reservation r
+    WHERE r.cancha.establishment.id IN :establishmentIds
+    GROUP BY FUNCTION('HOUR', r.matchDate)
+    ORDER BY FUNCTION('HOUR', r.matchDate)
+    """)
+    List<Object[]> countReservationsByHour(@Param("establishmentIds") List<Long> establishmentIds);
+
+    @Query("""
+    SELECT r.cancha.establishment.id, r.status, COUNT(r)
+    FROM Reservation r
+    WHERE r.cancha.establishment.id IN :establishmentIds
+    GROUP BY r.cancha.establishment.id, r.status
+    """)
+    List<Object[]> countReservationsByEstablishmentAndStatus(@Param("establishmentIds") List<Long> establishmentIds);
+
+    @Query("""
+    SELECT r.cancha.establishment.id, SUM(r.cancha.totalAmount)
+    FROM Reservation r
+    WHERE r.cancha.establishment.id IN :establishmentIds
+    AND r.status = :status
+    GROUP BY r.cancha.establishment.id
+    """)
+    List<Object[]> sumRevenueByEstablishmentAndStatus(
+            @Param("establishmentIds") List<Long> establishmentIds,
+            @Param("status") ReservationStatus status
+    );
+
 }
