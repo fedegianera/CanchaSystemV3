@@ -70,4 +70,45 @@ public class MailService {
             e.printStackTrace();
         }
     }
+
+
+    @Async
+    public void sendPasswordResetMail(String toEmail, String name, String code) {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+        try {
+            helper.setTo(toEmail);
+            helper.setSubject("[Cancha System] Código para restablecer tu contraseña");
+
+            String body = """
+                <h1 style="margin-bottom:0.5rem;font-size:28px;line-height:32px;font-weight:700">
+                  Restablecer contraseña
+                </h1>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  ¡Hola, %1$s!
+                </p>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  Recibimos una solicitud para restablecer tu contraseña. Usá el siguiente código para continuar:
+                </p>
+                <div style="text-align:center;margin:24px 0">
+                  <span style="display:inline-block;background-color:rgb(95,125,55);color:white;font-size:32px;font-weight:700;letter-spacing:8px;padding:1rem 1.5rem;border-radius:12px">
+                    %2$s
+                  </span>
+                </div>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  Este código expira en 15 minutos.
+                </p>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  Si vos no solicitaste este cambio, podés ignorar este mensaje.
+                </p>
+              """
+                    .formatted(name, code);
+
+            helper.setText(body, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
 }
