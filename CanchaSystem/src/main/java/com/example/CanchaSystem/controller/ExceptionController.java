@@ -26,12 +26,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class ExceptionController {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> handleResponseStatusException(ResponseStatusException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", ex.getReason());
+        body.put("timestamp", LocalDateTime.now());
+        return ResponseEntity.status(ex.getStatusCode()).body(body);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGenericExceptions(Exception ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("error", "Unexpected error");
+        body.put("timestamp", LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
@@ -196,9 +214,7 @@ public class ExceptionController {
                 .body(Map.of("error", ex.getMessage(), "timestamp", LocalDateTime.now()));
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericExceptions(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", "Unexpected error: " + ex.getMessage(), "timestamp", LocalDateTime.now()));
-    }
+
+
+
 }
