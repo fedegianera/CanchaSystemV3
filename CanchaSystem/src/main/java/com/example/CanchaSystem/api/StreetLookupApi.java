@@ -10,4 +10,5 @@ public interface StreetLookupApi {
     }
 
     List<AddressDTO> autocompleteAddress(String text);
+    AddressDTO reverseGeocodeAddress(Double lat, Double lng);
 }
