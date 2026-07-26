@@ -5,7 +5,6 @@ import com.example.CanchaSystem.dto.EstablishmentNamesDTO;
 import com.example.CanchaSystem.dto.EstablishmentRatingDTO;
 import com.example.CanchaSystem.dto.request.EstablishmentRequestDTO;
 import com.example.CanchaSystem.dto.response.EstablishmentResponseDTO;
-import com.example.CanchaSystem.exception.address.AddressNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.BrandNotFoundException;
 import com.example.CanchaSystem.exception.canchaBrand.CanchaBrandNameAlreadyExistsException;
 import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
@@ -13,7 +12,6 @@ import com.example.CanchaSystem.model.Address;
 import com.example.CanchaSystem.model.Brand;
 import com.example.CanchaSystem.model.CanchaType;
 import com.example.CanchaSystem.model.Establishment;
-import com.example.CanchaSystem.repository.AddressRepository;
 import com.example.CanchaSystem.repository.CanchaBrandRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReviewRepository;
@@ -39,7 +37,7 @@ public class EstablishmentService {
     @Autowired
     private CanchaBrandRepository canchaBrandRepository;
     @Autowired
-    private AddressRepository addressRepository;
+    private AddressService addressService;
 
     public List<EstablishmentResponseDTO> getAllEstablishments() {
         List<Establishment> establishments = establishmentRepository.findAll();
@@ -69,8 +67,7 @@ public class EstablishmentService {
     public EstablishmentResponseDTO insertEstablishment(EstablishmentRequestDTO establishmentDto) {
         Brand brand = canchaBrandRepository.findById(establishmentDto.brandId())
                 .orElseThrow(() -> new BrandNotFoundException(establishmentDto.brandId()));
-        Address address = addressRepository.findById(establishmentDto.addressId())
-                .orElseThrow(() -> new AddressNotFoundException(establishmentDto.addressId()));
+        Address address = addressService.findAddressByIdOrThrow(establishmentDto.addressId());
 
         verifyEstablishmentOrThrow(establishmentDto.name());
 
