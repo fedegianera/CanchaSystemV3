@@ -18,8 +18,8 @@ public class Address {
     private String street;
 
     @Column(nullable = false)
-    private double latitude;
+    private double lat;
 
     @Column(nullable = false)
-    private double longitude;
+    private double lng;
 }
