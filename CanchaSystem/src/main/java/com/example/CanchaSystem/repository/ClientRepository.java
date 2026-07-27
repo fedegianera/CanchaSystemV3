@@ -16,7 +16,7 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
    boolean existsByUsernameAndActive(String username, boolean active);
    boolean existsByMailAndActive(String mail, boolean active);
    boolean existsByCellNumberAndActive(String cellNumber, boolean active);
-
+   long countByActive(boolean active);
    Optional<Client> findByUsernameAndActive(String username, boolean active);
    Optional<Client> findByUsernameAndActiveAndVerified(String username, boolean active, boolean verified);
 

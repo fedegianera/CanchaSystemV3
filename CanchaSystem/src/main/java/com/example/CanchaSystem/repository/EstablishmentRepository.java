@@ -24,4 +24,5 @@ public interface EstablishmentRepository  extends JpaRepository<Establishment, L
             FROM Establishment e
             """)
     List<Object[]> getAllEstablishmentsNames();
+    long countByActive(boolean active);
 }
