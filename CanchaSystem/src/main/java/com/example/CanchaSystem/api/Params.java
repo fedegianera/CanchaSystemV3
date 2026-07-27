@@ -1,8 +1,5 @@
 package com.example.CanchaSystem.api;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 public class Params {
     private final StringBuilder str;
 
@@ -20,9 +17,7 @@ public class Params {
         }
         str.append(key)
                 .append('=')
-                .append(
-                        URLEncoder.encode(param, StandardCharsets.UTF_8)
-                );
+                .append(param);
     }
 
     public Params add(String key, String param) {
@@ -38,5 +33,10 @@ public class Params {
             addParam(values[i], values[i + 1]);
         }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return new String(str);
     }
 }
