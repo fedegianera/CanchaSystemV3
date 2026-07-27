@@ -65,7 +65,7 @@ public class GeoapifyApi implements StreetLookupApi {
         double latitude = obj.get("lat").getAsDouble();
         double longitude = obj.get("lon").getAsDouble();
 
-        String houseNumber = obj.get("house_number") == null ? null : obj.get("house_number").getAsString();
+        String houseNumber = obj.get("housenumber") == null ? null : obj.get("housenumber").getAsString();
         String road = obj.get("street").getAsString();
         String city = obj.get("city").getAsString();
         String state = obj.get("state").getAsString();
