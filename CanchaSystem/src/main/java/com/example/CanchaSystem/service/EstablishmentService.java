@@ -141,10 +141,11 @@ public class EstablishmentService {
 
     public EstablishmentResponseDTO updateEstablishment(Long id, EstablishmentRequestDTO establishmentDto) {
         Establishment establishment = findEstablishmentOrThrow(id);
+        Address address = addressService.findAddressByIdOrThrow(establishmentDto.addressId());
 
         verifyEstablishmentOrThrow(establishmentDto.name(), establishment.getName());
 
-        //establishment.setAddress(establishmentDto.addressId());
+        establishment.setAddress(address);
         establishment.setName(establishmentDto.name());
         establishment.setCanShower(establishmentDto.canShower());
         establishment.setOpeningHour(establishmentDto.openingHour());
