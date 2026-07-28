@@ -128,6 +128,7 @@ public class EstablishmentService {
 
         canchaService.getActiveCanchasByEstablishmentId(establishmentId).forEach(cancha ->
                 canchaService.deleteCancha(cancha.id()));
+        addressService.deleteAddressById(establishment.getId());
 
         establishment.setActive(false);
         establishmentRepository.save(establishment);
@@ -145,13 +146,26 @@ public class EstablishmentService {
 
         verifyEstablishmentOrThrow(establishmentDto.name(), establishment.getName());
 
-        establishment.setAddress(address);
+        System.err.println("Updating");
+
+        long previousAddressId = establishment.getAddress().getId();
+        boolean wasAddressChanged = !(previousAddressId == establishmentDto.addressId());
+
+        if (wasAddressChanged) {
+            establishment.setAddress(address);
+            System.err.println("deleted");
+        }
+
         establishment.setName(establishmentDto.name());
         establishment.setCanShower(establishmentDto.canShower());
         establishment.setOpeningHour(establishmentDto.openingHour());
         establishment.setClosingHour(establishmentDto.closingHour());
 
         establishmentRepository.save(establishment);
+
+        if (wasAddressChanged) {
+            addressService.deleteAddressById(previousAddressId);
+        }
 
         return mapper.toDto(establishment);
     }
