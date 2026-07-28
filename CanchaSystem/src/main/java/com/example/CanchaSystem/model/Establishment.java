@@ -30,7 +30,6 @@ public class Establishment {
 
     @OneToOne
     @JoinColumn(name = "address_id", nullable = false, unique = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Address address;
 
     @Column(nullable = false)

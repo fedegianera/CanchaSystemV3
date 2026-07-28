@@ -23,4 +23,10 @@ public class AddressController {
     public ResponseEntity<?> getAddressById(@PathVariable Long id) {
         return ResponseEntity.ok(addressService.findAddressByIdOrThrow(id));
     }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteAddress(@PathVariable Long id) {
+        addressService.deleteAddressById(id);
+        return ResponseEntity.ok().build();
+    }
 }

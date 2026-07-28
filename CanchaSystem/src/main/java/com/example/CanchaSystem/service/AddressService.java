@@ -26,4 +26,8 @@ public class AddressService {
         return addressRepository.findById(id)
                 .orElseThrow(() -> new AddressNotFoundException(id));
     }
+
+    public void deleteAddressById(Long id) {
+        addressRepository.deleteById(id);
+    }
 }
