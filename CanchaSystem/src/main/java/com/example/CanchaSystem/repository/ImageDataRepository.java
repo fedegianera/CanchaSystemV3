@@ -14,4 +14,6 @@ public interface ImageDataRepository extends JpaRepository<ImageData, UUID> {
     Optional<ImageData> findByIdAndActive(long id, boolean active);
     List<ImageData> findByUploadDataAndActive(String uploadData, boolean active);
     List<ImageData> findByUploadDataAndImageProviderTypeAndActive(String uploadData, ImageProviderType imageProviderType, boolean active);
+
+    Optional<ImageData> findFirstByUploadDataAndImageProviderTypeAndActive(String uploadData, ImageProviderType imageProviderType, boolean active);
 }

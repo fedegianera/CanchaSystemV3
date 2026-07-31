@@ -86,4 +86,9 @@ public class ImageController {
     public ResponseEntity<?> getEstablishmentImages(@PathVariable Long establishmentId) {
         return ResponseEntity.ok(service.getEstablishmentImagesByEstablishmentId(establishmentId));
     }
+
+    @PostMapping("/establishment/preview")
+    public ResponseEntity<?> getEstablishmentPreviewImages(@RequestBody long[] ids) {
+        return ResponseEntity.ok(service.getImagePreviewsByEstablishment(ids));
+    }
 }

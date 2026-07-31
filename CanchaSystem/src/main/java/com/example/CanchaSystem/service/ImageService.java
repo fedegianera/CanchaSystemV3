@@ -20,10 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -107,6 +104,18 @@ public class ImageService {
 
     public List<ImageData> getEstablishmentImagesByEstablishmentId(Long establishmentId) {
         return repository.findByUploadDataAndImageProviderTypeAndActive(establishmentId.toString(), ImageProviderType.CANCHA, true);
+    }
+
+    public List<ImageData> getImagePreviewsByEstablishment(long[] establishmentIds) {
+        List<ImageData> images = new ArrayList<>(establishmentIds.length);
+        for (Long establishmentId : establishmentIds) {
+            repository.findFirstByUploadDataAndImageProviderTypeAndActive(
+                    establishmentId.toString(),
+                    ImageProviderType.CANCHA,
+                    true
+            ).ifPresent(images::add);
+        }
+        return images;
     }
 
     private void validate(MultipartFile file) {
