@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -16,29 +20,50 @@ public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @ManyToOne
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "cancha_id", nullable = false)
+    @JoinColumn(name = "establishment_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Cancha cancha;
+    private Establishment establishment;
 
     @Column(nullable = false)
-    @DecimalMin(value = "1.0", message = "La valoración mínima es 1")
-    @DecimalMax(value = "5.0", message = "La valoración máxima es 5")
+//    @DecimalMin(value = "1.0", message = "La valoración mínima es 1")
+//    @DecimalMax(value = "5.0", message = "La valoración máxima es 5")
     private double rating;
 
+    @Column(nullable = false)
+    LocalDate createdAt;
+
+    @Column(nullable = false)
+    String clientName;
+
     @Column()
-    @Size(
-            max = 500,
-            message = "Message only accepts caracters between 5 and 500"
-    )
+//    @Size(
+//            max = 500,
+//            message = "Message only accepts caracters between 5 and 500"
+//    )
     private String message;
 
     @Column(nullable = false)
     private boolean active = true;
+
+    @PrePersist
+    public void prePersist() {
+        if (client != null && clientName == null) {
+            clientName = client.getName();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDate.now();
+        }
+    }
+
 }
+
+
+
+

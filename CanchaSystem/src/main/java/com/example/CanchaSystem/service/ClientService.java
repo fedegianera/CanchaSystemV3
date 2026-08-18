@@ -1,22 +1,22 @@
 package com.example.CanchaSystem.service;
 
-import com.example.CanchaSystem.exception.client.UnactiveClientException;
+import com.example.CanchaSystem.Mapper.ClientMapper;
+import com.example.CanchaSystem.Mapper.ReviewMapper;
+import com.example.CanchaSystem.dto.request.ClientRequestDTO;
+import com.example.CanchaSystem.dto.response.ClientResponseDTO;
+import com.example.CanchaSystem.dto.response.OwnerResponseDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.misc.*;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.exception.client.NoClientsException;
-import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.Reservation;
-import com.example.CanchaSystem.model.Review;
-import com.example.CanchaSystem.model.Role;
-import com.example.CanchaSystem.repository.AdminRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.repository.OwnerRepository;
-import com.example.CanchaSystem.repository.RoleRepository;
+import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
+import com.example.CanchaSystem.model.*;
+import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ClientService {
@@ -25,81 +25,90 @@ public class ClientService {
     private ClientRepository clientRepository;
 
     @Autowired
-    private AdminRepository adminRepository;
-
-    @Autowired
-    private OwnerRepository ownerRepository;
-
-    @Autowired
-    private RoleRepository roleRepo;
+    private ReservationRepository reservationRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private ReviewService reviewService;
+    private ClientMapper clientMapper;
 
     @Autowired
-    private ReservationService reservationService;
+    private UserService userService;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewMapper reviewMapper;
+
+    @Autowired
+    private UserVerificationService userVerificationService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private OwnerService ownerService;
 
 
-    public Client insertClient(Client client) {
-        if (clientRepository.existsByUsernameAndActive(client.getUsername(), true) || adminRepository.existsByUsername(client.getUsername()) || ownerRepository.existsByUsernameAndActive(client.getUsername(), true)) {
-            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
+    public ClientResponseDTO insertClient(ClientRequestDTO clientDTO) {
+        userService.verifyNonExistenceOrThrow(
+                clientDTO.username(),
+                clientDTO.mail(),
+                clientDTO.cellNumber()
+        );
 
-        if (clientRepository.existsByMail(client.getMail())) {
-            throw new MailAlreadyRegisteredException("El correo ya esta registrado");
-        }
+        Client client = Client.builder()
+                .name(clientDTO.name())
+                .lastName(clientDTO.lastName())
+                .username(clientDTO.username())
+                .password(passwordEncoder.encode(clientDTO.password()))
+                .mail(clientDTO.mail())
+                .cellNumber(clientDTO.cellNumber())
+                .active(true)
+                .verified(false)
+                .build();
 
-        if (clientRepository.existsByCellNumber(client.getCellNumber())) {
-            throw new CellNumberAlreadyAddedException("El numero ya esta añadido");
-        }
+        clientRepository.save(client);
+        mailService.sendMail(
+                client,
+                userVerificationService.createUserVerification(client).getId()
+        );
 
-        Role clientRole = roleRepo.findByName("CLIENT")
-                .orElseGet(() -> roleRepo.save(new Role("CLIENT")));
-        client.setRole(clientRole);
-
-        client.setPassword(passwordEncoder.encode(client.getPassword()));
-
-        return clientRepository.save(client);
+        return clientMapper.toDto(client);
     }
 
-    public List<Client> getAllClients() throws NoClientsException {
-        List<Client> clients = clientRepository.findAll();
-        if(clients.isEmpty())
-            throw new NoClientsException("Todavia no hay clientes registrados");
-        return clients;
-
+    public Client findClientOrThrow(UUID id) {
+        return clientRepository.findByIdAndActive(id, true)
+                .orElseThrow(() -> new UserNotFoundException(id, Role.CLIENT));
     }
 
-    public Client updateClient(Client clientFromRequest) throws ClientNotFoundException {
-        Client client = clientRepository.findById(clientFromRequest.getId())
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        client.setName(clientFromRequest.getName());
-        client.setLastName(clientFromRequest.getLastName());
-        client.setUsername(clientFromRequest.getUsername());
-        client.setMail(clientFromRequest.getMail());
-        client.setCellNumber(clientFromRequest.getCellNumber());
-
-        return clientRepository.save(client);
+    public Client findClientOrThrow(String username) {
+        return clientRepository.findByUsernameAndActiveAndVerified(username, true, true)
+                .orElseThrow(() -> new UserNotFoundException(username, Role.CLIENT));
     }
 
-    public Client updateClientAdmin(Client clientFromRequest) throws ClientNotFoundException {
-        Client client = clientRepository.findById(clientFromRequest.getId())
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+    public List<ClientResponseDTO> getAllClients() {
+        return clientMapper.toDto(
+                clientRepository.findAllByActiveAndVerified(true, true)
+        );
+    }
 
-        client.setName(clientFromRequest.getName());
-        client.setLastName(clientFromRequest.getLastName());
-        client.setUsername(clientFromRequest.getUsername());
-        client.setMail(clientFromRequest.getMail());
-        client.setCellNumber(clientFromRequest.getCellNumber());
-        client.setBankClient(clientFromRequest.getBankClient());
-        client.setActive(clientFromRequest.isActive());
+    public ClientResponseDTO updateClient(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
+        Client client = findClientOrThrow(id);
+        modifyClient(client, clientDto);
 
-        String pass = clientFromRequest.getPassword();
+        clientRepository.save(client);
+        return clientMapper.toDto(client);
+    }
 
+    public Client updateClientAdmin(UUID id, ClientRequestDTO clientDto) throws UserNotFoundException {
+        Client client = findClientOrThrow(id);
+        modifyClient(client, clientDto);
+
+        client.setActive(clientDto.active());
+        String pass = clientDto.password();
         if (!pass.isEmpty()) {
             client.setPassword(passwordEncoder.encode(pass));
         }
@@ -107,67 +116,67 @@ public class ClientService {
         return clientRepository.save(client);
     }
 
-    public Client addMoneyToClientBank(Long clientId,double addedAmount){
+    private void modifyClient(Client client, ClientRequestDTO clientDto) {
+        userService.verifyNonExistenceOrThrow(
+                clientDto.username(),
+                clientDto.mail(),
+                clientDto.cellNumber(),
+                client.getUsername(),
+                client.getMail(),
+                client.getCellNumber()
+        );
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        if (!client.isActive())
-            throw new UnactiveClientException("Cliente dado de baja");
-
-        if (addedAmount <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
-        client.setBankClient(client.getBankClient()+addedAmount);
-        return clientRepository.save(client);
-
+        client.setName(clientDto.name());
+        client.setLastName(clientDto.lastName());
+        client.setUsername(clientDto.username());
+        client.setMail(clientDto.mail());
+        client.setCellNumber(clientDto.cellNumber());
     }
 
-    public Client payFromClientBank(Long clientId, double amountToPay){
+    public Client deleteClient(UUID clientId) {
+        Client client = findClientOrThrow(clientId);
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+        getAllReviewsByClientId(clientId).forEach(dto -> {
+            Review review = reviewRepository.findByIdAndActive(dto.id(), true)
+                    .orElseThrow(() -> new ReviewNotFoundException(dto.id()));
 
-        if (!client.isActive())
-            throw new UnactiveClientException("Cliente dado de baja");
+            review.setActive(false);
+            reviewRepository.save(review);
+        });
+        reservationRepository.findByClientId(clientId).forEach(reservation -> {
+            reservation.setStatus(ReservationStatus.CANCELED);
+            reservationRepository.save(reservation);
+        });
 
-        if (amountToPay <= 0)
-            throw new IllegalAmountException("Monto invalido");
-
-        client.setBankClient(client.getBankClient()-amountToPay);
-        return clientRepository.save(client);
-
-    }
-
-    public Client deleteClient(Long clientId) {
-
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        if (!client.isActive())
-            throw new UnableToDropException("El cliente ya esta inactivo");
-
-        List<Review> reviews = reviewService.getAllReviewsByClient(client.getUsername());
-
-        for (Review review : reviews) {
-            reviewService.deleteReview(review.getId());
-        }
-
-        List<Reservation> reservations = reservationService.findReservationsByClient(client.getUsername());
-
-        for (Reservation reservation : reservations) {
-            reservationService.cancelReservation(reservation);
+        // libera username/mail/cellNumber para que se puedan reusar en un registro nuevo
+        client.setUsername(client.getUsername() + "_deleted_" + client.getId());
+        client.setMail(client.getMail() + "_deleted_" + client.getId());
+        if (client.getCellNumber() != null) {
+            client.setCellNumber(client.getCellNumber() + "_deleted_" + client.getId());
         }
 
         client.setActive(false);
         return clientRepository.save(client);
     }
 
-    public Client findClientById(Long id) throws ClientNotFoundException {
-        return clientRepository.findById(id).orElseThrow(()-> new ClientNotFoundException("Cliente no encontrado"));
+    public List<ReviewResponseDTO> getAllReviewsByClientId(UUID id) throws UserNotFoundException {
+        if (clientRepository.findByIdAndActive(id, true).isEmpty()) {
+            throw new UserNotFoundException(id, Role.CLIENT);
+        }
+
+        List<Review> reviews = reviewRepository.findByClientIdAndActive(id, true);
+        return reviewMapper.toDto(reviews);
     }
 
-    public boolean verifyUsername(String username) {
-        return clientRepository.existsByUsernameAndActive(username, true) || adminRepository.existsByUsername(username) || ownerRepository.existsByUsernameAndActive(username, true);
+    public ClientResponseDTO findClientById(UUID id) throws UserNotFoundException {
+        return clientMapper.toDto(
+                findClientOrThrow(id)
+        );
+    }
+
+    public OwnerResponseDTO turnClientToOwner(UUID id) throws UserNotFoundException {
+        Client client = findClientOrThrow(id);
+        deleteClient(id);
+        return ownerService.insertOwner(client);
     }
 }

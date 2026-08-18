@@ -1,26 +1,22 @@
 package com.example.CanchaSystem.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Optional;
 
-@Entity
-@Getter
-@Setter
-public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public enum Role {
+    ADMIN,
+    CLIENT,
+    OWNER;
 
-    @Column(unique = true)
-    private String name;
-
-    public Role() {}
-
-    public Role(String name) {
-        this.name = name;
+    @Override
+    public String toString() {
+        return "ROLE_" + this.name();
     }
 
+    public static Optional<Role> getRole(String role) {
+        try {
+            return Optional.of(Role.valueOf(role.replace("ROLE_", "")));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
+    }
 }

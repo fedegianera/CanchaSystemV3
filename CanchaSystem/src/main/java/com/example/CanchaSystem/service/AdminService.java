@@ -1,16 +1,16 @@
 package com.example.CanchaSystem.service;
 
 import com.example.CanchaSystem.exception.misc.UsernameAlreadyExistsException;
-import com.example.CanchaSystem.exception.admin.AdminNotFoundException;
-import com.example.CanchaSystem.exception.admin.NoAdminsException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Admin;
 import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.AdminRepository;
-import com.example.CanchaSystem.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AdminService {
@@ -19,42 +19,42 @@ public class AdminService {
     private AdminRepository adminRepository;
 
     @Autowired
-    private RoleRepository roleRepository;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UserService userService;
 
     public Admin insertAdmin(Admin admin) throws UsernameAlreadyExistsException {
-        Role adminRole = roleRepository.findByName("ADMIN")
-                .orElseGet(() -> roleRepository.save(new Role("ADMIN")));
+        if (userService.existsByUsername(admin.getUsername()))
+            throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
 
-        if (!adminRepository.existsByUsername(admin.getUsername())) {
-            admin.setRole(adminRole);
-            return adminRepository.save(admin);
-        }
-        else throw new UsernameAlreadyExistsException("El nombre de usuario ya existe");
-        }
+        admin.setPassword(passwordEncoder.encode(admin.getPassword()));
 
-    public List<Admin> getAllAdmins() throws NoAdminsException {
-        List<Admin> admins = adminRepository.findAll();
-        if(admins.isEmpty())
-            throw new NoAdminsException("Todavia no hay administradores registrados");
-        return admins;
+        adminRepository.save(admin);
+
+        return admin;
     }
 
-    public Admin updateAdmin(Admin admin) throws AdminNotFoundException {
+    public List<Admin> getAllAdmins() {
+        return adminRepository.findAll();
+    }
+
+    public Admin updateAdmin(Admin admin) throws UserNotFoundException {
         if(adminRepository.existsById(admin.getId())){
             return adminRepository.save(admin);
         }else
-            throw new AdminNotFoundException("Administrador no encontrado");
+            throw new UserNotFoundException(admin.getId(), Role.ADMIN);
     }
 
-    public void deleteAdmin(Long id) throws AdminNotFoundException{
+    public void deleteAdmin(UUID id) throws UserNotFoundException{
         if (adminRepository.existsById(id)) {
             adminRepository.deleteById(id);
         }else
-            throw new AdminNotFoundException("Administrador no encontrado");
+            throw new UserNotFoundException(id, Role.ADMIN);
 
     }
 
-    public Admin findAdminById(Long id) throws AdminNotFoundException {
-        return adminRepository.findById(id).orElseThrow(()-> new AdminNotFoundException("Administrador no encontrado"));
+    public Admin findAdminById(UUID id) throws UserNotFoundException {
+        return adminRepository.findById(id).orElseThrow(()-> new UserNotFoundException(id, Role.ADMIN));
     }
 }

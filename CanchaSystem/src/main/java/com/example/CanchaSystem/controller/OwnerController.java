@@ -1,10 +1,14 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
+import com.example.CanchaSystem.dto.request.OwnerRequestDTO;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.Owner;
+import com.example.CanchaSystem.model.Role;
 import com.example.CanchaSystem.repository.OwnerRepository;
 import com.example.CanchaSystem.service.OwnerService;
+import com.example.CanchaSystem.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/owner")
@@ -26,61 +31,63 @@ public class OwnerController {
     @Autowired
     OwnerRepository ownerRepository;
 
+    @Autowired
+    UserService userService;
+
     @GetMapping("/me")
     public ResponseEntity<?> getClientId(@AuthenticationPrincipal UserDetails userDetails) {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userDetails.getUsername(), Role.OWNER));
         return ResponseEntity.ok(owner.getId());
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertOwner(@Validated @RequestBody Owner owner) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(ownerService.insertOwner(owner));
+    public ResponseEntity<?> insertOwner(@Validated @RequestBody OwnerRequestDTO ownerRequestDTO) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ownerService.insertOwner(ownerRequestDTO));
     }
 
-    @GetMapping("/findall")
+    @GetMapping("/findallActive")
     public ResponseEntity<?> getOwners() {
             return ResponseEntity.ok(ownerService.getAllOwners());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateOwner(@RequestBody Owner owner, HttpServletRequest request) {
-        ownerService.updateOwner(owner);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateOwner(@PathVariable("id") UUID id, @RequestBody @Valid OwnerRequestDTO ownerRequestDTO, HttpServletRequest request) {
+        ownerService.updateOwner(id, ownerRequestDTO);
 
         SecurityContextHolder.clearContext();
         request.getSession().invalidate();
 
-        return ResponseEntity.ok("Datos actualizados, inicie sesión nuevamente");
+        return ResponseEntity.ok(Map.of("message", "Datos actualizados, inicie sesión nuevamente"));
     }
 
-    @PutMapping("/updateAdmin")
-    public ResponseEntity<?> updateOwnerAdmin(@RequestBody Owner owner) {
-        return ResponseEntity.ok(ownerService.updateOwnerAdmin(owner));
+    @PutMapping("/updateAdmin/{id}")
+    public ResponseEntity<?> updateOwnerAdmin(@PathVariable UUID id, @RequestBody OwnerRequestDTO ownerRequestDTO) {
+        return ResponseEntity.ok(ownerService.updateOwnerAdmin(id, ownerRequestDTO));
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteOwner(@PathVariable Long id) {
+    public ResponseEntity<?> deleteOwner(@PathVariable UUID id) {
             ownerService.deleteOwner(id);
             return ResponseEntity.ok(Map.of("message","Dueño eliminado"));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> findOwnerById(@PathVariable Long id) {
+    @GetMapping("/findOwner/{id}")
+    public ResponseEntity<?> findOwnerById(@PathVariable UUID id) {
             return ResponseEntity.ok(ownerService.findOwnerById(id));
     }
 
     @GetMapping("/name")
     public ResponseEntity<?> getOwnerName(@AuthenticationPrincipal UserDetails userDetails) {
         Owner owner = ownerRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(userDetails.getUsername(), Role.OWNER));
         return ResponseEntity.ok(Map.of(
-                "name", owner.getName(),
-                "bankOwner", owner.getBankOwner()
+                "name", owner.getName()
         ));
     }
 
-    @GetMapping("/verifyUsername")
+    @GetMapping("/verifyUsername/{username}")
     public boolean verifyUsername(@PathVariable String username) {
-        return ownerService.verifyUsername(username);
+        return userService.existsByUsername(username);
     }
 }

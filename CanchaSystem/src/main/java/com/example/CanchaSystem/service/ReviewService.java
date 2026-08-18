@@ -1,97 +1,97 @@
 package com.example.CanchaSystem.service;
 
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.exception.misc.UnableToDropException;
-import com.example.CanchaSystem.exception.review.NoReviewsException;
+import com.example.CanchaSystem.Mapper.ReviewMapper;
+import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
 import com.example.CanchaSystem.exception.review.ReviewNotFoundException;
-import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Review;
-import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ReviewService {
-
     @Autowired
     private ReviewRepository reviewRepository;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ReviewMapper reviewMapper;
 
-    public Review insertReview(Review review) {
-                        return reviewRepository.save(review);
+    @Autowired
+    private ClientService clientService;
+
+    @Autowired
+    private EstablishmentService establishmentService;
+
+    public ReviewResponseDTO insertReview(ReviewRequestDTO dto) {
+        // 1️⃣ Buscar el cliente por su UUID
+        clientService.findClientOrThrow(dto.clientId());
+
+        // 2️⃣ Buscar el establecimiento
+        establishmentService.findEstablishmentOrThrow(dto.establishmentId());
+
+        // 3️⃣ Crear la review
+        Review review = reviewMapper.toEntity(dto);
+        review.setActive(true);
+
+        // 4️⃣ Guardar
+        reviewRepository.save(review);
+
+        return reviewMapper.toDto(review);
     }
 
-    public List<Review> getAllReviews() throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findAll();
-        if(!reviews.isEmpty()){
-            return reviews;
-        }else
-            throw new NoReviewsException("Todavia no hay reseñas hechas");
+    public Review findReviewOrThrow(Long id) {
+        return reviewRepository.findByIdAndActive(id, true)
+                .orElseThrow(() -> new ReviewNotFoundException(id));
     }
 
-    public Review updateReview(Review review) throws ReviewNotFoundException {
-        Review existing = reviewRepository.findById(review.getId())
-                .orElseThrow(() -> new ReviewNotFoundException("Reseña no encontrada"));
+    public List<ReviewResponseDTO> getAllReviews() {
+        return reviewMapper.toDto(
+                reviewRepository.findAll()
+        );
+    }
 
-        existing.setRating(review.getRating());
-        existing.setMessage(review.getMessage());
-        return reviewRepository.save(existing);
+    public ReviewResponseDTO updateReview(Long id, ReviewRequestDTO reviewDto) throws ReviewNotFoundException {
+        Review review = findReviewOrThrow(id);
+
+        review.setRating(reviewDto.rating());
+        review.setMessage(reviewDto.message());
+
+        reviewRepository.save(review);
+
+        return reviewMapper.toDto(review);
     }
 
     public void deleteReview(Long reviewId){
-
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new ReviewNotFoundException("Review no encontrado"));
-
-        if (!review.isActive())
-            throw new UnableToDropException("La review ya esta inactiva");
+        Review review = findReviewOrThrow(reviewId);
 
         review.setActive(false);
         reviewRepository.save(review);
-
     }
 
-    public Review findReviewById(Long id) throws ReviewNotFoundException {
-        return reviewRepository.findById(id).orElseThrow(()-> new ReviewNotFoundException("Reseña no encontrada"));
+    public ReviewResponseDTO findReviewById(Long id) throws ReviewNotFoundException {
+        return reviewMapper.toDto(
+                findReviewOrThrow(id)
+        );
     }
 
-    public List<Review> getAllReviewsByCanchaId(Long canchaId) throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findByCanchaIdAndActive(canchaId, true);
+    public List<ReviewResponseDTO> getAllReviewsByEstablishmentId(Long establishmentId) {
+        List<Review> reviews = reviewRepository.findByEstablishmentIdAndActive(establishmentId, true);
+        System.out.println("REVIEWS ---------------------------------------------");
+        System.out.println(reviewMapper.toDto(reviews));
 
-        return reviews;
+        return reviewMapper.toDto(reviews);
     }
 
-    public List<Review> getAllReviewsByCanchaIdAdmin(Long canchaId) throws NoReviewsException {
-        List<Review> reviews = reviewRepository.findByCanchaId(canchaId);
-
-        return reviews;
+    public List<ReviewResponseDTO> getAllReviewsByCanchaIdAdmin(Long canchaId) {
+        List<Review> reviews = reviewRepository.findByEstablishmentId(canchaId);
+        return reviewMapper.toDto(reviews);
     }
 
-    public List<Review> getAllReviewsByClient(String username) throws NoReviewsException, ClientNotFoundException {
-        Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
-
-        if (clientOpt.isEmpty()) {
-            throw new ClientNotFoundException("Cliente no encontrado");
-        }
-
-        Client client = clientOpt.get();
-
-        List<Review> reviews = reviewRepository.findByClientIdAndActive(client.getId(), true);
-
-        if (!reviews.isEmpty()){
-            return reviews;
-        }else
-            throw new NoReviewsException("Todavia no hay reseñas hechas por el cliente");
+    public boolean clientAlreadyReviewedCancha(Long establishmentId, UUID clientId){
+        return reviewRepository.existsByEstablishmentIdAndClientIdAndActive(establishmentId, clientId, true);
     }
-
-    public boolean clientAlreadyReviewedCancha(Long canchaId,Long clientId){
-        return reviewRepository.existsByCanchaIdAndClientIdAndActive(canchaId,clientId, true);
-    }
-
 }

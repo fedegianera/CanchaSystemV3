@@ -1,15 +1,15 @@
 package com.example.CanchaSystem.service;
 
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
 import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.OwnerRequest;
-import com.example.CanchaSystem.model.Reservation;
-import com.example.CanchaSystem.repository.ClientRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class MailService {
@@ -17,244 +17,98 @@ public class MailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Autowired
-    private ClientRepository clientRepository;
-
     @Async
-    public void sendReminder(String to, Reservation reservation) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Recordatorio de partido mañana");
-        message.setText(String.format(
-                "Hola %s," +
-                        "\n\n" +
-                        "Te recordamos que mañana tenés un partido reservado en la cancha %s a las %s." +
-                        "\n\n¡Éxitos!",
-                reservation.getClient().getName(),
-                reservation.getCancha().getName(),
-                reservation.getMatchDate().toString()
-        ));
-        message.setFrom("canchasystem@gmail.com");
+    public void sendMail(Client client, UUID verificationToken) {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+        try {
+            helper.setTo(client.getMail());
+            helper.setSubject("[Cancha System] Verificá tu correo electrónico");
 
-        mailSender.send(message);
-    }
+            String verificationUrl = "http://localhost:4200/verificar/" + verificationToken;
+            String body = """
+                    <h1 style="margin-bottom:0.5rem;font-size:28px;line-height:32px;font-weight:700">
+                      Verificá tu correo
+                    </h1>
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                      ¡Hola, %1$s!
+                    </p>
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0"><span>
+                      Por favor, hacé click en el botón de abajo para verificar su dirección de correo en CanchaSystem.</span>
+                    </p>
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0"><span>
+                      Si el botón no funciona, copiá el link abajo del botón y pegalo en tu buscador.</span>
+                    </p>
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                      Si vos no te registraste en CanchaSystem, podés ignorar este mensaje.
+                    </p>
+                    <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                      Este email expira en 2 horas.
+                    </p>
+                    <a style="line-height:100%%;text-decoration:none;display:inline-block;max-width:100%%;color:rgb(255,255,255);border-radius:12px;background-color:rgb(95,125,55);padding: 0.75rem 1rem;font-size:14px;font-weight:700" href="%2$s" target="_blank">
+                      <span></span>
+                      <span style="max-width:100%%;display:inline-block;line-height:120%%">
+                        Verificar correo electrónico
+                      </span>
+                      <span></span>
+                    </a>
+                    <a style="color:#067df7;text-decoration:none" href="%2$s" target="_blank">
+                      <p style="color:rgb(119,119,119);margin: 0.5rem 0 16px;font-size:13px;line-height:16px;font-weight:700">
+                        %2$s
+                      </p>
+                    </a>
+                """
+                    .formatted(
+                            client.getName(),
+                            verificationUrl
+                    );
 
-    @Async
-    public void sendReservationNoticeOwner(String to, Reservation reservation) {
+            helper.setText(body, true);
 
-        if (reservation == null ||
-                reservation.getClient() == null ||
-                reservation.getCancha() == null ||
-                reservation.getCancha().getBrand() == null ||
-                reservation.getCancha().getBrand().getOwner() == null) {
-            throw new IllegalStateException("La reserva no tiene datos completos para enviar el mail.");
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
-
-
-        String body = String.format("""
-        Hola %s,
-
-        Te avisamos que se confirmó una reserva de %s en la cancha "%s".
-
-        Fecha de creación de la reserva: %s
-        Fecha del partido: %s
-
-        Saludos,
-        CanchaSystem.
-        """,
-                reservation.getCancha().getBrand().getOwner().getName(),
-                reservation.getClient().getName(),
-                reservation.getCancha().getName(),
-                reservation.getReservationDate(),
-                reservation.getMatchDate()
-        );
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Reserva confirmada en " + reservation.getCancha().getName());
-        message.setText(body);
-        message.setFrom("canchasystem@gmail.com");
-
-
-        mailSender.send(message);
     }
+
 
     @Async
-    public void sendReservationCancelNotice(String to, Reservation reservation) {
+    public void sendPasswordResetMail(String toEmail, String name, String code) {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+        try {
+            helper.setTo(toEmail);
+            helper.setSubject("[Cancha System] Código para restablecer tu contraseña");
 
-        if (reservation == null ||
-                reservation.getClient() == null ||
-                reservation.getCancha() == null ||
-                reservation.getCancha().getBrand() == null ||
-                reservation.getCancha().getBrand().getOwner() == null) {
-            throw new IllegalStateException("La reserva no tiene datos completos para enviar el mail.");
+            String body = """
+                <h1 style="margin-bottom:0.5rem;font-size:28px;line-height:32px;font-weight:700">
+                  Restablecer contraseña
+                </h1>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  ¡Hola, %1$s!
+                </p>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  Recibimos una solicitud para restablecer tu contraseña. Usá el siguiente código para continuar:
+                </p>
+                <div style="text-align:center;margin:24px 0">
+                  <span style="display:inline-block;background-color:rgb(95,125,55);color:white;font-size:32px;font-weight:700;letter-spacing:8px;padding:1rem 1.5rem;border-radius:12px">
+                    %2$s
+                  </span>
+                </div>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  Este código expira en 15 minutos.
+                </p>
+                <p style="font-size:1rem;line-height:24px;margin:16px 0">
+                  Si vos no solicitaste este cambio, podés ignorar este mensaje.
+                </p>
+              """
+                    .formatted(name, code);
+
+            helper.setText(body, true);
+
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
-
-
-        String body = String.format("""
-        Hola %s,
-
-        Nos apena avisarte que se canceló tu reserva en la cancha "%s"
-        del dia %s.
-
-        Saludos,
-        CanchaSystem.
-        """,
-                reservation.getClient().getName(),
-                reservation.getCancha().getName(),
-                reservation.getMatchDate()
-        );
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Reserva cancelada en " + reservation.getCancha().getName());
-        message.setText(body);
-        message.setFrom("canchasystem@gmail.com");
-
-
-        mailSender.send(message);
     }
-
-    @Async
-    public void sendReservationNoticeClient(String to, Reservation reservation) {
-
-        if (reservation == null ||
-                reservation.getClient() == null ||
-                reservation.getCancha() == null ||
-                reservation.getCancha().getBrand() == null ||
-                reservation.getCancha().getBrand().getOwner() == null) {
-            throw new IllegalStateException("La reserva no tiene datos completos para enviar el mail.");
-        }
-
-
-        String body = String.format("""
-        Hola %s,
-
-        Te avisamos que se confirmó tu reserva en la cancha "%s".
-
-        Fecha de creación de la reserva: %s
-        Fecha del partido: %s
-
-        Saludos,
-        CanchaSystem.
-        """,
-                reservation.getClient().getName(),
-                reservation.getCancha().getName(),
-                reservation.getReservationDate(),
-                reservation.getMatchDate()
-        );
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Reserva confirmada en " + reservation.getCancha().getName());
-        message.setText(body);
-        message.setFrom("canchasystem@gmail.com");
-
-        mailSender.send(message);
-    }
-
-    @Async
-    public void sendRequestNoticeToClient(String to, OwnerRequest request) {
-
-        if (request == null ||
-                request.getClient() == null ||
-                request.getRequestDate() == null ) {
-            throw new IllegalStateException("La solicitud no tiene datos completos para enviar el mail.");
-        }
-
-        Client sendTo = clientRepository.findByIdAndActive(request.getClient().getId(), true)
-                .orElseThrow(() -> new ClientNotFoundException("El cliente no se encontro"));
-
-        String body = String.format("""
-        Hola %s,
-
-        Te avisamos que se envió tu solicitud.
-
-        Fecha de creación de la solicitud: %s
-
-        Saludos,
-        CanchaSystem.
-        """,
-                sendTo.getName(),
-                request.getRequestDate()
-        );
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Solicitud para ser dueño");
-        message.setText(body);
-        message.setFrom("canchasystem@gmail.com");
-
-        mailSender.send(message);
-    }
-
-    @Async
-    public void sendRequestApprovedStatusUpdateToClient(String to, OwnerRequest request) {
-
-        if (request == null ||
-                request.getClient() == null ||
-                request.getRequestDate() == null ||
-                request.getStatus() == null) {
-            throw new IllegalStateException("La solicitud no tiene datos completos para enviar el mail.");
-        }
-
-        Client sendTo = clientRepository.findByIdAndActive(request.getClient().getId(), true)
-                .orElseThrow(() -> new ClientNotFoundException("El cliente no se encontro"));
-
-        String body = String.format("""
-        Hola %s,
-
-        Te avisamos que tu solicitud fue aprobada.
-
-        Tu cuenta con poca antelación se va a habilitar.
-        Es un gusto contar con vos 
-        
-        Saludos,
-        CanchaSystem.
-        """,
-                sendTo.getName()
-        );
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Solicitud aprobada");
-        message.setText(body);
-        message.setFrom("canchasystem@gmail.com");
-
-        mailSender.send(message);
-    }
-
-    @Async
-    public void sendRequestDeniedStatusUpdateToClient(String to, OwnerRequest request) {
-
-        if (request == null ||
-                request.getClient() == null ||
-                request.getRequestDate() == null ||
-                request.getStatus() == null) {
-            throw new IllegalStateException("La solicitud no tiene datos completos para enviar el mail.");
-        }
-
-        Client sendTo = clientRepository.findByIdAndActive(request.getClient().getId(), true)
-                .orElseThrow(() -> new ClientNotFoundException("El cliente no se encontro"));
-
-        String body = String.format("""
-        Hola %s,
-
-        Nos apena informar que tu solicitud fue denegada.
-
-        Saludos,
-        CanchaSystem.
-        """,
-                sendTo.getName()
-        );
-
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject("Solicitud denegada");
-        message.setText(body);
-        message.setFrom("canchasystem@gmail.com");
-
-        mailSender.send(message);
-    }
-
 }

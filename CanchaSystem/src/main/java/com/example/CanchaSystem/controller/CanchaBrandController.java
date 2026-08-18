@@ -1,22 +1,17 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
-import com.example.CanchaSystem.model.Cancha;
-import com.example.CanchaSystem.model.CanchaBrand;
-import com.example.CanchaSystem.model.Owner;
-import com.example.CanchaSystem.repository.OwnerRepository;
+import com.example.CanchaSystem.dto.request.BrandRequestDTO;
 import com.example.CanchaSystem.service.CanchaBrandService;
 import com.example.CanchaSystem.service.CanchaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/canchaBrand")
@@ -28,21 +23,11 @@ public class CanchaBrandController {
     @Autowired
     private CanchaService canchaService;
 
-    @Autowired
-    private OwnerRepository ownerRepository;
-
     @PostMapping("/insert")
-    public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody CanchaBrand canchaBrand, Authentication auth) {
+    public ResponseEntity<?> insertCanchaBrand(@Validated @RequestBody BrandRequestDTO brandDto, Authentication auth) {
+        String username = auth.getName();
 
-            String username = auth.getName();
-            Owner owner = ownerRepository.findByUsernameAndActive(username, true)
-                    .orElseThrow(() -> new OwnerNotFoundException("Dueño no encontrado"));
-
-
-            canchaBrand.setOwner(owner);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(canchaBrandService.insertCanchaBrand(canchaBrand));
-
+        return ResponseEntity.status(HttpStatus.CREATED).body(canchaBrandService.insertCanchaBrand(brandDto, username));
     }
 
     @GetMapping("/findall")
@@ -50,10 +35,13 @@ public class CanchaBrandController {
             return ResponseEntity.ok(canchaBrandService.getAllCanchaBrands());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateCanchaBrand(@RequestBody CanchaBrand canchaBrand) {
-            return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(canchaBrand));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateCanchaBrand(
+            @PathVariable Long id,
+            @RequestBody BrandRequestDTO brandDto) {
+        return ResponseEntity.ok(canchaBrandService.updateCanchaBrand(id, brandDto));
     }
+
 
     @DeleteMapping("/deleteCanchaBrand/{id}")
     public ResponseEntity<?> deleteCanchaBrand(@PathVariable Long id) {
@@ -62,21 +50,19 @@ public class CanchaBrandController {
     }
 
     @GetMapping("findCanchaBrand/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findCanchaBrandById(@PathVariable Long id) {
             return ResponseEntity.ok(canchaBrandService.findCanchaBrandById(id));
     }
 
-    @GetMapping("/findAllOwnerBrands")
-    public ResponseEntity<?> findBrandsByOwnerId(Authentication auth){
-        String username = auth.getName();
-        return ResponseEntity.ok(canchaBrandService.findCanchaBrandsByOwnerUsername(username));
+    @GetMapping("/getBrandsByOwnerId/{id}")
+    public ResponseEntity<?> findBrandsByOwnerId(@PathVariable UUID id){
+        return ResponseEntity.ok(canchaBrandService.getBrandsByOwnerId(id));
     }
 
 
-    @GetMapping("/{brandId}/canchas")
-    public ResponseEntity<List<Cancha>> getCanchasByBrand(@PathVariable Long brandId) {
-        return ResponseEntity.ok(canchaService.getCanchasByBrandId(brandId));
+    @GetMapping("/{establishmentId}/canchas")
+    public ResponseEntity<?> getCanchasByEstablishment(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(canchaService.getCanchasByEstablishmentId(establishmentId));
     }
 
 }

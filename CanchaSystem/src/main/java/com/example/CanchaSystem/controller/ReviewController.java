@@ -1,20 +1,16 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.model.Client;
-import com.example.CanchaSystem.model.Review;
-import com.example.CanchaSystem.repository.ClientRepository;
+import com.example.CanchaSystem.dto.request.ReviewRequestDTO;
+import com.example.CanchaSystem.dto.response.ReviewResponseDTO;
+import com.example.CanchaSystem.service.ClientService;
 import com.example.CanchaSystem.service.ReviewService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/review")
@@ -24,29 +20,24 @@ public class ReviewController {
     private ReviewService reviewService;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
+
     @PostMapping("/insert")
-    public ResponseEntity<?> insertReview(
-            @Validated @RequestBody Review review,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Client client = clientRepository.findByUsernameAndActive(userDetails.getUsername(), true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
-
-        review.setClient(client);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(reviewService.insertReview(review));
+    public ResponseEntity<?> insertReview(@RequestBody @Valid ReviewRequestDTO dto) {
+        ReviewResponseDTO saved = reviewService.insertReview(dto);
+        return ResponseEntity.ok(saved);
     }
+
 
     @GetMapping("/findall")
     public ResponseEntity<?> getReviews() {
             return ResponseEntity.ok(reviewService.getAllReviews());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateReview(@RequestBody Review review) {
-            return ResponseEntity.ok(reviewService.updateReview(review));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateReview(@PathVariable Long id, @RequestBody ReviewRequestDTO reviewDto) {
+        ReviewResponseDTO review = reviewService.updateReview(id, reviewDto);
+        return ResponseEntity.ok(review);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -60,26 +51,24 @@ public class ReviewController {
             return ResponseEntity.ok(reviewService.findReviewById(id));
     }
 
-    @GetMapping("/findReviewsByClient")
-    public ResponseEntity<?> findReviewsByClientId(Authentication auth) {
-        String username = auth.getName();
-
-        return ResponseEntity.ok(reviewService.getAllReviewsByClient(username));
+    @GetMapping("/findReviewsByClientId/{id}")
+    public ResponseEntity<?> findReviewsByClientId(@PathVariable UUID id) {
+        return ResponseEntity.ok(clientService.getAllReviewsByClientId(id));
     }
 
-    @GetMapping("/findReviewsByCanchaId/{canchaId}")
-    public ResponseEntity<?> findReviewsByCanchaId(@PathVariable Long canchaId){
-        return ResponseEntity.ok(reviewService.getAllReviewsByCanchaId(canchaId));
+    @GetMapping("/findReviewsByEstablishmentId/{establishmentId}")
+    public ResponseEntity<?> findReviewsByEstablishmentId(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(reviewService.getAllReviewsByEstablishmentId(establishmentId));
     }
 
-    @GetMapping("/findReviewsByCanchaIdAdmin/{canchaId}")
-    public ResponseEntity<?> findReviewsByCanchaIdAdmin(@PathVariable Long canchaId){
-        return ResponseEntity.ok(reviewService.getAllReviewsByCanchaIdAdmin(canchaId));
+    @GetMapping("/findReviewsByCanchaIdAdmin/{establishmentId}")
+    public ResponseEntity<?> findReviewsByCanchaIdAdmin(@PathVariable Long establishmentId){
+        return ResponseEntity.ok(reviewService.getAllReviewsByCanchaIdAdmin(establishmentId));
     }
 
-    @GetMapping("/clientReviewExists")
-    public boolean clientAlreadyReviewedCancha(@RequestParam Long canchaId, @RequestParam Long clientId){
-        return reviewService.clientAlreadyReviewedCancha(canchaId,clientId);
+    @GetMapping("/clientReviewExists/{establishmentId}/{clientId}")
+    public boolean clientAlreadyReviewedCancha(@PathVariable Long establishmentId , @PathVariable UUID clientId){
+        return reviewService.clientAlreadyReviewedCancha(establishmentId ,clientId);
     }
 
 

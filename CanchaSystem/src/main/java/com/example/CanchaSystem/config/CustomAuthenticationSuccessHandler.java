@@ -1,6 +1,5 @@
 package com.example.CanchaSystem.config;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -9,7 +8,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collection;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -17,28 +15,24 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-
-        for (GrantedAuthority authority : authorities) {
-            String role = authority.getAuthority();
-
-            System.out.println(role);
-
-            switch (role) {
-                case "ROLE_ADMIN":
-                    response.sendRedirect("/home-admin.html");
-                    return;
-                case "ROLE_OWNER":
-                    response.sendRedirect("/home-owner.html");
-                    return;
-                case "ROLE_CLIENT":
-                    response.sendRedirect("/home-client.html");
-                    return;
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            String url = getRoleHomeUrl(authority.getAuthority());
+            if (url != null) {
+                response.sendRedirect(url);
+                return;
             }
         }
-
         response.sendRedirect("/login.html?error=rol");
+    }
+
+    private static String getRoleHomeUrl(String role) {
+        return switch (role) {
+            case "ROLE_ADMIN" -> "/home-admin.html";
+            case "ROLE_CLIENT" -> "/home-client.html";
+            case "ROLE_OWNER" -> "/home-owner.html";
+            default -> null;
+        };
     }
 }

@@ -1,21 +1,13 @@
 package com.example.CanchaSystem.controller;
 
-import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
-import com.example.CanchaSystem.exception.client.NotEnoughMoneyException;
-import com.example.CanchaSystem.exception.owner.OwnerNotFoundException;
+import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
+import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.model.*;
-import com.example.CanchaSystem.repository.CanchaRepository;
-import com.example.CanchaSystem.repository.ClientRepository;
-import com.example.CanchaSystem.service.ClientService;
-import com.example.CanchaSystem.service.MailService;
-import com.example.CanchaSystem.service.OwnerService;
 import com.example.CanchaSystem.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,82 +16,43 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/reservation")
 public class ReservationController {
 
     @Autowired
-    private ClientRepository clientRepository;
-
-    @Autowired
     private ReservationService reservationService;
 
-    @Autowired
-    private ClientService clientService;
-
-    @Autowired
-    private OwnerService ownerService;
-
-    @Autowired
-    private CanchaRepository canchaRepository;
-
-    @Autowired
-    private MailService mailService;
-
     @PostMapping("/insert")
-    @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<?> insertReservation(@RequestBody Reservation reservation, Authentication auth) {
-        if (reservation.getMatchDate() == null || reservation.getMatchDate().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("La fecha del partido debe ser futura");
+    public ResponseEntity<?> insertReservation(@RequestBody ReservationRequestDTO reservationDTO, Authentication auth) {
+        if (reservationDTO.matchDate() == null || reservationDTO.matchDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "La fecha del partido debe ser futura"));
         }
 
-        String username = auth.getName();
-        Client client = clientRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new ClientNotFoundException("Cliente no encontrado"));
+        ReservationResponseDTO reservation = reservationService.insertReservation(reservationDTO, auth);
 
-        reservation.setClient(client); // fuerza el cliente logueado
-
-        Cancha cancha = canchaRepository.findById(reservation.getCancha().getId())
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
-
-        reservation.setCancha(cancha);
-
-        double deposit = cancha.getTotalAmount() / (double) cancha.getCanchaType().getTotalPlayers();
-
-        if (client.getBankClient() < deposit)
-            throw new NotEnoughMoneyException("No hay suficientes fondos");
-
-        Owner owner = ownerService.getOwnerByCanchaId(cancha.getId())
-                .orElseThrow(() -> new OwnerNotFoundException("No se encontró al dueño para la cancha"));
-
-        clientService.payFromClientBank(client.getId(),deposit);
-        ownerService.addMoneyToOwnerBank(owner.getId(),deposit);
-
-        reservation.setReservationDate(LocalDateTime.now());
-        reservation.setStatus(ReservationStatus.PENDING);
-        reservation.setDeposit(deposit);
-
-        mailService.sendReservationNoticeOwner(owner.getMail(), reservation);
-        mailService.sendReservationNoticeClient(client.getMail(), reservation);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservationService.insertReservation(reservation));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of(
+                        "message", "Reserva hecha",
+                        "reservationId", reservation.id(),
+                        "matchDate", reservation.matchDate(),
+                        "status", reservation.status().name()
+                ));
     }
+
 
     @GetMapping("/findall")
     public ResponseEntity<?> getReservations() {
             return ResponseEntity.ok(reservationService.getAllReservations());
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateReservation(@RequestBody Reservation reservation) {
-            return ResponseEntity.ok(reservationService.updateReservation(reservation));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteReservation(@PathVariable Long id) {
-            reservationService.deleteReservation(id);
-            return ResponseEntity.ok(Map.of("message","Reserva eliminada"));
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateReservation(
+            @PathVariable Long id,
+            @RequestBody ReservationRequestDTO reservationRequestDTO) {
+        return ResponseEntity.ok(reservationService.updateReservation(id, reservationRequestDTO));
     }
 
     @GetMapping("/{id}")
@@ -107,38 +60,40 @@ public class ReservationController {
             return ResponseEntity.ok(reservationService.findReservationById(id));
     }
 
-    @GetMapping("/findReservationsByClient")
-    public ResponseEntity<?> findReservationsByClient(Authentication auth){
-        String username = auth.getName();
-
-        return ResponseEntity.ok(reservationService.findReservationsByClient(username));
+    @GetMapping("/findReservationsByClientId/{id}")
+    public ResponseEntity<?> findReservationsByClientId(@PathVariable UUID id){
+        return ResponseEntity.ok(reservationService.findReservationsByClientId(id));
     }
 
-    @GetMapping("/getAvailableHours/{canchaId}/{day}")
-    public ResponseEntity<List<LocalTime>> obtainAvailableHours(
-            @PathVariable Long canchaId,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day) {
-            List<LocalTime> hours = reservationService.getAvailableHours(canchaId, day);
-            if (hours == null || hours.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(hours);
+    @GetMapping("/getAvailableHours/{establishmentId}/{day}/{canchaType}")
+    public ResponseEntity<?> obtainAvailableHours(
+            @PathVariable Long establishmentId,
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+            @PathVariable String canchaType) {
+
+        List<LocalTime> hours = reservationService.getAvailableHoursByType(establishmentId, day, canchaType);
+
+        if (hours == null || hours.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(hours);
     }
 
-    @GetMapping("/getAllMyReservations")
-    @PreAuthorize("hasRole('OWNER')")
-    private ResponseEntity<?> getAllMyReservationsOwner(Long ownerId){
-        return ResponseEntity.ok(reservationService.getReservationsByOwnerId(ownerId));
-    }
-
-    @GetMapping("/getAllMyReservationsByBrand")
-    @PreAuthorize("hasRole('OWNER')")
-    private ResponseEntity<?> getAllMyReservationsByBrand(Long brandId){
-        return ResponseEntity.ok(reservationService.getReservationsByBrandId(brandId));
-    }
 
     @GetMapping("/getReservationsByCanchaId/{canchaId}")
     public ResponseEntity<?> getReservationsByCanchaId(@PathVariable Long canchaId) {
         return ResponseEntity.ok(reservationService.findReservationsByCanchaId(canchaId));
      }
+
+    @GetMapping("/getReservationsByEstablishmentId/{establishmentId}")
+    public ResponseEntity<?> getReservationsByEstablishmentId(@PathVariable Long establishmentId) {
+        return ResponseEntity.ok(reservationService.findReservationsByEstablishmentId(establishmentId));
+    }
+
+
+    @DeleteMapping("/cancelReservation/{id}")
+    public ResponseEntity<?> cancelReservationById(@PathVariable Long id){
+        return ResponseEntity.ok(reservationService.cancelReservation(id));
+    }
 }

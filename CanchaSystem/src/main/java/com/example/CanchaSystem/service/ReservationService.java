@@ -1,27 +1,31 @@
 package com.example.CanchaSystem.service;
 
-
+import com.example.CanchaSystem.Mapper.ReservationMapper;
+import com.example.CanchaSystem.dto.request.ReservationRequestDTO;
+import com.example.CanchaSystem.dto.response.ReservationResponseDTO;
 import com.example.CanchaSystem.exception.cancha.CanchaNotFoundException;
-import com.example.CanchaSystem.exception.client.ClientNotFoundException;
+import com.example.CanchaSystem.exception.establishment.EstablishmentNotFoundException;
 import com.example.CanchaSystem.exception.reservation.IllegalReservationDateException;
 import com.example.CanchaSystem.exception.reservation.NoReservationsException;
 import com.example.CanchaSystem.exception.reservation.ReservationNotFoundException;
+import com.example.CanchaSystem.exception.user.UserNotFoundException;
 import com.example.CanchaSystem.model.*;
 import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.repository.ReservationRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ReservationService {
 
@@ -35,167 +39,245 @@ public class ReservationService {
     private ClientRepository clientRepository;
 
     @Autowired
-    private MailService mailService;
+    private ReservationMapper reservationMapper;
+    @Autowired
+    private ClientService clientService;
+    @Autowired
+    private EstablishmentService establishmentService;
 
 
-    public Reservation insertReservation(Reservation reservation)
+    public ReservationResponseDTO insertReservation(ReservationRequestDTO reservationDTO, Authentication auth)
             throws IllegalReservationDateException {
-        if(!reservationRepository.existsBymatchDateAndCanchaId(reservation.getMatchDate(),reservation.getCancha().getId()))
-            return reservationRepository.save(reservation);
-        else
-            throw new IllegalReservationDateException("La fecha ya esta reservada");
-    }
+        Client client = clientService.findClientOrThrow(auth.getName());
 
-    public List<Reservation> getAllReservations() throws NoReservationsException {
-        if(!reservationRepository.findAll().isEmpty()){
-            return reservationRepository.findAll();
-        }else
-            throw new NoReservationsException("Todavia no hay reservas registradas");
+        LocalDateTime correctedMatchDate = localizeTime(reservationDTO.matchDate());
+        LocalDateTime correctedReservationDate = localizeTime(reservationDTO.reservationDate());
 
-
-    }
-
-    public Reservation updateReservation(Reservation reservation) throws ReservationNotFoundException {
-        Reservation existing = reservationRepository.findById(reservation.getId())
-                .orElseThrow(() ->  new ReservationNotFoundException("Reserva no encontrada"));
-        existing.setStatus(reservation.getStatus());
-        existing.setMatchDate(reservation.getMatchDate());
-        return reservationRepository.save(existing);
-
-    }
-
-    public void deleteReservation(Long id) throws ReservationNotFoundException{
-        if (reservationRepository.existsById(id)) {
-            reservationRepository.deleteById(id);
-        }else
-            throw new ReservationNotFoundException("Reserva no encontrada");
-
-    }
-
-    public Reservation findReservationById(Long id) throws ReservationNotFoundException {
-        return reservationRepository.findById(id).orElseThrow(()-> new ReservationNotFoundException("Reserva no encontrada"));
-    }
-
-    public List<Reservation> findReservationsByClient(String username) throws NoReservationsException {
-        Optional<Client> clientOpt = clientRepository.findByUsernameAndActive(username, true);
-
-        if (clientOpt.isEmpty()) {
-            throw new ClientNotFoundException("Cliente no encontrado");
-        }
-
-        Client client = clientOpt.get();
-
-        List<Reservation> reservations = reservationRepository.findByClientId(client.getId());
-
-        if (!reservations.isEmpty()) {
-            return reservations;
-        } else {
-            throw new NoReservationsException("Todavia no hay reservas hechas por el cliente");
-        }
-
-    }
-
-    public List<Reservation> findReservationsByCanchaId(Long canchaId){
-        return reservationRepository.findByCanchaId(canchaId);
-    }
-
-    public List<LocalTime> getAvailableHours(Long canchaId, LocalDate day)throws CanchaNotFoundException{
-        Cancha canchaAux = canchaRepository.findById(canchaId)
-                .orElseThrow(() -> new CanchaNotFoundException("Cancha no encontrada"));
-
-        LocalTime firstHour = canchaAux.getOpeningHour();
-        List<LocalTime> allHours = new ArrayList<>();
-
-        while (firstHour.isBefore(canchaAux.getClosingHour())){
-            allHours.add(firstHour);
-            firstHour = firstHour.plusHours(1);
-        }
-
-        LocalDateTime from = day.atTime(canchaAux.getOpeningHour());
-        LocalDateTime until = day.atTime(canchaAux.getClosingHour());
-
-        List<Reservation> reservations = reservationRepository
-                .findByCanchaIdAndMatchDateBetweenAndStatus(canchaId,from,until,ReservationStatus.PENDING);
-
-        Set<LocalTime> reservedHours = reservations.stream()
-                .map(reservation -> reservation.getMatchDate().toLocalTime())
-                .collect(Collectors.toSet());
-
-        return allHours.stream()
-                .filter(availableHour -> !reservedHours.contains(availableHour))
-                .collect(Collectors.toList());
-    }
-
-    public Reservation completeReservation(Reservation reservation){
-        if(reservationRepository.existsById(reservation.getId())){
-            reservation.setStatus(ReservationStatus.COMPLETED);
-            return reservationRepository.save(reservation);
-        }else
-            throw new ReservationNotFoundException("Reserva no encontrada");
-    }
-
-    public Reservation cancelReservation(Reservation reservation){
-        if(reservationRepository.existsById(reservation.getId())){
-            reservation.setStatus(ReservationStatus.CANCELED);
-            return reservationRepository.save(reservation);
-        }else
-            throw new ReservationNotFoundException("Reserva no encontrada");
-    }
-
-    public List<Reservation> getReservationsByBrandId(Long brandId) throws NoReservationsException{
-        List<Reservation> reservations = reservationRepository.findAllByBrandId(brandId);
-        if (reservations.isEmpty())
-            throw new NoReservationsException("Todavía no hay reseñas hechas");
-        return reservations;
-    }
-
-    public List<Reservation> getReservationsByOwnerId(Long ownerId) throws NoReservationsException{
-        List<Reservation> reservations = reservationRepository.findAllByOwnerId(ownerId);
-        if (reservations.isEmpty())
-            throw new NoReservationsException("Todavía no hay reseñas hechas");
-        return reservations;
-    }
-
-    @Scheduled(fixedRate = 60000)
-    public void finishPastReservations() {
-        List<Reservation> expired = reservationRepository.findByStatusAndMatchDateBefore(
-                ReservationStatus.PENDING,
-                LocalDateTime.now()
+        List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndCanchaType(
+                reservationDTO.establishmentId(),
+                reservationDTO.canchaType()
         );
 
-        for (Reservation r : expired) {
-            r.setStatus(ReservationStatus.COMPLETED);
-        }
+        if (canchas.isEmpty()) throw new CanchaNotFoundException();
 
-        if (!expired.isEmpty()) {
-            reservationRepository.saveAll(expired);
-        }
+        Cancha canchaDisponible = canchas.stream()
+                .filter(c -> !reservationRepository.existsByMatchDateAndCanchaIdAndStatus(
+                        correctedMatchDate,
+                        c.getId(),
+                        ReservationStatus.PENDING
+                ))
+                .findFirst()
+                .orElseThrow(() -> new IllegalReservationDateException(
+                        "No hay disponibilidad para ese tipo de cancha en ese horario"
+                ));
+
+        Reservation reservation = Reservation.builder()
+                .client(client)
+                .cancha(canchaDisponible)
+                .reservationDate(correctedReservationDate)
+                .matchDate(correctedMatchDate)
+                .status(ReservationStatus.PENDING)
+                .build();
+
+        reservationRepository.save(reservation);
+
+        return reservationMapper.toDto(reservation);
     }
 
-    @Scheduled(fixedRate = 60000)
-    public void notifyReservationCancel() {
-        List<Reservation> cancelled = reservationRepository.findByStatus(ReservationStatus.CANCELED);
+    public Reservation findReservationOrThrow(Long id) {
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new ReservationNotFoundException(id));
+    }
 
-        if (cancelled.isEmpty()) return;
+    private LocalDateTime localizeTime(LocalDateTime time) {
+        return time.atOffset(ZoneOffset.UTC)
+                .withOffsetSameInstant(ZoneOffset.of("-03:00"))
+                .toLocalDateTime();
+    }
 
-        for (Reservation r : cancelled) {
-            Optional<Client> optionalClient = clientRepository.findByIdAndActive(r.getClient().getId(), true);
+    public List<ReservationResponseDTO> getAllReservations() {
+        return reservationMapper.toDto(
+                reservationRepository.findAll()
+        );
+    }
 
-            if (optionalClient.isPresent()) {
-                Client client = optionalClient.get();
-                mailService.sendReservationCancelNotice(client.getMail(), r);
-            }
+    public ReservationResponseDTO updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) throws ReservationNotFoundException {
+        Reservation reservation = findReservationOrThrow(id);
+
+        LocalDateTime correctedMatchDate = localizeTime(reservationRequestDTO.matchDate());
+
+        reservation.setStatus(reservationRequestDTO.status());
+        reservation.setMatchDate(correctedMatchDate);
+
+        reservationRepository.save(reservation);
+        return reservationMapper.toDto(reservation);
+    }
+
+    public ReservationResponseDTO findReservationById(Long id) throws ReservationNotFoundException {
+        return reservationMapper.toDto(
+                findReservationOrThrow(id)
+        );
+    }
+
+    public List<ReservationResponseDTO> findReservationsByClientId(UUID clientId) {
+        if (!clientRepository.existsByIdAndActive(clientId, true)) {
+            throw new UserNotFoundException(clientId, Role.CLIENT);
         }
+
+        return reservationMapper.toDto(
+                reservationRepository.findByClientId(clientId)
+        );
     }
 
 
-    public Optional<Owner> getOwnerFromReservation(Long reservationId) {
-        return reservationRepository.findById(reservationId)
-                .map(Reservation::getCancha)
-                .map(Cancha::getBrand)
-                .map(CanchaBrand::getOwner);
+    public List<ReservationResponseDTO> findReservationsByCanchaId(Long canchaId){
+        return reservationMapper.toDto(
+                reservationRepository.findByCanchaId(canchaId)
+        );
     }
 
+    public List<ReservationResponseDTO> findReservationsByEstablishmentId(Long establishmentId){
+        List<Reservation> reservations = reservationRepository.findByCanchaEstablishmentId(establishmentId);
+
+        if (reservations.isEmpty()) {
+            throw new NoReservationsException("No existen reservas para esa cancha");
+        }
+
+        System.out.println("-----------------------------------------------");
+        System.out.println(reservations);
+
+        return reservationMapper.toDto(reservations);
+    }
+
+    public List<LocalTime> getAvailableHoursByType(Long establishmentId, LocalDate day, String canchaType)
+            throws CanchaNotFoundException, EstablishmentNotFoundException {
+
+        System.out.println("🔍 Step 1: Fetching establishment...");
+        Establishment establishment = establishmentService.findEstablishmentOrThrow(establishmentId);
+
+        System.out.println("🔍 Step 2: Fetching canchas...");
+        List<Cancha> canchas = canchaRepository.findByEstablishmentIdAndActiveAndWorkingAndCanchaType(
+                establishmentId, true, true, CanchaType.valueOf(canchaType)
+        );
+        if (canchas.isEmpty()) throw new CanchaNotFoundException();
+
+        System.out.println("✅ Found " + canchas.size() + " canchas");
+
+        // Normalizar las horas a minutos y segundos en 0
+        LocalTime openingHour = establishment.getOpeningHour()
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        LocalTime closingHour = establishment.getClosingHour()
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        System.out.println("🕐 Opening: " + openingHour + " | Closing: " + closingHour);
+
+        // Validación: evitar bucle infinito
+        if (!openingHour.isBefore(closingHour)) {
+            throw new IllegalStateException(
+                    "Horario de apertura (" + openingHour + ") debe ser antes del horario de cierre (" + closingHour + ")"
+            );
+        }
+
+        // Generar todas las horas posibles
+        List<LocalTime> allHours = new ArrayList<>();
+        LocalTime currentHour = openingHour;
+
+        while (currentHour.isBefore(closingHour)) {
+            allHours.add(currentHour);
+            currentHour = currentHour.plusHours(1);
+        }
+
+        System.out.println("✅ Generated " + allHours.size() + " available hours");
+
+        // Obtener IDs de canchas
+        List<Long> canchaIds = canchas.stream()
+                .map(Cancha::getId)
+                .toList();
+
+        LocalDateTime from = day.atTime(openingHour);
+        LocalDateTime until = day.atTime(closingHour);
+
+        System.out.println("🔍 Step 3: Fetching reservations...");
+
+        // Obtener SOLO las fechas de las reservas (no entidades completas)
+        List<LocalDateTime> matchDates = reservationRepository.findMatchDatesByCanchaIdsAndDateRange(
+                canchaIds, from, until, ReservationStatus.PENDING
+        );
+
+        System.out.println("✅ Found " + matchDates.size() + " reservations");
+
+        // Contar reservas por hora
+        Map<LocalTime, Long> reservationsCount = matchDates.stream()
+                .collect(Collectors.groupingBy(
+                        dateTime -> dateTime.toLocalTime()
+                                .withMinute(0)
+                                .withSecond(0)
+                                .withNano(0),
+                        Collectors.counting()
+                ));
+
+        int totalCanchas = canchas.size();
+        System.out.println("CANTIDAD DE CANCHAS: " + totalCanchas);
+
+        // Filtrar horas disponibles
+        List<LocalTime> availableHours = allHours.stream()
+                .filter(hour -> reservationsCount.getOrDefault(hour, 0L) < totalCanchas)
+                .toList();
+
+        System.out.println("✅ Available hours: " + availableHours);
+
+        return availableHours;
+    }
+
+
+    public Reservation completeReservation(Long id) {
+        Reservation reservation = findReservationOrThrow(id);
+
+        reservation.setStatus(ReservationStatus.COMPLETED);
+
+        return reservationRepository.save(reservation);
+    }
+
+    public Reservation cancelReservation(Long id) {
+        Reservation reservation = findReservationOrThrow(id);
+
+        reservation.setStatus(ReservationStatus.CANCELED);
+
+        return reservationRepository.save(reservation);
+    }
+
+    @Scheduled(cron = "0 0 * * * ?")
+    public void completePastReservations() {
+        LocalDateTime now = LocalDateTime.now();
+        List<Reservation> toComplete =
+                reservationRepository.findByMatchDateBeforeAndStatus(now, ReservationStatus.PENDING);
+
+        toComplete.forEach(r -> r.setStatus(ReservationStatus.COMPLETED));
+
+        reservationRepository.saveAll(toComplete); // AHORA COMITEA SIN VALIDATION FAILURE
+    }
+
+
+//    @Scheduled(fixedRate = 60000)
+//    public void notifyReservationCancel() {
+//        List<Reservation> cancelled = reservationRepository.findByStatus(ReservationStatus.CANCELED);
+//
+//        if (cancelled.isEmpty()) return;
+//
+//        for (Reservation r : cancelled) {
+//            Optional<Client> optionalClient = clientRepository.findByIdAndActive(r.getClient().getId(), true);
+//
+//            if (optionalClient.isPresent()) {
+//                Client client = optionalClient.get();
+//                mailService.sendReservationCancelNotice(client.getMail(), r);
+//            }
+//        }
+//    }
 
 }
 
