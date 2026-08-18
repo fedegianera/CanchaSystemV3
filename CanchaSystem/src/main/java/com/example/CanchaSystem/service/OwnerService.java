@@ -10,6 +10,7 @@ import com.example.CanchaSystem.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,6 +25,12 @@ public class OwnerService {
 
     @Autowired
     private CanchaBrandRepository brandRepository;
+
+    @Autowired
+    private EstablishmentService establishmentService;
+
+    @Autowired
+    private EstablishmentRepository establishmentRepository;
 
     @Autowired
     private OwnerMapper ownerMapper;
@@ -129,13 +136,24 @@ public class OwnerService {
         owner.setCellNumber(ownerDto.cellNumber());
     }
 
+    @Transactional
     public Owner deleteOwner(UUID ownerId) throws UserNotFoundException {
         Owner owner = findOwnerOrThrow(ownerId);
 
         brandRepository.findByOwnerIdAndActive(ownerId, true).forEach(brand -> {
+            establishmentRepository.findByBrandIdAndActive(brand.getId(), true).forEach(establishment ->
+                    establishmentService.deleteEstablishment(establishment.getId()));
+
             brand.setActive(false);
             brandRepository.save(brand);
         });
+
+        // libera username/mail/cellNumber para que se puedan reusar en un registro nuevo
+        owner.setUsername(owner.getUsername() + "_deleted_" + owner.getId());
+        owner.setMail(owner.getMail() + "_deleted_" + owner.getId());
+        if (owner.getCellNumber() != null) {
+            owner.setCellNumber(owner.getCellNumber() + "_deleted_" + owner.getId());
+        }
 
         owner.setActive(false);
         return ownerRepository.save(owner);
@@ -147,4 +165,3 @@ public class OwnerService {
         );
     }
 }
-

@@ -26,9 +26,6 @@ public class EstablishmentStatisticsService {
     @Autowired
     private ReviewRepository reviewRepository;
 
-    /**
-     * Ranking de las sucursales del owner por promedio de reviews (de mayor a menor).
-     */
     public List<EstablishmentMetricDTO> getEstablishmentsRankedByRating(UUID ownerId) {
         Map<Long, String> namesById = getOwnerEstablishmentNames(ownerId);
 
@@ -45,9 +42,6 @@ public class EstablishmentStatisticsService {
                 .toList();
     }
 
-    /**
-     * Ranking de las sucursales del owner por cantidad de reservas (de mayor a menor).
-     */
     public List<EstablishmentMetricDTO> getEstablishmentsRankedByReservationCount(UUID ownerId) {
         Map<Long, String> namesById = getOwnerEstablishmentNames(ownerId);
         List<Long> establishmentIds = namesById.keySet().stream().toList();
@@ -66,10 +60,7 @@ public class EstablishmentStatisticsService {
                 .toList();
     }
 
-    /**
-     * Cantidad de reservas agrupadas por hora del partido (matchDate), para todas las
-     * sucursales del owner. Sirve para armar el gráfico de barras de horas pico.
-     */
+    // agrupa por hora del partido (matchDate), para el gráfico de horas pico
     public List<PeakHourDTO> getPeakHours(UUID ownerId) {
         List<Long> establishmentIds = getOwnerEstablishmentNames(ownerId).keySet().stream().toList();
 
@@ -85,9 +76,7 @@ public class EstablishmentStatisticsService {
                 .toList();
     }
 
-    /**
-     * Tasa de cancelación (0 a 1) por sucursal: reservas CANCELED / total de reservas de esa sucursal.
-     */
+    // canceladas / total de reservas por sucursal
     public List<EstablishmentMetricDTO> getCancellationRateByEstablishment(UUID ownerId) {
         Map<Long, String> namesById = getOwnerEstablishmentNames(ownerId);
         List<Long> establishmentIds = namesById.keySet().stream().toList();
@@ -120,9 +109,7 @@ public class EstablishmentStatisticsService {
                 .toList();
     }
 
-    /**
-     * Ingresos por sucursal, contando únicamente reservas COMPLETED.
-     */
+    // solo cuenta reservas COMPLETED
     public List<EstablishmentMetricDTO> getRevenueByEstablishment(UUID ownerId) {
         Map<Long, String> namesById = getOwnerEstablishmentNames(ownerId);
         List<Long> establishmentIds = namesById.keySet().stream().toList();

@@ -19,6 +19,7 @@ public interface ClientRepository extends JpaRepository<Client, UUID> {
    long countByActive(boolean active);
    Optional<Client> findByUsernameAndActive(String username, boolean active);
    Optional<Client> findByUsernameAndActiveAndVerified(String username, boolean active, boolean verified);
+   Optional<Client> findByUsername(String username);
 
    Optional<Client> findByIdAndActive(UUID id, boolean active);
 

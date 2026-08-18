@@ -148,6 +148,13 @@ public class ClientService {
             reservationRepository.save(reservation);
         });
 
+        // libera username/mail/cellNumber para que se puedan reusar en un registro nuevo
+        client.setUsername(client.getUsername() + "_deleted_" + client.getId());
+        client.setMail(client.getMail() + "_deleted_" + client.getId());
+        if (client.getCellNumber() != null) {
+            client.setCellNumber(client.getCellNumber() + "_deleted_" + client.getId());
+        }
+
         client.setActive(false);
         return clientRepository.save(client);
     }

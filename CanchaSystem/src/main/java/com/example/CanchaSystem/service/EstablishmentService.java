@@ -17,6 +17,7 @@ import com.example.CanchaSystem.repository.EstablishmentRepository;
 import com.example.CanchaSystem.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -123,12 +124,12 @@ public class EstablishmentService {
                 .toList();
     }
 
+    @Transactional
     public void deleteEstablishment(Long establishmentId) {
         Establishment establishment = findEstablishmentOrThrow(establishmentId);
 
         canchaService.getActiveCanchasByEstablishmentId(establishmentId).forEach(cancha ->
                 canchaService.deleteCancha(cancha.id()));
-        addressService.deleteAddressById(establishment.getId());
 
         establishment.setActive(false);
         establishmentRepository.save(establishment);

@@ -5,7 +5,9 @@ import com.example.CanchaSystem.dto.request.PasswordResetRequestDTO;
 import com.example.CanchaSystem.dto.request.ResetPasswordDTO;
 import com.example.CanchaSystem.dto.request.VerifyResetCodeDTO;
 import com.example.CanchaSystem.dto.response.AuthResponseDTO;
+import com.example.CanchaSystem.model.Client;
 import com.example.CanchaSystem.model.Role;
+import com.example.CanchaSystem.repository.ClientRepository;
 import com.example.CanchaSystem.service.JWTService;
 import com.example.CanchaSystem.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import com.example.CanchaSystem.service.PasswordResetService;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -35,8 +38,22 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ClientRepository clientRepository;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequestDTO) {
+        Optional<Client> maybeClient = clientRepository.findByUsername(authRequestDTO.username());
+        if (maybeClient.isPresent()) {
+            Client client = maybeClient.get();
+            if (!client.isVerified()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Debés verificar tu email antes de iniciar sesión");
+            }
+            if (!client.isActive()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Tu cuenta se encuentra inactiva");
+            }
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequestDTO.username(),

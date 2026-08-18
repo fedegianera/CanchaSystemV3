@@ -14,6 +14,7 @@ import com.example.CanchaSystem.repository.CanchaRepository;
 import com.example.CanchaSystem.repository.EstablishmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -76,6 +77,7 @@ public class CanchaBrandService {
         return brandMapper.toDto(brand);
     }
 
+    @Transactional
     public void deleteCanchaBrand(Long canchaBrandId) {
         Brand brand = findBrandOrThrow(canchaBrandId);
 

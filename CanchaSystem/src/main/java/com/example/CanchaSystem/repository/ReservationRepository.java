@@ -62,6 +62,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     @Query("""
     SELECT r.cancha.establishment.id, r.cancha.establishment.name, COUNT(r)
     FROM Reservation r
+    WHERE r.cancha.establishment.active = true
     GROUP BY r.cancha.establishment.id, r.cancha.establishment.name
     ORDER BY COUNT(r) DESC
     """)
@@ -71,6 +72,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     SELECT r.cancha.establishment.id, r.cancha.establishment.name, COUNT(r)
     FROM Reservation r
     WHERE r.matchDate BETWEEN :from AND :until
+    AND r.cancha.establishment.active = true
     GROUP BY r.cancha.establishment.id, r.cancha.establishment.name
     ORDER BY COUNT(r) DESC
     """)
